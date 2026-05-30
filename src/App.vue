@@ -26,19 +26,34 @@ function loadStoredValue(key, fallback) {
 }
 
 const navItems = [
-  ["Packages", "#packages"],
-  ["Destinations", "#destinations"],
-  ["Booking", "#booking"],
-  ["Contact", "#contact"],
+  ["Home", "/"],
+  ["Packages", "/packages"],
+  ["Destinations", "/destinations"],
+  ["Booking", "/booking"],
+  ["Contact", "/contact"],
 ];
 
-const currentPath = ref(window.location.pathname);
+const publicRoutes = {
+  "/": "home",
+  "/packages": "packages",
+  "/destinations": "destinations",
+  "/booking": "booking",
+  "/contact": "contact",
+};
+
+function normalizePath(path) {
+  const cleanPath = path.endsWith("/") && path.length > 1 ? path.slice(0, -1) : path;
+  if (cleanPath === "/admin/login") return cleanPath;
+  return publicRoutes[cleanPath] ? cleanPath : "/";
+}
+
+const currentPath = ref(normalizePath(window.location.pathname));
 const isAdminRoute = computed(() => currentPath.value === "/admin/login");
 const isMenuOpen = ref(false);
-const activeSection = ref("home");
 const activeFilter = ref("all");
 const activeAdminTab = ref("packages");
 const openFaqs = ref([0]);
+const currentPage = computed(() => publicRoutes[currentPath.value] || "home");
 
 const defaultSiteContent = {
   heroBadge: "Premium Kashmir adventure tourism",
@@ -121,10 +136,9 @@ const filteredPackages = computed(() => {
 
 const defaultGalleryImages = ["image03", "image04", "image05", "image06", "image09", "image10", "image11", "image13", "image15", "image16", "image17", "image18"];
 const galleryImages = ref(loadStoredValue("kashmir-gallery-images", defaultGalleryImages));
-const heroCarouselImages = ["image17", "image10", "image12", "image13", "image16", "image04"];
 
 const heroStyle = computed(() => ({
-  backgroundImage: `linear-gradient(90deg, rgba(7, 24, 39, 0.86), rgba(7, 24, 39, 0.48), rgba(7, 24, 39, 0.18)), url('${image("image23")}')`,
+  backgroundImage: `linear-gradient(90deg, rgba(7, 24, 39, 0.88), rgba(7, 24, 39, 0.52), rgba(7, 24, 39, 0.2)), linear-gradient(0deg, rgba(7, 24, 39, 0.62), transparent 42%), url('${image("image23")}')`,
 }));
 
 const activities = [
@@ -153,6 +167,39 @@ const faqs = [
   ["Can this connect to real payment and weather APIs?", "The front-end is structured for Razorpay, Stripe, UPI, live weather, AI chatbot, multilingual content, and backend admin integration."],
 ];
 
+const packageBenefits = [
+  ["Private cab", "Airport pickup, intercity transfers, sightseeing stops, and driver coordination are planned before arrival."],
+  ["Stay options", "Houseboats, boutique hotels, family rooms, heated winter stays, and luxury resorts can be matched to budget."],
+  ["Activity support", "Skiing, Gondola, pony rides, camping, guides, snow activities, and permits are coordinated by local teams."],
+  ["Trip safety", "Weather checks, backup timing, route updates, and on-call support help guests travel with confidence."],
+];
+
+const seasonalPlans = [
+  ["Winter", "December to March", "Gulmarg skiing, snowfall days, snowmobile rides, heated stays, and short scenic routes."],
+  ["Spring", "March to May", "Tulip Garden, Mughal Gardens, Dal Lake, soft adventure, and relaxed family sightseeing."],
+  ["Summer", "May to September", "Pahalgam, Sonamarg, alpine meadows, pony rides, trekking, camping, and river views."],
+  ["Autumn", "October to November", "Chinar colors, quiet stays, premium photography routes, and honeymoon-friendly pacing."],
+];
+
+const routeIdeas = [
+  ["Classic Kashmir Circuit", "Srinagar -> Gulmarg -> Pahalgam -> Sonamarg", "Best for first-time guests who want lakes, snow points, valleys, and gardens in one balanced plan."],
+  ["Honeymoon Slow Route", "Srinagar -> Gulmarg -> Pahalgam", "Premium stays, private cab time, Shikara rides, candlelight dinner, and relaxed late starts."],
+  ["Adventure Route", "Gulmarg -> Sonamarg -> Pahalgam", "Built around snow sports, trekking, camping, pony trails, and mountain-view days."],
+];
+
+const bookingSteps = [
+  ["01", "Share dates", "Send travel month, group size, preferred destinations, and budget range."],
+  ["02", "Get route plan", "Receive a practical day-wise Kashmir itinerary with hotel and activity options."],
+  ["03", "Confirm booking", "Lock the package with advance payment and receive confirmation details."],
+  ["04", "Travel support", "Get pickup coordination, daily check-ins, weather guidance, and emergency help."],
+];
+
+const supportCards = [
+  ["Fast quote", "Most inquiries can receive a route and price range quickly on WhatsApp."],
+  ["Custom changes", "Trips can be adjusted for elders, kids, honeymooners, photographers, and group travel."],
+  ["Local guidance", "Get help with timing, snow conditions, clothing, permits, and realistic travel distances."],
+];
+
 const selectedPackage = ref(packages.value[0]?.price || 0);
 const travelers = ref(2);
 const priceClass = ref(1);
@@ -179,21 +226,21 @@ const adminTabs = [
   ["reports", "Reports"],
 ];
 
-function sectionFromHref(href) {
-  return href.replace("#", "");
+function navigateTo(path) {
+  const nextPath = normalizePath(path);
+
+  if (currentPath.value !== nextPath) {
+    window.history.pushState({}, "", nextPath);
+    currentPath.value = nextPath;
+  }
+
+  isMenuOpen.value = false;
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function updateActiveSection() {
-  const sectionIds = ["home", "packages", "destinations", "booking", "contact"];
-  const current = sectionIds
-    .map((id) => {
-      const element = document.getElementById(id);
-      return element ? { id, top: Math.abs(element.getBoundingClientRect().top - 120) } : null;
-    })
-    .filter(Boolean)
-    .sort((a, b) => a.top - b.top)[0];
-
-  if (current) activeSection.value = current.id;
+function handlePopState() {
+  currentPath.value = normalizePath(window.location.pathname);
+  isMenuOpen.value = false;
 }
 
 function toggleFaq(index) {
@@ -317,15 +364,11 @@ function deleteGalleryImage(index) {
 }
 
 onMounted(() => {
-  updateActiveSection();
-  window.addEventListener("scroll", updateActiveSection, { passive: true });
-  window.addEventListener("popstate", () => {
-    currentPath.value = window.location.pathname;
-  });
+  window.addEventListener("popstate", handlePopState);
 });
 
 onUnmounted(() => {
-  window.removeEventListener("scroll", updateActiveSection);
+  window.removeEventListener("popstate", handlePopState);
 });
 </script>
 
@@ -502,7 +545,7 @@ onUnmounted(() => {
   <template v-else>
     <header class="fixed inset-x-0 top-0 z-50 px-4 py-3">
       <nav class="glass-nav mx-auto flex max-w-7xl items-center justify-between rounded-lg px-4 py-3">
-        <a href="#home" class="flex items-center gap-3" aria-label="Kashmir Alpine Co. home">
+        <a href="/" class="flex items-center gap-3" aria-label="Kashmir Alpine Co. home" @click.prevent="navigateTo('/')">
           <span class="grid h-10 w-10 place-items-center rounded-lg bg-night text-sm font-black text-white">KA</span>
           <span class="text-base font-black tracking-tight text-night">Kashmir Alpine Co.</span>
         </a>
@@ -513,7 +556,8 @@ onUnmounted(() => {
             :key="label"
             :href="href"
             class="rounded-lg px-4 py-2 transition"
-            :class="activeSection === sectionFromHref(href) ? 'bg-night text-white shadow-lift' : 'hover:bg-white/[0.55] hover:text-lake'"
+            :class="currentPath === href ? 'bg-night text-white shadow-lift' : 'hover:bg-white/[0.55] hover:text-lake'"
+            @click.prevent="navigateTo(href)"
           >
             {{ label }}
           </a>
@@ -521,7 +565,7 @@ onUnmounted(() => {
 
         <div class="hidden items-center gap-2 sm:flex">
           <a href="https://wa.me/919729968734?text=I%20want%20to%20book%20a%20Kashmir%20tour" class="rounded-lg border border-night/10 px-4 py-2 text-sm font-extrabold text-night hover:border-lake hover:text-lake">WhatsApp</a>
-          <a href="#booking" class="rounded-lg bg-gold px-4 py-2 text-sm font-extrabold text-night shadow-lift hover:bg-white">Book Now</a>
+          <a href="/booking" class="rounded-lg bg-gold px-4 py-2 text-sm font-extrabold text-night shadow-lift hover:bg-white" @click.prevent="navigateTo('/booking')">Book Now</a>
         </div>
 
         <button class="grid h-10 w-10 place-items-center rounded-lg border border-night/10 text-night lg:hidden" aria-label="Open menu" @click="isMenuOpen = !isMenuOpen">
@@ -530,47 +574,36 @@ onUnmounted(() => {
       </nav>
 
       <div v-if="isMenuOpen" class="glass-nav mx-auto mt-2 grid max-w-7xl rounded-lg px-4 py-4 text-sm font-bold text-night">
-        <a v-for="[label, href] in navItems" :key="label" :href="href" class="rounded-lg px-3 py-2" :class="activeSection === sectionFromHref(href) ? 'bg-night text-white' : ''" @click="isMenuOpen = false">
+        <a v-for="[label, href] in navItems" :key="label" :href="href" class="rounded-lg px-3 py-2" :class="currentPath === href ? 'bg-night text-white' : ''" @click.prevent="navigateTo(href)">
           {{ label }}
         </a>
       </div>
     </header>
 
-    <main id="home">
-      <section class="hero-media relative min-h-[92vh] overflow-hidden pt-28 text-white" :style="heroStyle">
-        <div class="mx-auto grid max-w-6xl gap-8 px-4 pb-14 pt-12 sm:px-6 lg:grid-cols-[0.92fr_0.86fr] lg:items-center lg:pt-20">
-          <div class="max-w-2xl">
+    <main>
+      <section v-if="currentPage === 'home'" class="hero-media relative flex min-h-screen overflow-hidden pt-28 text-white" :style="heroStyle">
+        <div class="mx-auto flex w-full max-w-7xl flex-col justify-end gap-8 px-4 pb-14 pt-16 sm:px-6 lg:pb-20">
+          <div class="max-w-3xl">
             <p class="mb-5 inline-flex rounded-lg border border-white/20 bg-white/[0.12] px-4 py-2 text-xs font-black uppercase tracking-[0.18em] backdrop-blur">{{ siteContent.heroBadge }}</p>
             <h1 class="font-display text-4xl font-extrabold leading-[1.04] sm:text-5xl lg:text-6xl xl:text-7xl">{{ siteContent.heroTitle }}</h1>
             <p class="mt-5 max-w-xl text-base leading-7 text-white/[0.86] sm:text-lg">{{ siteContent.heroSubtitle }}</p>
 
             <div class="mt-7 flex flex-col gap-3 sm:flex-row">
-              <a href="#booking" class="rounded-lg bg-gold px-6 py-3.5 text-center text-sm font-black text-night shadow-premium hover:bg-white">Book Now</a>
-              <a href="#packages" class="rounded-lg border border-white/[0.24] bg-white/[0.12] px-6 py-3.5 text-center text-sm font-black text-white backdrop-blur hover:bg-white/[0.18]">Explore Packages</a>
+              <a href="/booking" class="rounded-lg bg-gold px-6 py-3.5 text-center text-sm font-black text-night shadow-premium hover:bg-white" @click.prevent="navigateTo('/booking')">Book Now</a>
+              <a href="/packages" class="rounded-lg border border-white/[0.24] bg-white/[0.12] px-6 py-3.5 text-center text-sm font-black text-white backdrop-blur hover:bg-white/[0.18]" @click.prevent="navigateTo('/packages')">Explore Packages</a>
               <a href="https://wa.me/919729968734?text=I%20want%20instant%20Kashmir%20booking%20support" class="rounded-lg border border-white/[0.24] bg-white px-6 py-3.5 text-center text-sm font-black text-night hover:bg-frost">WhatsApp Now</a>
             </div>
           </div>
 
-          <aside class="premium-card w-full max-w-xl justify-self-center rounded-lg p-4 text-night lg:justify-self-end">
-            <div class="grid gap-3 sm:grid-cols-3">
-              <div class="glass-tile rounded-lg p-4"><p class="text-2xl font-black">4.9</p><p class="mt-1 text-xs font-bold text-night/60">Guest rating</p></div>
-              <div class="glass-tile rounded-lg p-4"><p class="text-2xl font-black">24/7</p><p class="mt-1 text-xs font-bold text-night/60">Support</p></div>
-              <div class="glass-tile rounded-lg p-4"><p class="text-2xl font-black">120+</p><p class="mt-1 text-xs font-bold text-night/60">Tour plans</p></div>
-            </div>
-            <div class="mt-4 overflow-hidden rounded-lg">
-              <div class="relative h-64 bg-night/10">
-                <div v-for="(sliderImage, index) in heroCarouselImages" :key="`${sliderImage}-${index}`" class="hero-fade-slide image-cover absolute inset-0 h-full w-full" :style="imageStyle(sliderImage)"></div>
-              </div>
-            </div>
-            <div class="mt-4 flex items-center justify-between gap-3">
-              <div><p class="text-sm font-black text-lake">Featured winter route</p><p class="text-xl font-black">Gulmarg Snow Adventure</p></div>
-              <p class="rounded-lg bg-night px-3 py-2 text-sm font-black text-white">From INR 18,500</p>
-            </div>
-          </aside>
+          <div class="grid gap-3 sm:grid-cols-3 lg:max-w-3xl">
+            <div class="rounded-lg border border-white/20 bg-white/[0.12] p-4 backdrop-blur"><p class="text-2xl font-black">4.9</p><p class="mt-1 text-xs font-bold text-white/70">Guest rating</p></div>
+            <div class="rounded-lg border border-white/20 bg-white/[0.12] p-4 backdrop-blur"><p class="text-2xl font-black">24/7</p><p class="mt-1 text-xs font-bold text-white/70">Support</p></div>
+            <div class="rounded-lg border border-white/20 bg-white/[0.12] p-4 backdrop-blur"><p class="text-2xl font-black">120+</p><p class="mt-1 text-xs font-bold text-white/70">Tour plans</p></div>
+          </div>
         </div>
       </section>
 
-      <section class="section-band py-16">
+      <section v-if="currentPage === 'home'" class="section-band py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-8">
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Featured activities</p>
@@ -586,7 +619,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section id="packages" class="bg-white py-16">
+      <section v-if="currentPage === 'packages'" id="packages" class="min-h-screen bg-white pb-16 pt-32">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -619,7 +652,39 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section id="destinations" class="section-band py-16">
+      <section v-if="currentPage === 'packages'" class="section-band py-16">
+        <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.82fr_1.18fr]">
+          <div>
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">What is included</p>
+            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Packages built around the full trip, not only rooms.</h2>
+            <p class="mt-5 text-base leading-7 text-night/[0.62]">Every package can combine stay, cab, activities, route planning, and local support so guests know what they are paying for before they arrive.</p>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <article v-for="[title, text] in packageBenefits" :key="title" class="premium-card rounded-lg p-5">
+              <h3 class="text-xl font-black text-night">{{ title }}</h3>
+              <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'packages'" class="bg-white py-16">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="mb-8 max-w-4xl">
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Season planning</p>
+            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Choose the right Kashmir package by month.</h2>
+          </div>
+          <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <article v-for="[season, months, text] in seasonalPlans" :key="season" class="premium-card rounded-lg p-5">
+              <p class="text-sm font-black uppercase tracking-[0.18em] text-lake">{{ months }}</p>
+              <h3 class="mt-3 text-2xl font-black text-night">{{ season }}</h3>
+              <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'destinations'" id="destinations" class="section-band min-h-screen pb-16 pt-32">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-8">
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Destinations</p>
@@ -637,7 +702,40 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section id="booking" class="bg-white py-16">
+      <section v-if="currentPage === 'destinations'" class="bg-white py-16">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="mb-8 max-w-4xl">
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Route builder</p>
+            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Plan destinations in a route that actually works.</h2>
+          </div>
+          <div class="grid gap-5 lg:grid-cols-3">
+            <article v-for="[title, route, text] in routeIdeas" :key="title" class="premium-card rounded-lg p-5">
+              <p class="text-sm font-black text-lake">{{ route }}</p>
+              <h3 class="mt-3 text-2xl font-black text-night">{{ title }}</h3>
+              <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'destinations'" class="section-band py-16">
+        <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="image-cover h-80 rounded-lg sm:h-96" :style="imageStyle('image23')"></div>
+            <div class="grid gap-4">
+              <div class="image-cover h-44 rounded-lg" :style="imageStyle('image10')"></div>
+              <div class="image-cover h-44 rounded-lg" :style="imageStyle('image22')"></div>
+            </div>
+          </div>
+          <div>
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Travel style</p>
+            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Lake, snow, garden, valley, and adventure days can all feel different.</h2>
+            <p class="mt-5 text-base leading-7 text-night/[0.62]">Use Destinations to sell more than names. Show guests which places are best for families, honeymooners, winter sports, photography, and relaxed sightseeing.</p>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'booking'" id="booking" class="min-h-screen bg-white pb-16 pt-32">
         <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Booking system</p>
@@ -691,7 +789,38 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section id="gallery" class="section-band py-16">
+      <section v-if="currentPage === 'booking'" class="section-band py-16">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="mb-8 max-w-4xl">
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">How booking works</p>
+            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">A simple flow from inquiry to confirmed Kashmir trip.</h2>
+          </div>
+          <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <article v-for="[step, title, text] in bookingSteps" :key="step" class="premium-card rounded-lg p-5">
+              <p class="text-3xl font-black text-lake">{{ step }}</p>
+              <h3 class="mt-4 text-xl font-black text-night">{{ title }}</h3>
+              <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'booking'" class="bg-white py-16">
+        <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.05fr]">
+          <div>
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Payment options</p>
+            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Advance, balance, and confirmation details stay clear.</h2>
+            <p class="mt-5 text-base leading-7 text-night/[0.62]">Use this page to explain advance amount, cancellation notes, pickup timing, guest details, and what the team sends after payment.</p>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-3">
+            <div class="rounded-lg bg-frost p-5 shadow-lift"><p class="text-2xl font-black text-night">UPI</p><p class="mt-2 text-sm leading-6 text-night/[0.62]">Instant domestic advance collection.</p></div>
+            <div class="rounded-lg bg-frost p-5 shadow-lift"><p class="text-2xl font-black text-night">Card</p><p class="mt-2 text-sm leading-6 text-night/[0.62]">Razorpay or Stripe ready layout.</p></div>
+            <div class="rounded-lg bg-frost p-5 shadow-lift"><p class="text-2xl font-black text-night">Manual</p><p class="mt-2 text-sm leading-6 text-night/[0.62]">Offline confirmation and invoice support.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'home'" id="gallery" class="section-band py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-8 max-w-4xl">
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Media gallery</p>
@@ -704,25 +833,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section class="bg-white py-16">
-        <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_0.9fr]">
-          <div>
-            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">FAQ</p>
-            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Clear answers before booking.</h2>
-            <div class="mt-6 grid gap-3">
-              <div v-for="([question, answer], index) in faqs" :key="question" class="premium-card rounded-lg p-5">
-                <button class="flex w-full items-center justify-between gap-4 text-left text-lg font-black" @click="toggleFaq(index)">{{ question }}<span>+</span></button>
-                <p v-if="openFaqs.includes(index)" class="mt-3 text-sm leading-6 text-night/[0.64]">{{ answer }}</p>
-              </div>
-            </div>
-          </div>
-          <div class="premium-card overflow-hidden rounded-lg">
-            <iframe title="Kashmir map" class="h-[32rem] w-full" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Srinagar%20Kashmir&output=embed"></iframe>
-          </div>
-        </div>
-      </section>
-
-      <section id="contact" class="section-band py-16">
+      <section v-if="currentPage === 'contact'" id="contact" class="section-band min-h-screen pb-16 pt-32">
         <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Contact</p>
@@ -746,6 +857,39 @@ onUnmounted(() => {
               <a href="https://wa.me/919729968734?text=I%20want%20to%20book%20a%20Kashmir%20tour" class="rounded-lg border border-night/[0.12] px-5 py-3 text-center text-sm font-black text-night hover:border-lake hover:text-lake">WhatsApp Live Chat</a>
             </div>
           </form>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'contact'" class="bg-white py-16">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="mb-8 max-w-4xl">
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Guest support</p>
+            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Help before booking, during travel, and after arrival.</h2>
+          </div>
+          <div class="grid gap-4 md:grid-cols-3">
+            <article v-for="[title, text] in supportCards" :key="title" class="premium-card rounded-lg p-5">
+              <h3 class="text-2xl font-black text-night">{{ title }}</h3>
+              <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'contact'" class="section-band py-16">
+        <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_0.9fr]">
+          <div>
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Common questions</p>
+            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Answer the important details before guests message.</h2>
+            <div class="mt-6 grid gap-3">
+              <div v-for="([question, answer], index) in faqs" :key="question" class="premium-card rounded-lg p-5">
+                <button class="flex w-full items-center justify-between gap-4 text-left text-lg font-black" @click="toggleFaq(index)">{{ question }}<span>+</span></button>
+                <p v-if="openFaqs.includes(index)" class="mt-3 text-sm leading-6 text-night/[0.64]">{{ answer }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="premium-card overflow-hidden rounded-lg">
+            <iframe title="Kashmir contact map" class="h-[32rem] w-full" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Srinagar%20Kashmir&output=embed"></iframe>
+          </div>
         </div>
       </section>
     </main>
