@@ -11,8 +11,13 @@ function image(name) {
   return imageAssets[`./assets/kashmir/${name}.jpeg`];
 }
 
+function imageSource(name, fallback = "image23") {
+  if (name?.startsWith("data:") || name?.startsWith("http") || name?.startsWith("/")) return name;
+  return image(name) || image(fallback);
+}
+
 function imageStyle(name) {
-  const source = name?.startsWith("data:") || name?.startsWith("http") || name?.startsWith("/") ? name : image(name);
+  const source = imageSource(name);
   return { backgroundImage: `url('${source}')` };
 }
 
@@ -44,7 +49,7 @@ const moreMenuItems = [
 ];
 
 const publicRoutes = {
-  "/": "about",
+  "/": "home",
   "/about": "about",
   "/packages": "packages",
   "/destinations": "destinations",
@@ -213,11 +218,17 @@ function displayDuration(duration) {
 
 const detailWhatsappLink = computed(() => {
   const message = `I want details for ${detailPackage.value?.name || "a Kashmir package"}`;
-  return `https://wa.me/919729968734?text=${encodeURIComponent(message)}`;
+  return `https://wa.me/919055020408?text=${encodeURIComponent(message)}`;
 });
 
-const defaultGalleryImages = ["image03", "image04", "image05", "image06", "image09", "image10", "image11", "image13", "image15", "image16", "image17", "image18"];
+const defaultGalleryImages = ["image03", "image04", "image05", "image06", "image09", "image10", "image11", "image13", "image15", "image16", "image17", "image18", "image19", "image20"];
 const galleryImages = ref(loadStoredValue("kashmir-gallery-images", defaultGalleryImages));
+const displayGalleryImages = computed(() => {
+  const savedImages = Array.isArray(galleryImages.value) ? galleryImages.value.filter((item) => Boolean(item) && imageSource(item)) : [];
+  const fallbackImages = defaultGalleryImages.filter((item) => !savedImages.includes(item));
+  return [...savedImages, ...fallbackImages].slice(0, 12);
+});
+const homeGalleryImages = ["image03", "image04", "image05", "image06", "image09", "image10", "image18", "image20"];
 
 const galleryCollections = [
   ["Snow Days", "image08", "Gulmarg skiing, snowmobile rides, Gondola views, and winter portraits for families, couples, and groups."],
@@ -268,28 +279,198 @@ const heroStyle = computed(() => ({
 
 const activities = [
   ["SKI", "Skiing", "Gulmarg slopes, trainers, gear, and peak-season support."],
-  ["TRK", "Trekking", "Pahalgam and Sonamarg trails with certified local guides."],
-  ["CMP", "Camping", "Tenting, bonfires, alpine meals, and safety-led routes."],
-  ["GND", "Gondola Ride", "Gulmarg Gondola coordination with weather-aware planning."],
-  ["HRS", "Horse Riding", "Meadow rides around Betaab Valley and local scenic points."],
-  ["FSH", "Fishing", "Calm river days with permit guidance and local experts."],
-  ["SNW", "Snow Adventure", "Snowmobile, sledging, snowfall shoots, and winter transfers."],
-  ["NTR", "Nature Exploration", "Lakes, gardens, forests, viewpoints, and soft adventure days."],
+  ["TRK", "Trekking", "Great Lakes, Tarsar-Marsar, Gangbal, Aru, Sonamarg, and Pahalgam guided routes."],
+  ["CMP", "Camping", "Sonamarg, Aru Valley, Doodhpathri, Yusmarg, and Great Lakes camp setups."],
+  ["GND", "Gondola Ride", "Gulmarg Gondola ticket guidance, transfers, weather checks, and view-point timing."],
+  ["HRS", "Horse Riding", "Meadow rides around Betaab Valley, Baisaran, Sonamarg, and local scenic points."],
+  ["PIC", "Photography", "Lake, garden, snow, meadow, glacier, and honeymoon photo routes with local timing."],
+  ["SNW", "Snow Adventure", "Snowmobile, sledging, snowboarding, ice skating, ski lessons, and winter transfers."],
+  ["NTR", "Nature Exploration", "Lakes, gardens, forests, alpine meadows, glaciers, and soft adventure days."],
 ];
 
 const destinations = [
-  ["Srinagar", "image18", "Dal Lake, Mughal Gardens, Shikara rides, houseboats, local markets, and city food trails."],
-  ["Gulmarg", "image02", "Skiing, Gondola, snow adventure, hotels, instructors, mountain safety, and winter transfers."],
-  ["Pahalgam", "image19", "Betaab Valley, pony rides, trekking, riverside stays, family routes, and camping add-ons."],
-  ["Sonamarg", "image11", "Glacier views, snow points, photography, horse routes, and high-altitude travel tips."],
-  ["Dal Lake", "image22", "Houseboats, Shikara rides, floating markets, lake-view dining, and sunset experiences."],
-  ["Mughal Gardens", "image07", "Nishat, Shalimar, Chashme Shahi, guided history walks, and family photography stops."],
+  {
+    name: "Gulmarg",
+    image: "image10",
+    imageLabel: "Gulmarg Gondola and Apharwat snow slopes",
+    price: "From Rs 6,500 / person",
+    bestFor: "Skiing, Gondola, snow photos, meadows",
+    season: "December-March for snow, May-September for meadows",
+    description: "A signature Kashmir mountain resort known for the Gulmarg Gondola, Apharwat Peak, ski slopes, snowmobile routes, and wide summer meadows.",
+    details: ["Gondola Phase 1 and Phase 2 planning", "Ski instructors and rental gear", "Khellanmarg meadow walk", "Tangmarg transfers and hotel options"],
+  },
+  {
+    name: "Pahalgam",
+    image: "image19",
+    imageLabel: "Pahalgam alpine trail and mountain approach",
+    price: "From Rs 5,500 / person",
+    bestFor: "Aru Valley, Betaab Valley, trekking, riverside stays",
+    season: "April-October",
+    description: "A relaxed valley base for families and groups, with Lidder River views, pine routes, pony rides, Aru Valley treks, and camping add-ons.",
+    details: ["Aru Valley and Betaab Valley sightseeing", "Baisaran pony ride coordination", "Family picnic and river-view stops", "Tarsar-Marsar and Aru trek starts"],
+  },
+  {
+    name: "Sonamarg",
+    image: "image11",
+    imageLabel: "Thajiwas Glacier route near Sonamarg",
+    price: "From Rs 5,900 / person",
+    bestFor: "Glacier visits, horse riding, snow points, camping",
+    season: "May-October, winter subject to road access",
+    description: "The Meadow of Gold is loved for Thajiwas Glacier, Sindh River views, high-altitude photography, pony routes, and access to Great Lakes trekking.",
+    details: ["Thajiwas Glacier day route", "Great Lakes trek base support", "Riverside camping and meals", "Snow point guidance in shoulder season"],
+  },
+  {
+    name: "Yusmarg",
+    image: "image02",
+    imageLabel: "Yusmarg-style meadow with snow peaks and open grassland",
+    price: "From Rs 4,800 / person",
+    bestFor: "Quiet meadows, pine walks, family nature days",
+    season: "April-November",
+    description: "A peaceful meadow destination for guests who want a softer day away from crowded routes, with pine forests, open grassland, and horse trails.",
+    details: ["Nilnag and meadow walks", "Pony ride support", "Picnic-style day plan", "Soft photography route"],
+  },
+  {
+    name: "Doodhpathri",
+    image: "image05",
+    imageLabel: "Doodhpathri-style green meadow below snow-lined mountains",
+    price: "From Rs 4,500 / person",
+    bestFor: "Alpine meadow exploration, family photos, picnic days",
+    season: "May-October",
+    description: "A lush meadow escape with rolling grasslands, mountain views, stream-side pauses, and relaxed day-trip pacing from Srinagar.",
+    details: ["Meadow viewpoint stops", "Stream-side leisure time", "Family-friendly cab route", "Camp and picnic add-ons"],
+  },
+  {
+    name: "Aru Valley",
+    image: "image08",
+    imageLabel: "Aru Valley village and pine-covered mountain bowl",
+    price: "From Rs 5,200 / person",
+    bestFor: "Treks, camping, village views, nature walks",
+    season: "May-September",
+    description: "Aru Valley is a photogenic Pahalgam-side base for alpine treks, tent stays, meadow walks, and quieter village scenery.",
+    details: ["Aru Valley camp nights", "Tarsar-Marsar route support", "Short meadow hikes", "Guide, porter, and meal planning"],
+  },
+  {
+    name: "Khellanmarg",
+    image: "image04",
+    imageLabel: "Khellanmarg and Gulmarg meadow route below snow peaks",
+    price: "From Rs 4,900 / person",
+    bestFor: "Short hikes, skiing add-ons, meadow photography",
+    season: "January-March for snow, May-August for hikes",
+    description: "A scenic Gulmarg-side meadow route for guests who want a short adventure, ski training support, or a quieter snow-and-peak viewpoint.",
+    details: ["Short meadow hike", "Ski training support in season", "Apharwat view points", "Guide and snow gear coordination"],
+  },
+  {
+    name: "Seven Springs",
+    image: "image01",
+    imageLabel: "Seven Springs-style reflective meadow and mountain panorama",
+    price: "From Rs 4,700 / person",
+    bestFor: "Viewpoints, Gondola add-on, soft hikes",
+    season: "May-September",
+    description: "A beautiful Gulmarg viewpoint route where guests can connect meadow scenery, mountain reflections, and Gondola-area sightseeing.",
+    details: ["Viewpoint walk", "Gulmarg day pairing", "Photography pauses", "Flexible family pacing"],
+  },
+  {
+    name: "Srinagar City",
+    image: "image18",
+    imageLabel: "Srinagar heritage and mountain travel gateway",
+    price: "From Rs 3,500 / person",
+    bestFor: "Markets, heritage, gardens, airport arrivals",
+    season: "Year-round",
+    description: "The main arrival base for Kashmir trips, ideal for heritage walks, old-city markets, local food, Mughal Gardens, and smooth airport transfers.",
+    details: ["Lal Chowk and old-city route", "Airport pickup and hotel check-in", "Local food and shopping stops", "Garden and lake pairing"],
+  },
+  {
+    name: "Dal Lake",
+    image: "image22",
+    imageLabel: "Dal Lake houseboats and Shikara experience in Srinagar",
+    price: "From Rs 1,200 / person",
+    bestFor: "Shikara rides, houseboats, floating market, sunsets",
+    season: "Year-round",
+    description: "Kashmir's most recognized lake experience, with Shikara rides, houseboat stays, floating shops, Nehru Park views, and sunset photography.",
+    details: ["Shikara ride coordination", "Houseboat booking", "Floating market timing", "Lake-view dining and photo route"],
+  },
+  {
+    name: "Nigeen Lake",
+    image: "image21",
+    imageLabel: "Nigeen Lake-style quiet houseboat stay near Srinagar",
+    price: "From Rs 1,500 / person",
+    bestFor: "Quiet houseboats, couples, relaxed lake stays",
+    season: "Year-round",
+    description: "A calmer lake stay option near Srinagar for honeymooners and families who prefer peaceful houseboats and slower evenings.",
+    details: ["Premium houseboat options", "Private Shikara add-on", "Quiet sunset route", "Airport and city transfers"],
+  },
+  {
+    name: "Mughal Gardens",
+    image: "image07",
+    imageLabel: "Mughal Garden mountain-view attraction in Srinagar",
+    price: "From Rs 2,200 / person",
+    bestFor: "Shalimar, Nishat, Chashme Shahi, Pari Mahal",
+    season: "March-November",
+    description: "Srinagar's garden circuit connects royal terraces, mountain backdrops, spring blooms, Chinar shade, and easy family photography stops.",
+    details: ["Shalimar Garden", "Nishat Garden", "Chashme Shahi", "Pari Mahal, Achabal, Kokernag, and Verinag options"],
+  },
+];
+
+const adventureCategories = [
+  {
+    title: "Trekking & Hiking Adventures",
+    image: "image09",
+    imageLabel: "Kashmir Great Lakes alpine lake trek",
+    price: "From Rs 14,500 / person",
+    description: "Guided routes for Kashmir Great Lakes, Gangbal, Tarsar-Marsar, Kounsarnag, Thajiwas Glacier, Aru Valley, Sonamarg, and Pahalgam trails.",
+    places: ["Kashmir Great Lakes", "Gangbal", "Tarsar-Marsar", "Kounsarnag", "Thajiwas Glacier", "Aru Valley"],
+    inclusions: ["Certified local guides", "Camping equipment and meals", "Route permits and safety checks", "Porter and transport options"],
+  },
+  {
+    title: "Camping Experiences",
+    image: "image18",
+    imageLabel: "Real tent camping setup in Kashmir meadows",
+    price: "From Rs 2,800 / person / night",
+    description: "Tent stays in Sonamarg, Pahalgam, Aru Valley, Doodhpathri, Yusmarg, and Great Lakes region with meals and guided movement.",
+    places: ["Sonamarg", "Pahalgam", "Aru Valley", "Doodhpathri", "Yusmarg", "Great Lakes Region"],
+    inclusions: ["Dome tents and sleeping bags", "Bonfire where permitted", "Camp meals and support staff", "Weather-aware campsite selection"],
+  },
+  {
+    title: "Winter Adventure Activities",
+    image: "image15",
+    imageLabel: "Gulmarg ski slope below Apharwat snow peaks",
+    price: "From Rs 3,500 / activity",
+    description: "Skiing in Gulmarg, Khellanmarg, and Sonamarg, plus snowboarding courses, ice skating, short ski training, and winter snow expeditions.",
+    places: ["Skiing in Gulmarg", "Khellanmarg", "Sonamarg", "Snowboarding", "Ice skating", "Snow expeditions"],
+    inclusions: ["Instructor and gear coordination", "Snowmobile and sledging add-ons", "Warm stay and transfer planning", "Weather and road updates"],
+  },
+  {
+    title: "Summer Adventure Activities",
+    image: "image05",
+    imageLabel: "Summer meadow exploration below Kashmir snow peaks",
+    price: "From Rs 2,500 / activity",
+    description: "Camping, trekking, mountain climbing, nature walks, alpine meadow exploration, glacier visits, and photography tours in peak green season.",
+    places: ["Camping", "Trekking", "Mountain climbing", "Nature walks", "Alpine meadows", "Glacier visits"],
+    inclusions: ["Day hikes and soft adventure", "Glacier and meadow routes", "Photography timing guidance", "Family and group pacing"],
+  },
+  {
+    title: "Leisure & Sightseeing",
+    image: "image10",
+    imageLabel: "Gulmarg Gondola ride and snow viewpoint",
+    price: "From Rs 1,200 / person",
+    description: "Shikara rides, Gulmarg Gondola rides, horse riding, nature tours, cultural heritage tours, and photography excursions.",
+    places: ["Shikara rides", "Gulmarg Gondola", "Horse riding", "Nature tours", "Cultural tours", "Photography excursions"],
+    inclusions: ["Lake and garden sightseeing", "Gondola and horse ride guidance", "Private cab add-ons", "Cultural and heritage route planning"],
+  },
+  {
+    title: "Gardens & Heritage Attractions",
+    image: "image02",
+    imageLabel: "Srinagar garden-style mountain lawn and open valley view",
+    price: "From Rs 2,200 / person",
+    description: "Mughal Gardens, Shalimar, Nishat, Chashme Shahi, Pari Mahal, Achabal Garden, Kokernag Garden, and Verinag Garden.",
+    places: ["Mughal Gardens", "Shalimar", "Nishat", "Chashme Shahi", "Pari Mahal", "Achabal, Kokernag, Verinag"],
+    inclusions: ["Garden circuit planning", "Family photography stops", "Entry timing support", "Srinagar city pairing"],
+  },
 ];
 
 const faqs = [
   ["Can pricing change in winter?", "Yes. Gulmarg and Sonamarg peak winter pricing can increase due to demand, weather, transportation limits, activity availability, and hotel inventory."],
   ["Do you support custom packages?", "Yes. Solo, couple, family, group, student, luxury, budget, airport-to-airport, and custom package types are supported."],
-  ["Can this connect to real payment and weather APIs?", "The front-end is structured for Razorpay, Stripe, UPI, live weather, AI chatbot, multilingual content, and backend admin integration."],
 ];
 
 const packageBenefits = [
@@ -306,14 +487,8 @@ const seasonalPlans = [
   ["Autumn", "October to November", "Chinar colors, quiet stays, premium photography routes, and honeymoon-friendly pacing."],
 ];
 
-const routeIdeas = [
-  ["Classic Kashmir Circuit", "Srinagar -> Gulmarg -> Pahalgam -> Sonamarg", "Best for first-time guests who want lakes, snow points, valleys, and gardens in one balanced plan."],
-  ["Honeymoon Slow Route", "Srinagar -> Gulmarg -> Pahalgam", "Premium stays, private cab time, Shikara rides, candlelight dinner, and relaxed late starts."],
-  ["Adventure Route", "Gulmarg -> Sonamarg -> Pahalgam", "Built around snow sports, trekking, camping, pony trails, and mountain-view days."],
-];
-
 const bookingSteps = [
-  ["01", "Share dates", "Send travel month, group size, preferred destinations, and budget range."],
+  ["01", "Send details", "Send travel month, group size, preferred destinations, and budget range."],
   ["02", "Get route plan", "Receive a practical day-wise Kashmir itinerary with hotel and activity options."],
   ["03", "Confirm booking", "Lock the package with advance payment and receive confirmation details."],
   ["04", "Travel support", "Get pickup coordination, daily check-ins, weather guidance, and emergency help."],
@@ -386,7 +561,7 @@ function toggleFaq(index) {
 function choosePayment(method) {
   selectedPaymentMethod.value = method;
   if (method === "UPI") {
-    window.location.href = `upi://pay?pa=9729968734@upi&pn=Snow%20Feather&am=${bookingTotalAmount.value}&cu=INR&tn=Kashmir%20tour%20booking%20advance`;
+    window.location.href = `upi://pay?pa=9055020408@upi&pn=Snow%20Feather&am=${bookingTotalAmount.value}&cu=INR&tn=Kashmir%20tour%20booking%20advance`;
   }
 }
 
@@ -513,7 +688,7 @@ onUnmounted(() => {
     <div v-if="!isAdminLoggedIn" class="grid min-h-screen place-items-center px-4 py-10 sm:px-6">
       <div class="w-full max-w-md rounded-lg border border-white/[0.12] bg-white/[0.08] p-6 shadow-premium backdrop-blur sm:p-8">
         <a href="/" class="mb-7 inline-flex items-center gap-3 rounded-lg border border-white/[0.18] px-4 py-2 text-sm font-black text-white hover:bg-white/[0.12]">
-          <img :src="logoSrc" :alt="`${brandName} logo`" class="h-8 w-12 rounded bg-white object-contain p-1" />
+          <img :src="logoSrc" :alt="`${brandName} logo`" class="h-10 w-10 rounded bg-white object-contain p-1" />
           View Website
         </a>
         <p class="text-sm font-black uppercase tracking-[0.2em] text-gold">{{ brandName }} login</p>
@@ -529,7 +704,6 @@ onUnmounted(() => {
           </label>
           <button type="submit" class="mt-2 h-12 rounded-lg bg-gold px-6 text-sm font-black text-night hover:bg-white">Login</button>
           <p v-if="adminError" class="rounded-lg bg-gold/[0.16] p-3 text-sm font-bold text-gold">{{ adminError }}</p>
-          <p class="text-xs font-semibold leading-5 text-white/[0.52]">Demo credentials: username admin, password admin123.</p>
         </form>
       </div>
     </div>
@@ -538,7 +712,7 @@ onUnmounted(() => {
       <div class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
           <div class="flex items-center gap-4">
-            <span class="grid h-16 w-20 place-items-center rounded-lg bg-white p-2">
+            <span class="grid h-16 w-16 place-items-center overflow-hidden rounded-lg bg-white p-2">
               <img :src="logoSrc" :alt="`${brandName} logo`" class="h-full w-full object-contain" />
             </span>
             <div>
@@ -736,7 +910,7 @@ onUnmounted(() => {
         </div>
 
         <div class="hidden items-center gap-2 sm:flex">
-          <a href="https://wa.me/919729968734?text=I%20want%20to%20book%20a%20Kashmir%20tour" class="rounded-lg border border-night/10 px-4 py-2 text-sm font-extrabold text-night hover:border-lake hover:text-lake">WhatsApp</a>
+          <a href="https://wa.me/919055020408?text=I%20want%20to%20book%20a%20Kashmir%20tour" class="rounded-lg border border-night/10 px-4 py-2 text-sm font-extrabold text-night hover:border-lake hover:text-lake">WhatsApp</a>
           <a href="/booking" class="rounded-lg bg-gold px-4 py-2 text-sm font-extrabold text-night shadow-lift hover:bg-white" @click.prevent="navigateTo('/booking')">Book Now</a>
         </div>
 
@@ -769,7 +943,7 @@ onUnmounted(() => {
             <div class="mt-7 flex flex-col gap-3 sm:flex-row">
               <a href="/booking" class="rounded-lg bg-gold px-6 py-3.5 text-center text-sm font-black text-night shadow-premium hover:bg-white" @click.prevent="navigateTo('/booking')">Book Now</a>
               <a href="/packages" class="rounded-lg border border-white/[0.24] bg-white/[0.12] px-6 py-3.5 text-center text-sm font-black text-white backdrop-blur hover:bg-white/[0.18]" @click.prevent="navigateTo('/packages')">Explore Packages</a>
-              <a href="https://wa.me/919729968734?text=I%20want%20instant%20Kashmir%20booking%20support" class="rounded-lg border border-white/[0.24] bg-white px-6 py-3.5 text-center text-sm font-black text-night hover:bg-frost">WhatsApp Now</a>
+              <a href="https://wa.me/919055020408?text=I%20want%20instant%20Kashmir%20booking%20support" class="rounded-lg border border-white/[0.24] bg-white px-6 py-3.5 text-center text-sm font-black text-night hover:bg-frost">WhatsApp Now</a>
             </div>
           </div>
 
@@ -929,7 +1103,7 @@ onUnmounted(() => {
             <article class="premium-card rounded-lg p-5">
               <p class="text-sm font-black uppercase tracking-[0.18em] text-lake">Simple booking</p>
               <h3 class="mt-4 text-xl font-black text-night">Clear steps, no confusion</h3>
-              <p class="mt-3 text-sm leading-6 text-night/[0.62]">Share dates and traveler count, receive a practical itinerary, confirm, and travel with support.</p>
+              <p class="mt-3 text-sm leading-6 text-night/[0.62]">Send traveler count and timing, receive a practical itinerary, confirm, and travel with support.</p>
             </article>
             <article class="premium-card rounded-lg p-5">
               <p class="text-sm font-black uppercase tracking-[0.18em] text-lake">Exciting deals</p>
@@ -1160,16 +1334,34 @@ onUnmounted(() => {
 
       <section v-if="currentPage === 'destinations'" id="destinations" class="section-band min-h-screen pb-16 pt-32">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
-          <div class="mb-8">
+          <div class="mb-8 max-w-5xl">
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Destinations</p>
-            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Kashmir routes your guests ask for.</h2>
+            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Kashmir places guests can recognize from the photographs.</h2>
+            <p class="mt-5 text-base font-semibold leading-8 text-night/[0.64]">Each destination now carries its own image, location cue, starting price, best season, activity fit, and clear planning notes so visitors understand what they are seeing and why it belongs in their itinerary.</p>
           </div>
-          <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            <article v-for="[name, img, text] in destinations" :key="name" class="premium-card overflow-hidden rounded-lg">
-              <div class="image-cover h-56" :style="imageStyle(img)"></div>
-              <div class="p-5">
-                <h3 class="text-2xl font-black">{{ name }}</h3>
-                <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
+          <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <article v-for="place in destinations" :key="place.name" class="destination-card group overflow-hidden rounded-lg">
+              <div class="image-cover destination-card__media relative h-56" :style="imageStyle(place.image)">
+                <div class="absolute inset-0 bg-gradient-to-t from-night/68 via-night/12 to-transparent"></div>
+                <div class="absolute inset-x-4 bottom-4 flex items-end justify-between gap-3">
+                  <div>
+                    <p class="text-[11px] font-black uppercase tracking-[0.16em] text-gold">Location</p>
+                    <h3 class="mt-1 font-display text-3xl font-extrabold leading-none text-white">{{ place.name }}</h3>
+                  </div>
+                  <span class="rounded bg-white/95 px-3 py-2 text-right text-[11px] font-black uppercase tracking-[0.1em] text-night">{{ place.season }}</span>
+                </div>
+              </div>
+              <div class="destination-card__body p-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <p class="rounded bg-lake/[0.1] px-3 py-2 text-xs font-black uppercase tracking-[0.1em] text-lake">{{ place.price }}</p>
+                  <p class="text-[11px] font-black uppercase tracking-[0.12em] text-night/42">Premium route</p>
+                </div>
+                <p class="mt-3 text-xs font-bold leading-5 text-night/52">{{ place.imageLabel }}</p>
+                <p class="mt-3 text-sm font-black leading-6 text-night">{{ place.bestFor }}</p>
+                <p class="mt-2 text-sm leading-6 text-night/[0.62]">{{ place.description }}</p>
+                <div class="mt-4 flex flex-wrap gap-2">
+                  <span v-for="detail in place.details.slice(0, 3)" :key="`${place.name}-${detail}`" class="rounded border border-night/[0.08] bg-frost px-3 py-2 text-xs font-bold leading-5 text-night/[0.62]">{{ detail }}</span>
+                </div>
               </div>
             </article>
           </div>
@@ -1178,33 +1370,34 @@ onUnmounted(() => {
 
       <section v-if="currentPage === 'destinations'" class="bg-white py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
-          <div class="mb-8 max-w-4xl">
-            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Route builder</p>
-            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Plan destinations in a route that actually works.</h2>
+          <div class="mb-8 max-w-5xl">
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Adventure & experiences</p>
+            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Photographs, prices, and details for every major activity.</h2>
+            <p class="mt-5 text-base font-semibold leading-8 text-night/[0.64]">Use these cards to sell trekking, camping, winter sport, summer adventure, leisure sightseeing, and heritage attractions with a relevant picture and practical inclusions.</p>
           </div>
-          <div class="grid gap-5 lg:grid-cols-3">
-            <article v-for="[title, route, text] in routeIdeas" :key="title" class="premium-card rounded-lg p-5">
-              <p class="text-sm font-black text-lake">{{ route }}</p>
-              <h3 class="mt-3 text-2xl font-black text-night">{{ title }}</h3>
-              <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
+          <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <article v-for="experience in adventureCategories" :key="experience.title" class="destination-card group overflow-hidden rounded-lg">
+              <div class="image-cover destination-card__media relative h-56" :style="imageStyle(experience.image)">
+                <div class="absolute inset-0 bg-gradient-to-t from-night/68 via-night/12 to-transparent"></div>
+                <div class="absolute inset-x-4 bottom-4 flex items-end justify-between gap-3">
+                  <div>
+                    <p class="text-[11px] font-black uppercase tracking-[0.16em] text-gold">Experience</p>
+                    <h3 class="mt-1 font-display text-2xl font-extrabold leading-tight text-white">{{ experience.title }}</h3>
+                  </div>
+                  <span class="rounded bg-white/95 px-3 py-2 text-right text-[11px] font-black uppercase tracking-[0.1em] text-night">{{ experience.price }}</span>
+                </div>
+              </div>
+              <div class="destination-card__body p-4">
+                <p class="text-xs font-bold leading-5 text-night/52">{{ experience.imageLabel }}</p>
+                <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ experience.description }}</p>
+                <div class="mt-4 flex flex-wrap gap-2">
+                  <span v-for="place in experience.places.slice(0, 4)" :key="`${experience.title}-${place}`" class="rounded bg-lake/[0.1] px-3 py-2 text-xs font-black leading-5 text-lake">{{ place }}</span>
+                </div>
+                <div class="mt-4 flex flex-wrap gap-2">
+                  <span v-for="item in experience.inclusions.slice(0, 2)" :key="`${experience.title}-${item}`" class="rounded border border-night/[0.08] bg-frost px-3 py-2 text-xs font-bold leading-5 text-night/[0.62]">{{ item }}</span>
+                </div>
+              </div>
             </article>
-          </div>
-        </div>
-      </section>
-
-      <section v-if="currentPage === 'destinations'" class="section-band py-16">
-        <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-          <div class="grid gap-4 sm:grid-cols-2">
-            <div class="image-cover h-80 rounded-lg sm:h-96" :style="imageStyle('image23')"></div>
-            <div class="grid gap-4">
-              <div class="image-cover h-44 rounded-lg" :style="imageStyle('image10')"></div>
-              <div class="image-cover h-44 rounded-lg" :style="imageStyle('image22')"></div>
-            </div>
-          </div>
-          <div>
-            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Travel style</p>
-            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Lake, snow, garden, valley, and adventure days can all feel different.</h2>
-            <p class="mt-5 text-base leading-7 text-night/[0.62]">Use Destinations to sell more than names. Show guests which places are best for families, honeymooners, winter sports, photography, and relaxed sightseeing.</p>
           </div>
         </div>
       </section>
@@ -1300,9 +1493,8 @@ onUnmounted(() => {
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Media gallery</p>
             <h2 class="mt-2 font-display text-3xl font-extrabold leading-tight text-night sm:text-4xl lg:text-5xl">Instagram, video, snowfall, and drone ready layout.</h2>
           </div>
-          <div class="grid gap-4 md:grid-cols-4">
-            <div v-for="(galleryImage, index) in galleryImages" :key="`${galleryImage}-${index}`" class="image-cover h-72 rounded-lg" :class="index % 5 === 0 ? 'md:col-span-2' : ''" :style="imageStyle(galleryImage)"></div>
-            <div class="dark-panel grid h-72 place-items-center rounded-lg p-6 text-center text-white"><div><p class="text-sm font-black uppercase tracking-[0.2em] text-gold">Video Gallery</p><p class="mt-3 text-3xl font-black">Play reels, drone shots, and customer clips here.</p></div></div>
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div v-for="(galleryImage, index) in homeGalleryImages" :key="`${galleryImage}-${index}`" class="image-cover h-64 rounded-lg shadow-lift" :style="imageStyle(galleryImage)"></div>
           </div>
         </div>
       </section>
@@ -1359,8 +1551,8 @@ onUnmounted(() => {
             </div>
             <button type="button" class="rounded-lg bg-night px-6 py-3 text-sm font-black text-white hover:bg-lake" @click="navigateTo('/packages')">View Packages</button>
           </div>
-          <div class="grid gap-4 md:grid-cols-4">
-            <div v-for="(galleryImage, index) in galleryImages" :key="`gallery-page-${galleryImage}-${index}`" class="image-cover h-72 rounded-lg shadow-lift" :class="index % 6 === 0 ? 'md:col-span-2 md:row-span-2 md:h-full min-h-[36rem]' : ''" :style="imageStyle(galleryImage)"></div>
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div v-for="(galleryImage, index) in displayGalleryImages" :key="`gallery-page-${galleryImage}-${index}`" class="image-cover h-72 rounded-lg shadow-lift" :class="index === 0 || index === 7 ? 'lg:col-span-2' : ''" :style="imageStyle(galleryImage)"></div>
           </div>
         </div>
       </section>
@@ -1428,6 +1620,7 @@ onUnmounted(() => {
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Planner notes</p>
             <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Quick guides guests ask for most.</h2>
             <p class="mt-5 text-base font-semibold leading-8 text-night/[0.64]">Use these notes as a starting point, then send your dates, traveler count, and preferred comfort level for a custom plan.</p>
+            <div class="image-cover mt-8 h-72 rounded-lg shadow-lift lg:h-[26rem]" :style="imageStyle('image19')"></div>
           </div>
           <div class="grid gap-4 md:grid-cols-2">
             <article v-for="[title, text] in blogGuides" :key="title" class="premium-card rounded-lg p-5">
@@ -1447,7 +1640,7 @@ onUnmounted(() => {
           <div class="grid gap-4 md:grid-cols-3 lg:col-span-2">
             <div class="rounded-lg bg-white/10 p-5">
               <p class="text-3xl font-black text-gold">01</p>
-              <h3 class="mt-4 text-xl font-black">Share dates</h3>
+              <h3 class="mt-4 text-xl font-black">Send details</h3>
               <p class="mt-3 text-sm leading-6 text-white/70">Confirm arrival, departure, room needs, and must-see places.</p>
             </div>
             <div class="rounded-lg bg-white/10 p-5">
@@ -1470,9 +1663,14 @@ onUnmounted(() => {
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Contact</p>
             <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Instant inquiry, emergency support, and WhatsApp booking.</h2>
             <div class="mt-6 grid gap-3 text-sm font-bold text-night/[0.68]">
-              <p class="rounded-lg bg-white p-4">Phone: +91 919729968734</p>
+              <p class="rounded-lg bg-white p-4">Phone: +91 9055020408</p>
               <p class="rounded-lg bg-white p-4">Email: snowfeatheradventures@gmail.com</p>
-              <p class="rounded-lg bg-white p-4">Address: Karra Building, Court Road, Lal chowk, Srinagar, 190001, Jammu and Kashmir</p>
+              <p class="rounded-lg bg-white p-4">
+                Address: Karra Building<br />
+                Court Road, Lal chowk<br />
+                Srinagar, 190001<br />
+                Jammu and Kashmir
+              </p>
               <p class="rounded-lg bg-white p-4">Emergency Support: 24/7 during active trips</p>
             </div>
           </div>
@@ -1486,7 +1684,7 @@ onUnmounted(() => {
             </div>
             <div class="mt-5 grid gap-3 sm:grid-cols-2">
               <button type="button" class="rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-alpine">Send Inquiry</button>
-              <a href="https://wa.me/919729968734?text=I%20want%20to%20book%20a%20Kashmir%20tour" class="rounded-lg border border-night/[0.12] px-5 py-3 text-center text-sm font-black text-night hover:border-lake hover:text-lake">WhatsApp Live Chat</a>
+              <a href="https://wa.me/919055020408?text=I%20want%20to%20book%20a%20Kashmir%20tour" class="rounded-lg border border-night/[0.12] px-5 py-3 text-center text-sm font-black text-night hover:border-lake hover:text-lake">WhatsApp Live Chat</a>
             </div>
           </form>
         </div>
@@ -1520,7 +1718,11 @@ onUnmounted(() => {
             </div>
           </div>
           <div class="premium-card overflow-hidden rounded-lg">
-            <iframe title="Kashmir contact map" class="h-[32rem] w-full" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Srinagar%20Kashmir&output=embed"></iframe>
+            <div class="border-b border-night/10 bg-white p-4 text-sm font-bold leading-6 text-night">
+              <p class="text-xs font-black uppercase tracking-[0.16em] text-lake">Office address</p>
+              <p class="mt-2">Karra Building, Court Road, Lal chowk, Srinagar, 190001, Jammu and Kashmir</p>
+            </div>
+            <iframe title="Snow Feather office map" class="h-[32rem] w-full" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Karra%20Building%2C%20Court%20Road%2C%20Lal%20chowk%2C%20Srinagar%2C%20190001%2C%20Jammu%20and%20Kashmir&output=embed"></iframe>
           </div>
         </div>
       </section>
@@ -1545,7 +1747,7 @@ onUnmounted(() => {
             <div class="mt-6 flex gap-3">
               <a href="https://www.instagram.com/" class="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-sm font-black text-white hover:bg-lake" aria-label="Instagram">IG</a>
               <a href="https://www.facebook.com/" class="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-sm font-black text-white hover:bg-lake" aria-label="Facebook">FB</a>
-              <a href="https://wa.me/919729968734?text=I%20want%20to%20book%20a%20Kashmir%20tour" class="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-sm font-black text-white hover:bg-lake" aria-label="WhatsApp">WA</a>
+              <a href="https://wa.me/919055020408?text=I%20want%20to%20book%20a%20Kashmir%20tour" class="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-sm font-black text-white hover:bg-lake" aria-label="WhatsApp">WA</a>
               <a href="mailto:snowfeatheradventures@gmail.com" class="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-sm font-black text-white hover:bg-lake" aria-label="Email">ML</a>
             </div>
           </div>
@@ -1556,8 +1758,6 @@ onUnmounted(() => {
               <button type="button" class="text-left hover:text-lake" @click="navigateTo('/packages')">Holiday Packages</button>
               <button type="button" class="text-left hover:text-lake" @click="navigateTo('/destinations')">Hotels</button>
               <button type="button" class="text-left hover:text-lake" @click="navigateTo('/booking')">Booking</button>
-              <button type="button" class="text-left hover:text-lake" @click="navigateTo('/contact')">Visa Processing</button>
-              <button type="button" class="text-left hover:text-lake" @click="navigateTo('/contact')">Travel Insurance</button>
             </div>
           </div>
 
@@ -1566,10 +1766,7 @@ onUnmounted(() => {
             <div class="mt-6 grid gap-3 text-base font-semibold text-white/78">
               <button type="button" class="text-left hover:text-lake" @click="navigateTo('/about')">About Us</button>
               <button type="button" class="text-left hover:text-lake" @click="navigateTo('/packages')">All Packages</button>
-              <button type="button" class="text-left hover:text-lake" @click="navigateTo('/gallery')">Gallery</button>
-              <button type="button" class="text-left hover:text-lake" @click="navigateTo('/blog')">Blog</button>
               <button type="button" class="text-left hover:text-lake" @click="navigateTo('/booking')">My Bookings</button>
-              <button type="button" class="text-left hover:text-lake" @click="navigateTo('/contact')">Contact Us</button>
               <button type="button" class="text-left hover:text-lake" @click="navigateTo('/contact')">Privacy Policy</button>
               <button type="button" class="text-left hover:text-lake" @click="navigateTo('/contact')">Terms of Service</button>
             </div>
@@ -1609,7 +1806,7 @@ onUnmounted(() => {
     </footer>
 
     <a
-      href="https://wa.me/919729968734?text=I%20want%20instant%20Kashmir%20booking%20support"
+      href="https://wa.me/919055020408?text=I%20want%20instant%20Kashmir%20booking%20support"
       class="fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center rounded-full bg-[#25D366] text-white shadow-premium transition hover:-translate-y-1 hover:bg-[#1ebe5d] focus:outline-none focus:ring-4 focus:ring-[#25D366]/30"
       aria-label="WhatsApp instant booking"
       title="WhatsApp instant booking"
