@@ -383,11 +383,55 @@ function toggleFaq(index) {
   openFaqs.value = openFaqs.value.includes(index) ? openFaqs.value.filter((item) => item !== index) : [...openFaqs.value, index];
 }
 
+const bookingForm = ref({ name: "", email: "", phone: "", details: "" });
+const bookingFormStatus = ref("");
+
+function validateEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+function validatePhone(phone) {
+  const phoneRegex = /^[0-9]{10}$/;
+  return phoneRegex.test(phone.replace(/[^\d]/g, ""));
+}
+
 function choosePayment(method) {
   selectedPaymentMethod.value = method;
   if (method === "UPI") {
     window.location.href = `upi://pay?pa=9729968734@upi&pn=Snow%20Feather&am=${bookingTotalAmount.value}&cu=INR&tn=Kashmir%20tour%20booking%20advance`;
   }
+}
+
+function submitContactForm() {
+  if (!bookingForm.value.name.trim() || !bookingForm.value.email.trim() || !bookingForm.value.phone.trim()) {
+    bookingFormStatus.value = "Please fill all required fields.";
+    window.setTimeout(() => { bookingFormStatus.value = ""; }, 3000);
+    return;
+  }
+
+  if (!validateEmail(bookingForm.value.email)) {
+    bookingFormStatus.value = "Please enter a valid email address.";
+    window.setTimeout(() => { bookingFormStatus.value = ""; }, 3000);
+    return;
+  }
+
+  if (!validatePhone(bookingForm.value.phone)) {
+    bookingFormStatus.value = "Please enter a valid 10-digit phone number.";
+    window.setTimeout(() => { bookingFormStatus.value = ""; }, 3000);
+    return;
+  }
+
+  const message = `
+  Contact Form Submission:
+  Name: ${bookingForm.value.name}
+  Email: ${bookingForm.value.email}
+  Phone: ${bookingForm.value.phone}
+  Details: ${bookingForm.value.details}
+  `;
+
+  window.location.href = `https://wa.me/919729968734?text=${encodeURIComponent(message)}`;
+  bookingForm.value = { name: "", email: "", phone: "", details: "" };
 }
 
 function loginAdmin() {
@@ -788,9 +832,9 @@ onUnmounted(() => {
             <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Adventure, snow, lake, and mountain experiences.</h2>
           </div>
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <article v-for="[icon, title, text] in activities" :key="title" class="premium-card rounded-lg p-5">
-              <p class="text-xs font-black tracking-[0.24em] text-lake">{{ icon }}</p>
-              <h3 class="mt-4 text-xl font-black">{{ title }}</h3>
+            <article v-for="[icon, title, text] in activities" :key="title" class="premium-card rounded-lg p-5 hover-lift">
+              <p class="text-xs font-black tracking-[0.24em] text-transparent bg-gradient-to-r from-gold to-[#ff8b6d] bg-clip-text">{{ icon }}</p>
+              <h3 class="mt-4 text-xl font-black bg-gradient-to-r from-night to-alpine bg-clip-text text-transparent">{{ title }}</h3>
               <p class="mt-2 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
             </article>
           </div>
@@ -921,23 +965,23 @@ onUnmounted(() => {
           </div>
 
           <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <article class="premium-card rounded-lg p-5">
-              <p class="text-sm font-black uppercase tracking-[0.18em] text-lake">Personalized travel</p>
+            <article class="premium-card rounded-lg p-5 hover-lift">
+              <p class="text-sm font-black uppercase tracking-[0.18em] bg-gradient-to-r from-gold to-[#ff8b6d] bg-clip-text text-transparent">Personalized travel</p>
               <h3 class="mt-4 text-xl font-black text-night">Plans made for your route</h3>
               <p class="mt-3 text-sm leading-6 text-night/[0.62]">Family, honeymoon, group, luxury, and budget plans are shaped around travel dates, pace, and comfort.</p>
             </article>
-            <article class="premium-card rounded-lg p-5">
-              <p class="text-sm font-black uppercase tracking-[0.18em] text-lake">Simple booking</p>
+            <article class="premium-card rounded-lg p-5 hover-lift">
+              <p class="text-sm font-black uppercase tracking-[0.18em] bg-gradient-to-r from-gold to-[#ff8b6d] bg-clip-text text-transparent">Simple booking</p>
               <h3 class="mt-4 text-xl font-black text-night">Clear steps, no confusion</h3>
               <p class="mt-3 text-sm leading-6 text-night/[0.62]">Share dates and traveler count, receive a practical itinerary, confirm, and travel with support.</p>
             </article>
-            <article class="premium-card rounded-lg p-5">
-              <p class="text-sm font-black uppercase tracking-[0.18em] text-lake">Exciting deals</p>
+            <article class="premium-card rounded-lg p-5 hover-lift">
+              <p class="text-sm font-black uppercase tracking-[0.18em] bg-gradient-to-r from-gold to-[#ff8b6d] bg-clip-text text-transparent">Exciting deals</p>
               <h3 class="mt-4 text-xl font-black text-night">Season-wise offers</h3>
               <p class="mt-3 text-sm leading-6 text-night/[0.62]">Get value-led options for winter snow, summer valleys, honeymoon stays, and premium circuits.</p>
             </article>
-            <article class="premium-card rounded-lg p-5">
-              <p class="text-sm font-black uppercase tracking-[0.18em] text-lake">24/7 support</p>
+            <article class="premium-card rounded-lg p-5 hover-lift">
+              <p class="text-sm font-black uppercase tracking-[0.18em] bg-gradient-to-r from-gold to-[#ff8b6d] bg-clip-text text-transparent">24/7 support</p>
               <h3 class="mt-4 text-xl font-black text-night">Help when it matters</h3>
               <p class="mt-3 text-sm leading-6 text-night/[0.62]">Assistance for pickup, weather, timing changes, hotel coordination, and on-trip questions.</p>
             </article>
@@ -957,20 +1001,20 @@ onUnmounted(() => {
           </div>
 
           <div class="grid gap-4 sm:grid-cols-2">
-            <div class="rounded-lg bg-white p-5 shadow-lift">
-              <h3 class="text-xl font-black text-night">Holiday Packages</h3>
+            <div class="rounded-lg bg-gradient-to-br from-white via-frost to-white shadow-lift hover-lift p-5 transition">
+              <h3 class="text-xl font-black bg-gradient-to-r from-lake to-alpine bg-clip-text text-transparent">Holiday Packages</h3>
               <p class="mt-3 text-sm leading-6 text-night/[0.62]">Winter, summer, honeymoon, family, group, and custom Kashmir packages.</p>
             </div>
-            <div class="rounded-lg bg-white p-5 shadow-lift">
-              <h3 class="text-xl font-black text-night">Hotels & Houseboats</h3>
+            <div class="rounded-lg bg-gradient-to-br from-white via-frost to-white shadow-lift hover-lift p-5 transition">
+              <h3 class="text-xl font-black bg-gradient-to-r from-gold to-[#ff8b6d] bg-clip-text text-transparent">Hotels & Houseboats</h3>
               <p class="mt-3 text-sm leading-6 text-night/[0.62]">Comfort hotels, premium stays, heated winter rooms, and houseboat options.</p>
             </div>
-            <div class="rounded-lg bg-white p-5 shadow-lift">
-              <h3 class="text-xl font-black text-night">Cab & Transfers</h3>
+            <div class="rounded-lg bg-gradient-to-br from-white via-frost to-white shadow-lift hover-lift p-5 transition">
+              <h3 class="text-xl font-black bg-gradient-to-r from-lake to-gold bg-clip-text text-transparent">Cab & Transfers</h3>
               <p class="mt-3 text-sm leading-6 text-night/[0.62]">Airport pickup, local sightseeing, intercity movement, and day-trip support.</p>
             </div>
-            <div class="rounded-lg bg-white p-5 shadow-lift">
-              <h3 class="text-xl font-black text-night">Adventure Activities</h3>
+            <div class="rounded-lg bg-gradient-to-br from-white via-frost to-white shadow-lift hover-lift p-5 transition">
+              <h3 class="text-xl font-black bg-gradient-to-r from-alpine to-[#ff8b6d] bg-clip-text text-transparent">Adventure Activities</h3>
               <p class="mt-3 text-sm leading-6 text-night/[0.62]">Gondola, skiing, snowmobile, camping, trekking, pony rides, and Shikara rides.</p>
             </div>
           </div>
@@ -1093,29 +1137,29 @@ onUnmounted(() => {
           </div>
 
           <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            <article v-for="item in filteredPackages" :key="item.name" class="overflow-hidden rounded-lg bg-white shadow-premium">
+            <article v-for="item in filteredPackages" :key="item.name" class="overflow-hidden rounded-lg bg-white shadow-premium hover-lift">
               <div class="relative h-72 overflow-hidden">
-                <div class="image-cover h-full transition duration-500 hover:scale-105" :style="{ backgroundImage: `linear-gradient(180deg, rgba(7, 24, 39, 0.02), rgba(7, 24, 39, 0.56)), url('${item.image}')` }"></div>
-                <span class="absolute left-4 top-4 rounded-full bg-gold px-4 py-2 text-sm font-black text-night">{{ item.tag }}</span>
-                <span class="absolute right-4 top-4 rounded-full bg-white/90 px-4 py-2 text-sm font-black text-night shadow-lift">{{ displayDuration(item.duration) }}</span>
+                <div class="image-cover h-full transition duration-500 hover:scale-110" :style="{ backgroundImage: `linear-gradient(180deg, rgba(7, 24, 39, 0.02), rgba(7, 24, 39, 0.56)), url('${item.image}')` }"></div>
+                <span class="absolute left-4 top-4 rounded-full bg-gradient-to-r from-gold to-[#ff8b6d] px-4 py-2 text-sm font-black text-white shadow-lift">{{ item.tag }}</span>
+                <span class="absolute right-4 top-4 rounded-full bg-white/95 backdrop-blur px-4 py-2 text-sm font-black text-night shadow-lift">{{ displayDuration(item.duration) }}</span>
               </div>
 
               <div class="p-6">
                 <p class="text-sm font-semibold text-night/[0.58]">{{ packageRoute(item)[0] }} - {{ packageRoute(item)[1] }}</p>
                 <h3 class="mt-3 font-display text-2xl font-extrabold text-night">{{ item.name }}</h3>
                 <div class="mt-4 flex flex-wrap gap-2">
-                  <span v-for="chip in packageChips(item)" :key="`${item.name}-${chip}`" class="rounded-full bg-frost px-3 py-1 text-xs font-semibold text-night/[0.62]">{{ chip }}</span>
+                  <span v-for="chip in packageChips(item)" :key="`${item.name}-${chip}`" class="rounded-full bg-gradient-to-r from-frost to-lake/10 px-3 py-1 text-xs font-semibold text-night/[0.62]">{{ chip }}</span>
                 </div>
 
                 <div class="mt-5 border-t border-night/[0.08] pt-5">
                   <p class="text-sm font-semibold text-night/[0.58]">Starting From</p>
                   <div class="mt-2 flex flex-wrap items-end gap-3">
-                    <p class="font-display text-3xl font-extrabold text-lake">INR {{ item.price.toLocaleString("en-IN") }}</p>
+                    <p class="font-display text-3xl font-extrabold bg-gradient-to-r from-lake to-alpine bg-clip-text text-transparent">INR {{ item.price.toLocaleString("en-IN") }}</p>
                     <p class="pb-1 text-base font-bold text-night/40 line-through">INR {{ packageOriginalPrice(item).toLocaleString("en-IN") }}</p>
                   </div>
                   <div class="mt-4 flex items-center justify-between gap-4">
                     <p class="text-xs font-semibold uppercase text-night/[0.52]">Taxes incl/person</p>
-                    <button type="button" class="rounded-lg bg-lake px-5 py-3 text-sm font-black text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-night" @click="viewPackageDetails(item)">
+                    <button type="button" class="rounded-lg bg-gradient-to-r from-lake to-alpine px-5 py-3 text-sm font-black text-white shadow-lift transition hover:-translate-y-0.5 hover:shadow-premium hover:from-alpine hover:to-lake" @click="viewPackageDetails(item)">
                       View Details
                     </button>
                   </div>
@@ -1134,7 +1178,7 @@ onUnmounted(() => {
             <p class="mt-5 text-base leading-7 text-night/[0.62]">Every package can combine stay, cab, activities, route planning, and local support so guests know what they are paying for before they arrive.</p>
           </div>
           <div class="grid gap-4 sm:grid-cols-2">
-            <article v-for="[title, text] in packageBenefits" :key="title" class="premium-card rounded-lg p-5">
+            <article v-for="[title, text] in packageBenefits" :key="title" class="premium-card rounded-lg p-5 hover-lift">
               <h3 class="text-xl font-black text-night">{{ title }}</h3>
               <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
             </article>
@@ -1149,9 +1193,9 @@ onUnmounted(() => {
             <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Choose the right Kashmir package by month.</h2>
           </div>
           <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <article v-for="[season, months, text] in seasonalPlans" :key="season" class="premium-card rounded-lg p-5">
-              <p class="text-sm font-black uppercase tracking-[0.18em] text-lake">{{ months }}</p>
-              <h3 class="mt-3 text-2xl font-black text-night">{{ season }}</h3>
+            <article v-for="[season, months, text] in seasonalPlans" :key="season" class="premium-card rounded-lg p-5 hover-lift">
+              <p class="text-sm font-black uppercase tracking-[0.18em] bg-gradient-to-r from-gold to-[#ff8b6d] bg-clip-text text-transparent">{{ months }}</p>
+              <h3 class="mt-3 text-2xl font-black bg-gradient-to-r from-lake to-alpine bg-clip-text text-transparent">{{ season }}</h3>
               <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
             </article>
           </div>
@@ -1165,10 +1209,12 @@ onUnmounted(() => {
             <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Kashmir routes your guests ask for.</h2>
           </div>
           <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            <article v-for="[name, img, text] in destinations" :key="name" class="premium-card overflow-hidden rounded-lg">
-              <div class="image-cover h-56" :style="imageStyle(img)"></div>
+            <article v-for="[name, img, text] in destinations" :key="name" class="premium-card overflow-hidden rounded-lg hover-lift">
+              <div class="image-cover h-56 relative overflow-hidden" :style="imageStyle(img)">
+                <div class="absolute inset-0 bg-gradient-to-t from-night via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
               <div class="p-5">
-                <h3 class="text-2xl font-black">{{ name }}</h3>
+                <h3 class="text-2xl font-black bg-gradient-to-r from-alpine to-lake bg-clip-text text-transparent">{{ name }}</h3>
                 <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
               </div>
             </article>
@@ -1183,9 +1229,9 @@ onUnmounted(() => {
             <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Plan destinations in a route that actually works.</h2>
           </div>
           <div class="grid gap-5 lg:grid-cols-3">
-            <article v-for="[title, route, text] in routeIdeas" :key="title" class="premium-card rounded-lg p-5">
-              <p class="text-sm font-black text-lake">{{ route }}</p>
-              <h3 class="mt-3 text-2xl font-black text-night">{{ title }}</h3>
+            <article v-for="[title, route, text] in routeIdeas" :key="title" class="premium-card rounded-lg p-5 hover-lift">
+              <p class="text-sm font-black bg-gradient-to-r from-gold to-[#ff8b6d] bg-clip-text text-transparent">{{ route }}</p>
+              <h3 class="mt-3 text-2xl font-black bg-gradient-to-r from-lake to-alpine bg-clip-text text-transparent">{{ title }}</h3>
               <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
             </article>
           </div>
@@ -1224,40 +1270,40 @@ onUnmounted(() => {
           <form class="premium-card rounded-lg p-5">
             <div class="grid gap-4 md:grid-cols-2">
               <label class="grid gap-2 text-sm font-bold">Package
-                <select v-model="selectedPackage" class="rounded-lg border border-night/10 px-3 py-3">
+                <select v-model="selectedPackage" class="rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20">
                   <option v-for="item in packages" :key="item.name" :value="item.price">{{ item.name }}</option>
                 </select>
               </label>
               <label class="grid gap-2 text-sm font-bold">Travel date
-                <input type="date" class="rounded-lg border border-night/10 px-3 py-3" />
+                <input type="date" class="rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
               </label>
               <label class="grid gap-2 text-sm font-bold">Travelers
-                <input v-model.number="travelers" type="number" min="1" class="rounded-lg border border-night/10 px-3 py-3" />
+                <input v-model.number="travelers" type="number" min="1" class="rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
               </label>
               <label class="grid gap-2 text-sm font-bold">Pricing class
-                <select v-model.number="priceClass" class="rounded-lg border border-night/10 px-3 py-3">
+                <select v-model.number="priceClass" class="rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20">
                   <option :value="1">Standard</option>
                   <option :value="1.25">Deluxe</option>
                   <option :value="1.65">Luxury</option>
                 </select>
               </label>
               <label class="grid gap-2 text-sm font-bold md:col-span-2">Customer details
-                <input type="text" placeholder="Name, email, phone" class="rounded-lg border border-night/10 px-3 py-3" />
+                <input type="text" placeholder="Name, email, phone" class="rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
               </label>
             </div>
 
-            <div class="mt-5 rounded-lg bg-frost p-4">
-              <div class="flex items-center justify-between gap-3"><p class="text-sm font-black text-night/60">Estimated total</p><p class="text-3xl font-black text-night">{{ bookingTotal }}</p></div>
+            <div class="mt-5 rounded-lg bg-frost p-4 border-l-4 border-lake">
+              <div class="flex items-center justify-between gap-3"><p class="text-sm font-black text-night/60">Estimated total</p><p class="text-3xl font-black text-lake">{{ bookingTotal }}</p></div>
             </div>
 
             <div class="mt-5 grid gap-3 sm:grid-cols-3">
-              <button type="button" class="rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-alpine" @click="choosePayment('Razorpay')">Razorpay</button>
-              <button type="button" class="rounded-lg border border-night/[0.12] px-5 py-3 text-sm font-black text-night hover:border-lake hover:text-lake" @click="choosePayment('Stripe')">Stripe</button>
-              <button type="button" class="rounded-lg border border-night/[0.12] px-5 py-3 text-sm font-black text-night hover:border-lake hover:text-lake" @click="choosePayment('UPI')">UPI</button>
+              <button type="button" class="rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-alpine transition hover:-translate-y-0.5" @click="choosePayment('Razorpay')">Razorpay</button>
+              <button type="button" class="rounded-lg border border-night/[0.12] px-5 py-3 text-sm font-black text-night hover:border-lake hover:text-lake hover:bg-frost transition" @click="choosePayment('Stripe')">Stripe</button>
+              <button type="button" class="rounded-lg border border-night/[0.12] px-5 py-3 text-sm font-black text-night hover:border-lake hover:text-lake hover:bg-frost transition" @click="choosePayment('UPI')">UPI</button>
             </div>
 
-            <div v-if="selectedPaymentMethod" class="mt-4 rounded-lg border border-lake/[0.22] bg-lake/[0.08] p-4 text-sm font-semibold leading-6 text-night">
-              {{ selectedPaymentMethod }} selected for {{ bookingTotal }}.
+            <div v-if="selectedPaymentMethod" class="mt-4 rounded-lg border border-lake/[0.22] bg-lake/[0.08] p-4 text-sm font-semibold leading-6 text-night border-l-4 border-lake">
+              ✓ {{ selectedPaymentMethod }} selected for {{ bookingTotal }}.
             </div>
           </form>
         </div>
@@ -1270,8 +1316,8 @@ onUnmounted(() => {
             <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">A simple flow from inquiry to confirmed Kashmir trip.</h2>
           </div>
           <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <article v-for="[step, title, text] in bookingSteps" :key="step" class="premium-card rounded-lg p-5">
-              <p class="text-3xl font-black text-lake">{{ step }}</p>
+            <article v-for="[step, title, text] in bookingSteps" :key="step" class="premium-card rounded-lg p-5 hover-lift">
+              <p class="text-3xl font-black bg-gradient-to-r from-gold to-[#ff8b6d] bg-clip-text text-transparent">{{ step }}</p>
               <h3 class="mt-4 text-xl font-black text-night">{{ title }}</h3>
               <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
             </article>
@@ -1339,10 +1385,14 @@ onUnmounted(() => {
             <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Albums for every kind of Kashmir traveler.</h2>
           </div>
           <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            <article v-for="[title, imageName, text] in galleryCollections" :key="title" class="premium-card overflow-hidden rounded-lg">
-              <div class="image-cover h-64" :style="imageStyle(imageName)"></div>
+            <article v-for="[title, imageName, text] in galleryCollections" :key="title" class="premium-card overflow-hidden rounded-lg hover-lift">
+              <div class="image-cover h-64 relative overflow-hidden" :style="imageStyle(imageName)">
+                <div class="absolute inset-0 bg-gradient-to-t from-night/80 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                  <span class="text-white text-xs font-black">EXPLORE</span>
+                </div>
+              </div>
               <div class="p-5">
-                <h3 class="text-2xl font-black text-night">{{ title }}</h3>
+                <h3 class="text-2xl font-black bg-gradient-to-r from-gold to-[#ff8b6d] bg-clip-text text-transparent">{{ title }}</h3>
                 <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
               </div>
             </article>
@@ -1373,7 +1423,7 @@ onUnmounted(() => {
             <p class="mt-5 text-base font-semibold leading-8 text-white/70">Some guests want snow adventure, some want lake sunsets, and some need relaxed family photographs. The gallery helps match the right route to the right feeling.</p>
           </div>
           <div class="grid gap-4 md:grid-cols-3">
-            <article v-for="[title, text] in galleryHighlights" :key="title" class="rounded-lg bg-white/10 p-5">
+            <article v-for="[title, text] in galleryHighlights" :key="title" class="rounded-lg bg-white/15 backdrop-blur p-5 hover-lift border border-white/20 hover:border-white/40 transition">
               <h3 class="text-xl font-black text-white">{{ title }}</h3>
               <p class="mt-3 text-sm leading-6 text-white/70">{{ text }}</p>
             </article>
@@ -1410,10 +1460,12 @@ onUnmounted(() => {
             <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Helpful reads for smoother Kashmir holidays.</h2>
           </div>
           <div class="grid gap-5 lg:grid-cols-3">
-            <article v-for="post in blogPosts" :key="post.title" class="premium-card overflow-hidden rounded-lg">
-              <div class="image-cover h-64" :style="imageStyle(post.image)"></div>
+            <article v-for="post in blogPosts" :key="post.title" class="premium-card overflow-hidden rounded-lg hover-lift">
+              <div class="image-cover h-64 relative overflow-hidden" :style="imageStyle(post.image)">
+                <div class="absolute inset-0 bg-gradient-to-t from-alpine/80 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
               <div class="p-5">
-                <p class="text-xs font-black uppercase tracking-[0.18em] text-lake">{{ post.date }}</p>
+                <p class="text-xs font-black uppercase tracking-[0.18em] bg-gradient-to-r from-gold to-[#ff8b6d] bg-clip-text text-transparent">{{ post.date }}</p>
                 <h3 class="mt-3 text-2xl font-black leading-tight text-night">{{ post.title }}</h3>
                 <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ post.excerpt }}</p>
               </div>
@@ -1430,7 +1482,7 @@ onUnmounted(() => {
             <p class="mt-5 text-base font-semibold leading-8 text-night/[0.64]">Use these notes as a starting point, then send your dates, traveler count, and preferred comfort level for a custom plan.</p>
           </div>
           <div class="grid gap-4 md:grid-cols-2">
-            <article v-for="[title, text] in blogGuides" :key="title" class="premium-card rounded-lg p-5">
+            <article v-for="[title, text] in blogGuides" :key="title" class="premium-card rounded-lg p-5 hover-lift">
               <h3 class="text-xl font-black text-night">{{ title }}</h3>
               <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
             </article>
@@ -1476,17 +1528,23 @@ onUnmounted(() => {
               <p class="rounded-lg bg-white p-4">Emergency Support: 24/7 during active trips</p>
             </div>
           </div>
-          <form class="premium-card rounded-lg p-5">
+          <form class="premium-card rounded-lg p-5" @submit.prevent="submitContactForm">
             <div class="grid gap-4 md:grid-cols-2">
-              <input type="text" placeholder="Full name" class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold" />
-              <input type="tel" placeholder="Phone / WhatsApp" class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold" />
-              <input type="email" placeholder="Email" class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold" />
-              <select class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold"><option>Winter Package</option><option>Summer Package</option><option>Honeymoon Package</option><option>Custom Package</option></select>
-              <textarea placeholder="Tell us your dates, travelers, budget, and preferred destinations" class="min-h-36 rounded-lg border border-night/10 px-4 py-3 text-sm font-bold md:col-span-2"></textarea>
+              <input v-model="bookingForm.name" type="text" placeholder="Full name" required class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
+              <input v-model="bookingForm.phone" type="tel" placeholder="Phone / WhatsApp" required class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
+              <input v-model="bookingForm.email" type="email" placeholder="Email" required class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold md:col-span-2 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
+              <select class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold md:col-span-2 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20">
+                <option>Winter Package</option>
+                <option>Summer Package</option>
+                <option>Honeymoon Package</option>
+                <option>Custom Package</option>
+              </select>
+              <textarea v-model="bookingForm.details" placeholder="Tell us your dates, travelers, budget, and preferred destinations" class="min-h-36 rounded-lg border border-night/10 px-4 py-3 text-sm font-bold md:col-span-2 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20"></textarea>
             </div>
+            <p v-if="bookingFormStatus" :class="bookingFormStatus.includes('valid') ? 'text-red-600 bg-red-50' : 'text-green-600 bg-green-50'" class="mt-4 rounded-lg p-3 text-sm font-semibold">{{ bookingFormStatus }}</p>
             <div class="mt-5 grid gap-3 sm:grid-cols-2">
-              <button type="button" class="rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-alpine">Send Inquiry</button>
-              <a href="https://wa.me/919729968734?text=I%20want%20to%20book%20a%20Kashmir%20tour" class="rounded-lg border border-night/[0.12] px-5 py-3 text-center text-sm font-black text-night hover:border-lake hover:text-lake">WhatsApp Live Chat</a>
+              <button type="submit" class="rounded-lg bg-night px-5 py-3 text-sm font-black text-white transition hover:bg-alpine hover:-translate-y-0.5">Send Inquiry</button>
+              <a href="https://wa.me/919729968734?text=I%20want%20to%20book%20a%20Kashmir%20tour" class="rounded-lg border border-night/[0.12] px-5 py-3 text-center text-sm font-black text-night transition hover:border-lake hover:text-lake hover:bg-frost">WhatsApp Live Chat</a>
             </div>
           </form>
         </div>
@@ -1499,7 +1557,7 @@ onUnmounted(() => {
             <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Help before booking, during travel, and after arrival.</h2>
           </div>
           <div class="grid gap-4 md:grid-cols-3">
-            <article v-for="[title, text] in supportCards" :key="title" class="premium-card rounded-lg p-5">
+            <article v-for="[title, text] in supportCards" :key="title" class="premium-card rounded-lg p-5 hover-lift">
               <h3 class="text-2xl font-black text-night">{{ title }}</h3>
               <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
             </article>

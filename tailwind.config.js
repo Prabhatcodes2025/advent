@@ -15,8 +15,8 @@ export default {
         sans: ["Inter", "ui-sans-serif", "system-ui"],
       },
       boxShadow: {
-        premium: "0 28px 80px rgba(7, 24, 39, .24)",
-        lift: "0 18px 42px rgba(7, 24, 39, .14)",
+        premium: "0 8px 20px rgba(7, 24, 39, .08)",
+        lift: "0 4px 12px rgba(7, 24, 39, .06)",
       },
     },
   },
