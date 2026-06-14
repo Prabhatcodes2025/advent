@@ -87,6 +87,10 @@ const defaultPackages = [
     duration: "4D/3N",
     rating: "4.9",
     types: ["winter", "luxury"],
+    routeTitle: "Gulmarg",
+    routeDetails: "Gondola, Apharwat Peak, Snow Trails",
+    cities: ["Gulmarg", "Srinagar"],
+    highlights: ["Ski lessons", "Gondola", "Snowmobile", "Heated stay"],
     image: image("image08"),
     description: "Ski lessons, Gondola, snowmobile, heated stay, transfers, permits, and on-ground support.",
   },
@@ -97,6 +101,10 @@ const defaultPackages = [
     duration: "3D/2N",
     rating: "4.8",
     types: ["summer", "family"],
+    routeTitle: "Srinagar",
+    routeDetails: "Dal Lake, Mughal Gardens, Houseboat",
+    cities: ["Srinagar", "Dal Lake", "Mughal Gardens"],
+    highlights: ["Dal Lake", "Mughal Gardens", "Shikara", "Houseboat stay"],
     image: image("image21"),
     description: "Dal Lake, Mughal Gardens, Shikara, houseboat stay, city tour, and family-friendly pacing.",
   },
@@ -107,6 +115,10 @@ const defaultPackages = [
     duration: "5D/4N",
     rating: "5.0",
     types: ["honeymoon", "luxury"],
+    routeTitle: "Kashmir",
+    routeDetails: "Srinagar, Gulmarg, Pahalgam",
+    cities: ["Srinagar", "Gulmarg", "Pahalgam"],
+    highlights: ["Candlelight dinner", "Premium houseboat", "Private cab", "Photoshoot"],
     image: image("image14"),
     description: "Candlelight dinner, premium houseboat, private cab, photoshoot, Gulmarg day, and romantic add-ons.",
   },
@@ -117,6 +129,10 @@ const defaultPackages = [
     duration: "6D/5N",
     rating: "4.7",
     types: ["summer", "group"],
+    routeTitle: "Pahalgam",
+    routeDetails: "Betaab Valley, Aru Valley, Camps",
+    cities: ["Pahalgam", "Betaab Valley", "Aru Valley"],
+    highlights: ["Guides", "Camping", "Meals", "Activity permits"],
     image: image("image01"),
     description: "Guides, camping, meals, route planning, activity permits, and student or corporate group support.",
   },
@@ -127,6 +143,10 @@ const defaultPackages = [
     duration: "1D",
     rating: "4.8",
     types: ["winter", "family"],
+    routeTitle: "Sonamarg",
+    routeDetails: "Glacier Point, Snow Activities",
+    cities: ["Sonamarg", "Srinagar"],
+    highlights: ["Scenic drive", "Snow activities", "Local guide", "Family transfers"],
     image: image("image12"),
     description: "Scenic drive, snow activities, local guide, family transfers, and real snowfall video stops.",
   },
@@ -137,12 +157,30 @@ const defaultPackages = [
     duration: "7D/6N",
     rating: "5.0",
     types: ["luxury", "summer"],
+    routeTitle: "Kashmir",
+    routeDetails: "Srinagar, Gulmarg, Pahalgam, Sonamarg",
+    cities: ["Srinagar", "Gulmarg", "Pahalgam", "Sonamarg"],
+    highlights: ["Deluxe hotels", "Premium cab", "Houseboat", "Concierge planning"],
     image: image("image20"),
     description: "Deluxe hotels, premium cab, houseboat, concierge planning, custom route, and private experiences.",
   },
 ];
 
-const packages = ref(loadStoredValue("kashmir-packages", defaultPackages));
+function clonePackage(item) {
+  return {
+    ...item,
+    types: Array.isArray(item.types) ? [...item.types] : [],
+    cities: Array.isArray(item.cities) ? [...item.cities] : [],
+    highlights: Array.isArray(item.highlights) ? [...item.highlights] : [],
+  };
+}
+
+function loadStoredPackages() {
+  const savedPackages = loadStoredValue("kashmir-packages", defaultPackages);
+  return Array.isArray(savedPackages) ? savedPackages.map(clonePackage) : defaultPackages.map(clonePackage);
+}
+
+const packages = ref(loadStoredPackages());
 const filters = ["all", "winter", "summer", "honeymoon", "luxury"];
 const filteredPackages = computed(() => {
   if (activeFilter.value === "all") return packages.value;
@@ -162,25 +200,38 @@ const detailPackage = computed(() => {
   return packages.value.find((item) => slugifyPackageName(item.name) === slug) || packages.value[0];
 });
 
-const detailHighlights = computed(() => {
-  const item = detailPackage.value;
-  const descriptionParts = String(item?.description || "")
+function textListToArray(value) {
+  return String(value || "")
     .split(",")
     .map((part) => part.trim().replace(/\.$/, ""))
-    .filter(Boolean)
-    .slice(0, 4);
+    .filter(Boolean);
+}
 
-  return descriptionParts.length ? descriptionParts : ["Private cab", "Hotel stay", "Local guide", "Trip support"];
+function descriptionHighlights(item) {
+  return textListToArray(item?.description).slice(0, 4);
+}
+
+const detailHighlights = computed(() => {
+  const item = detailPackage.value;
+  const savedHighlights = Array.isArray(item?.highlights) ? item.highlights.filter(Boolean).slice(0, 6) : [];
+  const descriptionParts = descriptionHighlights(item);
+
+  return savedHighlights.length ? savedHighlights : descriptionParts.length ? descriptionParts : ["Private cab", "Hotel stay", "Local guide", "Trip support"];
 });
 
 const detailCities = computed(() => {
+  const savedCities = Array.isArray(detailPackage.value?.cities) ? detailPackage.value.cities.filter(Boolean) : [];
+  if (savedCities.length) return savedCities;
+
   const text = `${detailPackage.value?.name || ""} ${detailPackage.value?.description || ""}`.toLowerCase();
   const cityNames = ["Srinagar", "Gulmarg", "Pahalgam", "Sonamarg", "Dal Lake", "Mughal Gardens"];
   const matchedCities = cityNames.filter((city) => text.includes(city.toLowerCase()));
   return matchedCities.length ? matchedCities : ["Srinagar", "Gulmarg"];
 });
 
-const detailSaveAmount = computed(() => Math.max(2500, Math.round(Number(detailPackage.value?.price || 0) * 0.18)));
+const detailFallbackSaveAmount = computed(() => Math.max(2500, Math.round(Number(detailPackage.value?.price || 0) * 0.18)));
+const detailOriginalPrice = computed(() => Math.max(Number(detailPackage.value?.originalPrice || 0), Number(detailPackage.value?.price || 0) + detailFallbackSaveAmount.value));
+const detailSaveAmount = computed(() => Math.max(detailFallbackSaveAmount.value, detailOriginalPrice.value - Number(detailPackage.value?.price || 0)));
 
 const packageRouteMap = {
   "Gulmarg Ski & Gondola": ["Gulmarg", "Gondola, Apharwat Peak, Snow Trails"],
@@ -192,19 +243,20 @@ const packageRouteMap = {
 };
 
 function packageRoute(item) {
+  if (item.routeTitle || item.routeDetails) {
+    return [item.routeTitle || "Kashmir", item.routeDetails || "Custom route"];
+  }
+
   return packageRouteMap[item.name] || ["Kashmir", "Custom route"];
 }
 
 function packageChips(item) {
-  return String(item.description || "")
-    .split(",")
-    .map((part) => part.trim().replace(/\.$/, ""))
-    .filter(Boolean)
-    .slice(0, 3);
+  const savedHighlights = Array.isArray(item.highlights) ? item.highlights.filter(Boolean).slice(0, 3) : [];
+  return savedHighlights.length ? savedHighlights : descriptionHighlights(item).slice(0, 3);
 }
 
 function packageOriginalPrice(item) {
-  return Math.round(Number(item.price || 0) * 1.18);
+  return Math.max(Number(item.originalPrice || 0), Math.round(Number(item.price || 0) * 1.18));
 }
 
 function displayDuration(duration) {
@@ -464,7 +516,7 @@ function saveAdminChanges() {
 
 function resetAdminChanges() {
   siteContent.value = { ...defaultSiteContent };
-  packages.value = defaultPackages.map((item) => ({ ...item }));
+  packages.value = defaultPackages.map(clonePackage);
   galleryImages.value = [...defaultGalleryImages];
   selectedPackage.value = packages.value[0]?.price || 0;
   localStorage.removeItem("kashmir-site-content");
@@ -496,11 +548,24 @@ function packageTypesText(item) {
   return Array.isArray(item.types) ? item.types.join(", ") : "";
 }
 
+function packageCitiesText(item) {
+  return Array.isArray(item.cities) ? item.cities.join(", ") : "";
+}
+
+function packageHighlightsText(item) {
+  return Array.isArray(item.highlights) ? item.highlights.join(", ") : "";
+}
+
 function updatePackageTypes(item, value) {
-  item.types = value
-    .split(",")
-    .map((type) => type.trim().toLowerCase())
-    .filter(Boolean);
+  item.types = textListToArray(value).map((type) => type.toLowerCase());
+}
+
+function updatePackageCities(item, value) {
+  item.cities = textListToArray(value);
+}
+
+function updatePackageHighlights(item, value) {
+  item.highlights = textListToArray(value);
 }
 
 function addPackage() {
@@ -511,6 +576,10 @@ function addPackage() {
     duration: "3D/2N",
     rating: "4.8",
     types: ["summer", "family"],
+    routeTitle: "Kashmir",
+    routeDetails: "Custom route",
+    cities: ["Srinagar", "Gulmarg"],
+    highlights: ["Private cab", "Hotel stay", "Local guide", "Trip support"],
     image: image("image18"),
     description: "Add the package details, inclusions, route, and customer benefits here.",
   });
@@ -647,6 +716,9 @@ onUnmounted(() => {
                 <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72]">Price
                   <input v-model.number="item.price" type="number" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
                 </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72]">Original price
+                  <input v-model.number="item.originalPrice" type="number" placeholder="Auto" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
+                </label>
                 <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72]">Duration
                   <input v-model="item.duration" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
                 </label>
@@ -658,6 +730,18 @@ onUnmounted(() => {
                 </label>
                 <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Filter types
                   <input :value="packageTypesText(item)" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" @input="updatePackageTypes(item, $event.target.value)" />
+                </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Route location
+                  <input v-model="item.routeTitle" placeholder="Example: Srinagar" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
+                </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Route details
+                  <input v-model="item.routeDetails" placeholder="Example: Dal Lake, Gulmarg, Pahalgam" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
+                </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Cities covered
+                  <input :value="packageCitiesText(item)" placeholder="Srinagar, Gulmarg" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" @input="updatePackageCities(item, $event.target.value)" />
+                </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Highlights
+                  <input :value="packageHighlightsText(item)" placeholder="Hotel stay, Cab, Guide" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" @input="updatePackageHighlights(item, $event.target.value)" />
                 </label>
                 <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-4">Description
                   <textarea v-model="item.description" class="min-h-20 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night"></textarea>
@@ -1102,7 +1186,7 @@ onUnmounted(() => {
             <p class="text-sm font-bold text-night/55">Starting From</p>
             <div class="mt-2 flex flex-wrap items-end gap-3">
               <p class="font-display text-4xl font-extrabold text-lake">₹{{ detailPackage.price.toLocaleString("en-IN") }}</p>
-              <p class="pb-1 text-lg font-bold text-night/45 line-through">₹{{ (detailPackage.price + detailSaveAmount).toLocaleString("en-IN") }}</p>
+              <p class="pb-1 text-lg font-bold text-night/45 line-through">₹{{ detailOriginalPrice.toLocaleString("en-IN") }}</p>
             </div>
             <p class="mt-2 text-xs font-semibold text-night/55">Per person, taxes included</p>
             <p class="mt-6 rounded-lg bg-gold/15 px-4 py-3 text-center text-base font-black text-gold">Save ₹{{ detailSaveAmount.toLocaleString("en-IN") }}!</p>
