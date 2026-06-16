@@ -2399,24 +2399,22 @@ onUnmounted(() => {
                 <p class="mt-5 max-w-xl text-sm font-semibold leading-7 text-white/76">Reach us for package planning, booking changes, route suggestions, emergency coordination, or quick WhatsApp support.</p>
               </div>
 
-              <div class="mt-8 grid gap-3">
+              <div class="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <div class="rounded-lg border border-white/18 bg-white/12 p-4 backdrop-blur-xl">
                   <p class="text-xs font-black uppercase tracking-[0.18em] text-gold">Call / WhatsApp</p>
-                  <p class="mt-2 text-lg font-black">{{ siteContent.contactPhone }}</p>
+                  <p class="mt-2 font-black sm:text-sm lg:text-lg">{{ siteContent.contactPhone }}</p>
                 </div>
                 <div class="rounded-lg border border-white/18 bg-white/12 p-4 backdrop-blur-xl">
                   <p class="text-xs font-black uppercase tracking-[0.18em] text-gold">Email</p>
-                  <p class="mt-2 break-words text-lg font-black">{{ siteContent.contactEmail }}</p>
+                  <p class="mt-2 break-words font-black sm:text-sm lg:text-lg">{{ siteContent.contactEmail }}</p>
                 </div>
-                <div class="grid gap-3 sm:grid-cols-2">
-                  <div class="rounded-lg border border-white/18 bg-white/12 p-4 backdrop-blur-xl">
-                    <p class="text-xs font-black uppercase tracking-[0.18em] text-gold">Office</p>
-                    <p class="mt-2 text-sm font-semibold leading-6 text-white/78">{{ siteContent.contactAddress }}</p>
-                  </div>
-                  <div class="rounded-lg border border-white/18 bg-white/12 p-4 backdrop-blur-xl">
-                    <p class="text-xs font-black uppercase tracking-[0.18em] text-gold">Support</p>
-                    <p class="mt-2 text-sm font-semibold leading-6 text-white/78">{{ siteContent.contactSupport }}</p>
-                  </div>
+                <div class="rounded-lg border border-white/18 bg-white/12 p-4 backdrop-blur-xl">
+                  <p class="text-xs font-black uppercase tracking-[0.18em] text-gold">Office</p>
+                  <p class="mt-2 text-sm font-semibold leading-6 text-white/78">{{ siteContent.contactAddress }}</p>
+                </div>
+                <div class="rounded-lg border border-white/18 bg-white/12 p-4 backdrop-blur-xl">
+                  <p class="text-xs font-black uppercase tracking-[0.18em] text-gold">Support</p>
+                  <p class="mt-2 text-sm font-semibold leading-6 text-white/78">{{ siteContent.contactSupport }}</p>
                 </div>
               </div>
             </div>
