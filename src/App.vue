@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 
 const imageAssets = import.meta.glob("./assets/kashmir/*.jpeg", {
   eager: true,
@@ -73,18 +73,20 @@ const currentPath = ref(normalizePath(window.location.pathname));
 const isAdminRoute = computed(() => currentPath.value === "/admin/login");
 const isMenuOpen = ref(false);
 const isMoreMenuOpen = ref(false);
+const isInitialLoading = ref(true);
 const activeFilter = ref("all");
 const activeAdminTab = ref("packages");
 const openFaqs = ref([0]);
 const currentPage = computed(() => (currentPath.value.startsWith("/packages/") ? "packageDetail" : publicRoutes[currentPath.value] || "home"));
+let initialLoadingTimeout = null;
 
 const defaultSiteContent = {
-  heroBadge: "Premium Kashmir adventure tourism",
-  heroTitle: "Adventure Without Fear. Travel Without Doubt.",
+  heroBadge: "Kashmir tour packages, adventure trips, and local travel support",
+  heroTitle: "Plan Your Kashmir Trip With Snow Feather",
   heroSubtitle:
-    "Curated skiing, trekking, camping, houseboat, honeymoon, family, and luxury journeys across Srinagar, Gulmarg, Pahalgam, Sonamarg, Dal Lake, and beyond.",
+    "Book curated Kashmir holiday packages for Srinagar, Gulmarg, Pahalgam, Sonamarg, Dal Lake, skiing, trekking, camping, honeymoon tours, family vacations, and luxury stays with local experts.",
   homeActivitiesEyebrow: "Featured activities",
-  homeActivitiesTitle: "Adventure, snow, lake, and mountain experiences.",
+  homeActivitiesTitle: "Kashmir adventure, snow, lake, and mountain experiences.",
   homeGalleryEyebrow: "Media gallery",
   homeGalleryTitle: "Instagram, video, snowfall, and drone ready layout.",
   packagesHeroEyebrow: "Tour Packages",
@@ -137,6 +139,84 @@ const defaultSiteContent = {
 };
 
 const siteContent = ref({ ...defaultSiteContent, ...loadStoredValue("kashmir-site-content", defaultSiteContent) });
+
+const purposeCards = [
+  {
+    label: "Our Vision",
+    title: "To make Kashmir travel clear, trusted, and unforgettable.",
+    text:
+      "Snow Feather aims to become a trusted Kashmir tourism company for travelers who want beautiful places, honest guidance, comfortable stays, and reliable local support from inquiry to return.",
+  },
+  {
+    label: "Our Mission",
+    title: "To design Kashmir trips that match real travelers.",
+    text:
+      "Our mission is to build practical Kashmir tour packages for families, honeymoon couples, adventure groups, and luxury guests with clear routes, fair pricing, safe transfers, activity coordination, and 24/7 on-trip assistance.",
+  },
+  {
+    label: "Our Motto",
+    title: "Travel Kashmir with confidence.",
+    text:
+      "Our motto is simple: clear plans, local care, and memorable Kashmir experiences. From Gulmarg snow activities to Dal Lake houseboats, we keep every trip easy to understand and easy to enjoy.",
+  },
+];
+
+const pageSeo = computed(() => {
+  const map = {
+    home: {
+      title: "Snow Feather | Kashmir Tour Packages, Adventure Trips & Travel Support",
+      description:
+        "Book Snow Feather Kashmir tour packages for Srinagar, Gulmarg, Pahalgam, Sonamarg, Dal Lake, skiing, trekking, camping, honeymoon tours, family holidays, and luxury travel.",
+    },
+    about: {
+      title: "About Snow Feather | Kashmir Tourism Company & Local Travel Experts",
+      description:
+        "Learn about Snow Feather, a Kashmir tourism company offering custom tour packages, local travel planning, hotel and houseboat stays, cab transfers, snow activities, and trip support.",
+    },
+    packages: {
+      title: "Kashmir Tour Packages | Gulmarg, Srinagar, Pahalgam & Sonamarg",
+      description: siteContent.value.packagesHeroText,
+    },
+    destinations: {
+      title: "Kashmir Destinations | Srinagar, Gulmarg, Pahalgam, Sonamarg & Dal Lake",
+      description:
+        "Explore Kashmir destinations including Srinagar, Gulmarg, Pahalgam, Sonamarg, Dal Lake, Mughal Gardens, snow points, valleys, and local sightseeing routes.",
+    },
+    booking: {
+      title: "Book Kashmir Tour Package | Snow Feather Booking Inquiry",
+      description:
+        "Send a Kashmir trip inquiry to Snow Feather for custom packages, hotels, houseboats, cab transfers, adventure activities, honeymoon tours, and family travel plans.",
+    },
+    gallery: {
+      title: "Kashmir Travel Gallery | Snow Feather Photos & Trip Ideas",
+      description: siteContent.value.galleryHeroText,
+    },
+    blog: {
+      title: "Kashmir Travel Blog | Snow Feather Travel Tips & Planning Guides",
+      description: siteContent.value.blogHeroText,
+    },
+    contact: {
+      title: "Contact Snow Feather | Kashmir Tour Booking Support",
+      description:
+        "Contact Snow Feather for Kashmir tour packages, WhatsApp booking, hotel and houseboat support, cab transfers, adventure activities, and custom travel planning.",
+    },
+  };
+
+  return map[currentPage.value] || map.home;
+});
+
+function updateMetaTag(selector, attribute, content) {
+  const tag = document.head.querySelector(selector);
+  if (tag) tag.setAttribute(attribute, content);
+}
+
+function updateSeoMeta() {
+  const seo = pageSeo.value;
+  document.title = seo.title;
+  updateMetaTag("meta[name='description']", "content", seo.description);
+  updateMetaTag("meta[property='og:title']", "content", seo.title);
+  updateMetaTag("meta[property='og:description']", "content", seo.description);
+}
 
 const defaultPackages = [
   {
@@ -924,15 +1004,33 @@ function deleteBlogChecklistItem(index) {
 
 onMounted(() => {
   window.addEventListener("popstate", handlePopState);
+  updateSeoMeta();
+  initialLoadingTimeout = window.setTimeout(() => {
+    isInitialLoading.value = false;
+    initialLoadingTimeout = null;
+  }, 1200);
 });
+
+watch(pageSeo, updateSeoMeta);
 
 onUnmounted(() => {
   window.removeEventListener("popstate", handlePopState);
+  if (initialLoadingTimeout) {
+    window.clearTimeout(initialLoadingTimeout);
+  }
 });
 </script>
 
 <template>
-  <section v-if="isAdminRoute" class="min-h-screen bg-night text-white">
+  <section v-if="isInitialLoading" class="fixed inset-0 z-[100] grid min-h-screen place-items-center bg-white px-4 text-night" role="status" aria-live="polite">
+    <div class="grid justify-items-center text-center">
+      <span class="h-12 w-12 animate-spin rounded-full border-4 border-frost border-t-lake"></span>
+      <p class="mt-5 text-sm font-black uppercase tracking-[0.18em] text-night/58">Loading</p>
+      <p class="mt-1 text-sm font-semibold text-night/48">{{ brandName }}</p>
+    </div>
+  </section>
+
+  <section v-else-if="isAdminRoute" class="min-h-screen bg-night text-white">
     <div v-if="!isAdminLoggedIn" class="grid min-h-screen place-items-center px-4 py-10 sm:px-6">
       <div class="w-full max-w-md rounded-lg border border-white/[0.12] bg-white/[0.08] p-6 shadow-premium backdrop-blur sm:p-8">
         <a href="/" class="mb-7 inline-flex items-center gap-3 rounded-lg border border-white/[0.18] px-4 py-2 text-sm font-black text-white hover:bg-white/[0.12]">
@@ -1503,6 +1601,28 @@ onUnmounted(() => {
         </div>
       </section>
 
+      <section v-if="currentPage === 'home'" class="bg-white py-16">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="grid gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
+            <div>
+              <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Why Snow Feather</p>
+              <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Kashmir travel planning with a clear purpose.</h2>
+              <p class="mt-5 text-base leading-8 text-night/[0.64]">
+                Snow Feather is a Kashmir tourism and adventure travel company helping guests book practical, beautiful, and well-supported trips across Srinagar, Gulmarg, Pahalgam, Sonamarg, Dal Lake, and beyond.
+              </p>
+            </div>
+
+            <div class="grid gap-4 md:grid-cols-3">
+              <article v-for="item in purposeCards" :key="`home-${item.label}`" class="premium-card rounded-lg p-5 hover-lift">
+                <p class="text-xs font-black uppercase tracking-[0.18em] text-lake">{{ item.label }}</p>
+                <h3 class="mt-4 text-xl font-black text-night">{{ item.title }}</h3>
+                <p class="mt-3 text-sm leading-6 text-night/[0.64]">{{ item.text }}</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section v-if="currentPage === 'home'" class="section-band py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-8">
@@ -1589,10 +1709,10 @@ onUnmounted(() => {
             </div>
 
             <div class="mt-8 flex flex-wrap gap-3">
-              <span class="rounded-full border border-gold/24 bg-gold/16 px-4 py-2 text-sm font-bold text-white">Beaches</span>
-              <span class="rounded-full border border-lake/24 bg-lake/16 px-4 py-2 text-sm font-bold text-white">Mountains</span>
-              <span class="rounded-full border border-white/16 bg-white/10 px-4 py-2 text-sm font-bold text-white">Culture</span>
-              <span class="rounded-full border border-lake/24 bg-lake/12 px-4 py-2 text-sm font-bold text-white">Lakes</span>
+              <span class="rounded-full border border-gold/24 bg-gold/16 px-4 py-2 text-sm font-bold text-white">Kashmir Tour Packages</span>
+              <span class="rounded-full border border-lake/24 bg-lake/16 px-4 py-2 text-sm font-bold text-white">Gulmarg Snow Trips</span>
+              <span class="rounded-full border border-white/16 bg-white/10 px-4 py-2 text-sm font-bold text-white">Dal Lake Houseboats</span>
+              <span class="rounded-full border border-lake/24 bg-lake/12 px-4 py-2 text-sm font-bold text-white">Pahalgam & Sonamarg</span>
             </div>
 
             <div class="mt-9 flex flex-col gap-4 sm:flex-row">
@@ -1605,6 +1725,26 @@ onUnmounted(() => {
             </div>
           </div>
 
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'about'" class="bg-white py-16">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="mx-auto mb-10 max-w-4xl text-center">
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Vision, mission, and motto</p>
+            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">The promise behind every Snow Feather Kashmir tour.</h2>
+            <p class="mt-5 text-base leading-8 text-night/[0.64]">
+              Our work is built around trusted Kashmir travel planning, local destination knowledge, clear package details, and responsive support for families, couples, groups, and adventure travelers.
+            </p>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-3">
+            <article v-for="item in purposeCards" :key="`about-${item.label}`" class="premium-card rounded-lg p-6 hover-lift">
+              <p class="text-sm font-black uppercase tracking-[0.18em] bg-gradient-to-r from-gold to-[#ff8b6d] bg-clip-text text-transparent">{{ item.label }}</p>
+              <h3 class="mt-4 text-2xl font-black text-night">{{ item.title }}</h3>
+              <p class="mt-3 text-sm leading-7 text-night/[0.64]">{{ item.text }}</p>
+            </article>
+          </div>
         </div>
       </section>
 
@@ -2026,14 +2166,29 @@ onUnmounted(() => {
       <section v-if="currentPage === 'booking'" class="bg-white py-16">
         <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.05fr]">
           <div>
-            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Payment options</p>
-            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Advance, balance, and confirmation details stay clear.</h2>
-            <p class="mt-5 text-base leading-7 text-night/[0.62]">Use this page to explain advance amount, cancellation notes, pickup timing, guest details, and what the team sends after payment.</p>
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Scan and pay</p>
+            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Pay your advance with the Snow Feather UPI scanner.</h2>
+            <p class="mt-5 text-base leading-7 text-night/[0.62]">After submitting your booking inquiry, scan the QR code, complete the advance payment, and share the payment screenshot on WhatsApp for faster confirmation.</p>
           </div>
-          <div class="grid gap-4 sm:grid-cols-3">
-            <div class="rounded-lg bg-frost p-5 shadow-lift"><p class="text-2xl font-black text-night">UPI</p><p class="mt-2 text-sm leading-6 text-night/[0.62]">Instant domestic advance collection.</p></div>
-            <div class="rounded-lg bg-frost p-5 shadow-lift"><p class="text-2xl font-black text-night">Card</p><p class="mt-2 text-sm leading-6 text-night/[0.62]">Razorpay or Stripe ready layout.</p></div>
-            <div class="rounded-lg bg-frost p-5 shadow-lift"><p class="text-2xl font-black text-night">Manual</p><p class="mt-2 text-sm leading-6 text-night/[0.62]">Offline confirmation and invoice support.</p></div>
+
+          <div class="rounded-lg bg-frost p-5 shadow-lift">
+            <div class="grid gap-5 sm:grid-cols-[13rem_1fr] sm:items-center">
+              <img src="/upi-img.jpeg" alt="Snow Feather UPI payment QR scanner" class="mx-auto aspect-square w-full max-w-52 rounded-lg border border-night/10 bg-white object-contain p-3 shadow-lift" />
+              <div>
+                <p class="text-sm font-black uppercase tracking-[0.18em] text-lake">UPI payment</p>
+                <h3 class="mt-2 text-2xl font-black text-night">Scan QR to pay</h3>
+                <p class="mt-3 text-sm leading-6 text-night/[0.62]">Use any UPI app to scan the code. Mention your name, package, and travel date when sending the payment screenshot.</p>
+                <a href="https://wa.me/919055020408?text=I%20have%20completed%20the%20UPI%20payment%20for%20my%20Snow%20Feather%20booking" class="mt-5 inline-flex rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake">Send Screenshot</a>
+              </div>
+            </div>
+
+            <!-- Payment gateway layout kept for later integration.
+            <div class="grid gap-4 sm:grid-cols-3">
+              <div class="rounded-lg bg-frost p-5 shadow-lift"><p class="text-2xl font-black text-night">UPI</p><p class="mt-2 text-sm leading-6 text-night/[0.62]">Instant domestic advance collection.</p></div>
+              <div class="rounded-lg bg-frost p-5 shadow-lift"><p class="text-2xl font-black text-night">Card</p><p class="mt-2 text-sm leading-6 text-night/[0.62]">Razorpay or Stripe ready layout.</p></div>
+              <div class="rounded-lg bg-frost p-5 shadow-lift"><p class="text-2xl font-black text-night">Manual</p><p class="mt-2 text-sm leading-6 text-night/[0.62]">Offline confirmation and invoice support.</p></div>
+            </div>
+            -->
           </div>
         </div>
       </section>
