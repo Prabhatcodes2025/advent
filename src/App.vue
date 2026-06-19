@@ -175,6 +175,12 @@ const trustMessages = [
   "Adventure Without Fear. Travel Without Doubt.",
 ];
 
+const registrationDetails = [
+  ["UDYAM Registration", "UDYAM-JK-21-0096543"],
+  ["LLP Identification Number", "ACY-0451"],
+  ["GSTIN", "01AFYFS1763F1ZS"],
+];
+
 const winterPricingNote =
   "During peak winter season in Gulmarg and Sonmarg, skiing, accommodation, transportation, and adventure activity prices increase significantly due to heavy tourist demand, snow conditions, equipment logistics, and limited premium availability.";
 
@@ -2322,6 +2328,22 @@ onUnmounted(() => {
             </div>
           </div>
 
+          <div class="mb-10 rounded-lg border border-night/10 bg-night p-4 text-white shadow-premium sm:p-5">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p class="text-xs font-black uppercase tracking-[0.18em] text-gold">Registered details</p>
+                <p class="mt-1 text-sm font-semibold text-white/62">Snow Feather LLP business identifiers</p>
+              </div>
+              <span class="rounded-lg border border-white/14 bg-white/10 px-3 py-2 text-xs font-black text-white/80">Verified business info</span>
+            </div>
+            <div class="mt-4 grid gap-3 md:grid-cols-3">
+              <div v-for="[label, value] in registrationDetails" :key="label" class="rounded-lg border border-white/14 bg-white/10 p-4 backdrop-blur-xl">
+                <p class="text-xs font-black uppercase tracking-[0.14em] text-gold">{{ label }}</p>
+                <p class="mt-2 break-all text-sm font-black text-white">{{ value }}</p>
+              </div>
+            </div>
+          </div>
+
           <div class="mb-10 flex flex-wrap justify-center gap-2" role="group" aria-label="Package filters">
             <button v-for="filter in filters" :key="filter" class="rounded-lg border px-4 py-2 text-sm font-black capitalize" :class="activeFilter === filter ? 'border-lake bg-lake text-white' : 'border-night/[0.12] bg-white text-night hover:border-lake hover:text-lake'" @click="activeFilter = filter">
               {{ filter }}
@@ -2993,7 +3015,7 @@ onUnmounted(() => {
 
     <footer class="bg-night px-4 py-12 text-white sm:px-6 lg:py-16">
       <div class="mx-auto max-w-7xl">
-        <div class="grid gap-10 border-b border-white/10 pb-10 md:grid-cols-2 xl:grid-cols-[1.35fr_0.9fr_1fr] xl:gap-16">
+        <div class="grid gap-10 border-b border-white/10 pb-10 md:grid-cols-2 xl:grid-cols-[1.25fr_0.8fr_0.85fr_1fr] xl:gap-12">
           <div>
             <button type="button" class="inline-flex items-center gap-3 text-left" @click="navigateTo('/home')">
               <span class="grid h-16 w-16 place-items-center overflow-hidden rounded-full border border-lake/30 bg-white p-2">
@@ -3045,6 +3067,16 @@ onUnmounted(() => {
               <button type="button" class="text-left hover:text-lake" @click="navigateTo('/contact')">Contact Us</button>
               <button type="button" class="text-left hover:text-lake" @click="navigateTo('/privacy-policy')">Privacy Policy</button>
               <button type="button" class="text-left hover:text-lake" @click="navigateTo('/terms-of-service')">Terms of Service</button>
+            </div>
+          </div>
+
+          <div>
+            <h2 class="font-display text-2xl font-extrabold text-lake">Registered Details</h2>
+            <div class="mt-6 grid gap-3">
+              <div v-for="[label, value] in registrationDetails" :key="`footer-${label}`" class="rounded-lg border border-white/10 bg-white/8 p-3">
+                <p class="text-xs font-black uppercase tracking-[0.14em] text-gold">{{ label }}</p>
+                <p class="mt-2 break-all text-sm font-black text-white/82">{{ value }}</p>
+              </div>
             </div>
           </div>
 
