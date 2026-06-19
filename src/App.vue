@@ -90,8 +90,9 @@ const defaultSiteContent = {
   homeGalleryEyebrow: "Media gallery",
   homeGalleryTitle: "Instagram, video, snowfall, and drone ready layout.",
   packagesHeroEyebrow: "Tour Packages",
-  packagesHeroTitle: "Featured Holiday Packages",
-  packagesHeroText: "Handpicked Kashmir tour packages at practical prices. Book your dream vacation today.",
+  packagesHeroTitle: "Updated Premium Package Structure",
+  packagesHeroText:
+    "Snow Feather LLP premium packages for skiing, trekking, camping, honeymoon travel, group tours, and airport-to-airport Kashmir support with transparent seasonal pricing.",
   destinationsHeroEyebrow: "Destinations",
   destinationsHeroTitle: "Kashmir routes your guests ask for.",
   bookingHeroEyebrow: "Booking system",
@@ -136,9 +137,48 @@ const defaultSiteContent = {
   contactEmail: "snowfeatheradventures@gmail.com",
   contactAddress: "Karra Building, Court Road, Lal chowk, Srinagar, 190001, Jammu and Kashmir",
   contactSupport: "24/7 during active trips",
+  googleRecaptchaSiteKey: "",
 };
 
 const siteContent = ref({ ...defaultSiteContent, ...loadStoredValue("kashmir-site-content", defaultSiteContent) });
+
+const premiumStructureDate = "18/05, 2:00 pm";
+const premiumSourceNote =
+  "Updated Premium Package Structure from Snow Feather LLP - Expeditions & Adventures. These package details follow Kashmir seasonal market trends for skiing, trekking, camping, honeymoon, and airport-to-airport travel.";
+
+const packageCategories = [
+  ["Solo Traveler Package", "01 Person", "Solo tourists, ski learners, adventure travelers, backpackers"],
+  ["Double Sharing Package", "02 Persons", "Friends, brothers, family members"],
+  ["Couple Package", "02 Persons / Honeymoon", "Honeymoon couples, romantic luxury travel"],
+  ["Group Package", "04-10 Persons", "Friends group, corporate groups, student groups"],
+];
+
+const roomSharingOptions = [
+  ["Standard Sharing", "02 persons / room"],
+  ["Triple Sharing", "03 persons / room"],
+  ["Luxury Private Room", "Private occupancy"],
+];
+
+const hotelCategories = [
+  ["Budget", "Guest House / Standard Hotel"],
+  ["Deluxe", "3 Star Hotels"],
+  ["Premium", "4 Star Hotels"],
+  ["Luxury", "5 Star Resorts"],
+];
+
+const trustMessages = [
+  "Transparent Pricing - No Hidden Charges",
+  "Legally Registered & Professionally Managed Adventure Company",
+  "Experienced Local Team With Safety Commitment",
+  "Your Journey, Our Responsibility",
+  "We Believe In Commitment, Safety & Genuine Hospitality - Not False Promises.",
+  "Adventure Without Fear. Travel Without Doubt.",
+];
+
+const winterPricingNote =
+  "During peak winter season in Gulmarg and Sonmarg, skiing, accommodation, transportation, and adventure activity prices increase significantly due to heavy tourist demand, snow conditions, equipment logistics, and limited premium availability.";
+
+const premiumFeatureImages = ["image08", "image10", "image19"];
 
 const purposeCards = [
   {
@@ -220,94 +260,277 @@ function updateSeoMeta() {
 
 const defaultPackages = [
   {
-    name: "Gulmarg Ski & Gondola",
-    tag: "Winter",
-    price: 18500,
-    duration: "4D/3N",
+    name: "01 Day Ski Package - Without Food & Accommodation",
+    tag: "Skiing",
+    price: 18000,
+    originalPrice: 22000,
+    duration: "1D",
     rating: "4.9",
-    types: ["winter", "luxury"],
-    routeTitle: "Gulmarg",
-    routeDetails: "Gondola, Apharwat Peak, Snow Trails",
-    cities: ["Gulmarg", "Srinagar"],
-    highlights: ["Ski lessons", "Gondola", "Snowmobile", "Heated stay"],
+    types: ["winter", "skiing", "adventure"],
+    routeTitle: "Gulmarg / Sonmarg",
+    routeDetails: "Beginner ski training, equipment, instructor, local transport",
+    cities: ["Gulmarg", "Sonmarg"],
+    highlights: ["Ski instructor", "Equipment", "Beginner training", "Local transport"],
     image: image("image08"),
-    description: "Ski lessons, Gondola, snowmobile, heated stay, transfers, permits, and on-ground support.",
+    description:
+      "Short skiing course without food and accommodation. Standard: 01 person ₹18,000, 02 persons ₹30,000, group ₹65,000. Deluxe: 01 person ₹28,000, 02 persons ₹50,000, group ₹1,10,000. Luxury: 01 person ₹45,000, 02 persons ₹80,000, group ₹1,80,000.",
   },
   {
-    name: "Srinagar Lake & Gardens",
-    tag: "Summer",
-    price: 12900,
-    duration: "3D/2N",
+    name: "01 Day Ski Package - With Food & Accommodation",
+    tag: "Complete",
+    price: 28000,
+    originalPrice: 34000,
+    duration: "1D/1N",
+    rating: "4.9",
+    types: ["winter", "skiing", "luxury"],
+    routeTitle: "Gulmarg / Sonmarg",
+    routeDetails: "Hotel stay, meals, ski equipment, instructor, pickup and drop",
+    cities: ["Gulmarg", "Sonmarg"],
+    highlights: ["Hotel stay", "Breakfast & dinner", "Ski equipment", "Pickup & drop"],
+    image: image("image15"),
+    description:
+      "Complete one day ski package. Standard: solo ₹28,000, couple ₹48,000, group ₹1,20,000. Deluxe: solo ₹45,000, couple ₹78,000, group ₹2,10,000. Luxury: solo ₹75,000, couple ₹1,35,000, group ₹3,80,000.",
+  },
+  {
+    name: "02 Days Ski Course - Without Food & Accommodation",
+    tag: "Ski Course",
+    price: 35000,
+    originalPrice: 42000,
+    duration: "2D",
     rating: "4.8",
-    types: ["summer", "family"],
-    routeTitle: "Srinagar",
-    routeDetails: "Dal Lake, Mughal Gardens, Houseboat",
-    cities: ["Srinagar", "Dal Lake", "Mughal Gardens"],
-    highlights: ["Dal Lake", "Mughal Gardens", "Shikara", "Houseboat stay"],
-    image: image("image21"),
-    description: "Dal Lake, Mughal Gardens, Shikara, houseboat stay, city tour, and family-friendly pacing.",
+    types: ["winter", "skiing", "adventure"],
+    routeTitle: "Gulmarg / Sonmarg",
+    routeDetails: "Two day ski learning course without meals and stay",
+    cities: ["Gulmarg", "Sonmarg"],
+    highlights: ["Two day training", "Instructor", "Equipment support", "Winter guidance"],
+    image: image("image13"),
+    description:
+      "Two day ski course without food and accommodation. Standard: 01 person ₹35,000, 02 persons ₹58,000. Deluxe: 01 person ₹55,000, 02 persons ₹95,000. Luxury: 01 person ₹95,000, 02 persons ₹1,65,000.",
   },
   {
-    name: "Royal Kashmir Honeymoon",
-    tag: "Luxury",
-    price: 34500,
-    duration: "5D/4N",
+    name: "02 Days Ski Course - Complete Package",
+    tag: "Complete",
+    price: 48000,
+    originalPrice: 58000,
+    duration: "2D/2N",
+    rating: "4.9",
+    types: ["winter", "skiing", "luxury"],
+    routeTitle: "Gulmarg / Sonmarg",
+    routeDetails: "Accommodation, meals, ski training, instructor, transfers",
+    cities: ["Gulmarg", "Sonmarg"],
+    highlights: ["Accommodation", "Meals", "Ski training", "Transfers"],
+    image: image("image16"),
+    description:
+      "Complete two day ski course. Standard: solo ₹48,000, couple ₹85,000. Deluxe: solo ₹78,000, couple ₹1,40,000. Luxury: solo ₹1,35,000, couple ₹2,60,000.",
+  },
+  {
+    name: "03 Days Ski Course - Complete Package",
+    tag: "Ski Course",
+    price: 75000,
+    originalPrice: 90000,
+    duration: "3D/3N",
+    rating: "5.0",
+    types: ["winter", "skiing", "group", "luxury"],
+    routeTitle: "Gulmarg / Sonmarg",
+    routeDetails: "Three day premium skiing with stay, meals, and instructor",
+    cities: ["Gulmarg", "Sonmarg"],
+    highlights: ["Ski training", "Accommodation", "Meals", "Group support"],
+    image: image("image17"),
+    description:
+      "Complete three day ski course. Standard: solo ₹75,000, couple ₹1,35,000, group ₹3,20,000. Deluxe: solo ₹1,20,000, couple ₹2,10,000, group ₹5,40,000. Luxury: solo ₹2,00,000, couple ₹3,80,000, group ₹9,00,000.",
+  },
+  {
+    name: "06 Days Professional Ski Course",
+    tag: "Premium Winter",
+    price: 145000,
+    originalPrice: 175000,
+    duration: "6D/6N",
+    rating: "5.0",
+    types: ["winter", "skiing", "group", "luxury"],
+    routeTitle: "Gulmarg / Sonmarg",
+    routeDetails: "Professional ski training, Gondola guidance, meals, transport, safety support",
+    cities: ["Gulmarg", "Sonmarg"],
+    highlights: ["Professional instructor", "Gondola guidance", "Snow activities", "Winter safety support"],
+    image: image("image10"),
+    description:
+      "Premium winter professional ski course. Standard: solo ₹1,45,000, couple ₹2,65,000, group ₹6,50,000. Deluxe: solo ₹2,40,000, couple ₹4,20,000, group ₹10,50,000. Luxury: solo ₹4,20,000, couple ₹7,50,000, group ₹18,00,000. Includes ski training, Gondola access guidance, accommodation, meals, transport, snow activities, bonfire, professional instructor, and winter safety support.",
+  },
+  {
+    name: "01 Day Trek - Sonmarg Thajiwas Trek",
+    tag: "Trekking",
+    price: 8000,
+    originalPrice: 10000,
+    duration: "1D",
+    rating: "4.8",
+    types: ["summer", "trekking", "adventure"],
+    routeTitle: "Sonmarg",
+    routeDetails: "Thajiwas trek with local guidance",
+    cities: ["Sonmarg", "Thajiwas"],
+    highlights: ["Trek guide", "Scenic route", "Transport support", "Photography spots"],
+    image: image("image11"),
+    description:
+      "One day Sonmarg to Thajiwas trek. Standard: solo ₹8,000, couple ₹14,000, group ₹40,000. Deluxe: solo ₹15,000, couple ₹28,000, group ₹75,000. Luxury: solo ₹30,000, couple ₹55,000, group ₹1,50,000.",
+  },
+  {
+    name: "02 Days Trekking + Camping",
+    tag: "Camping",
+    price: 18000,
+    originalPrice: 22000,
+    duration: "2D/1N",
+    rating: "4.9",
+    types: ["summer", "trekking", "camping", "group"],
+    routeTitle: "Aru Valley / Yusmarg",
+    routeDetails: "Trekking, camping, meals, bonfire, guide, transport",
+    cities: ["Aru Valley", "Yusmarg"],
+    highlights: ["Camping", "Meals", "Trek guide", "Bonfire"],
+    image: image("image01"),
+    description:
+      "Two days trekking plus camping in Aru Valley or Yusmarg. Standard: solo ₹18,000, couple ₹32,000, group ₹85,000. Deluxe: solo ₹35,000, couple ₹62,000, group ₹1,70,000. Luxury: solo ₹65,000, couple ₹1,25,000, group ₹3,50,000. Includes camping, meals, trek guide, bonfire, transport, and photography spots.",
+  },
+  {
+    name: "03 Days Trekking Package",
+    tag: "Expedition",
+    price: 35000,
+    originalPrice: 42000,
+    duration: "3D/2N",
+    rating: "4.9",
+    types: ["summer", "trekking", "group", "luxury"],
+    routeTitle: "Pahalgam / Sonmarg",
+    routeDetails: "Expedition route with guide, stay, meals, and support",
+    cities: ["Pahalgam", "Sonmarg"],
+    highlights: ["Expedition guide", "Meals", "Stay support", "Transport"],
+    image: image("image19"),
+    description:
+      "Three days trekking expedition in Pahalgam or Sonmarg. Standard: solo ₹35,000, couple ₹65,000, group ₹1,80,000. Deluxe: solo ₹68,000, couple ₹1,25,000, group ₹3,50,000. Luxury: solo ₹1,30,000, couple ₹2,45,000, group ₹7,00,000.",
+  },
+  {
+    name: "06 Days Great Lakes Trek",
+    tag: "Great Lakes",
+    price: 75000,
+    originalPrice: 90000,
+    duration: "6D/5N",
+    rating: "5.0",
+    types: ["summer", "trekking", "group", "luxury"],
+    routeTitle: "Kashmir Great Lakes",
+    routeDetails: "Multi-day trek with complete route support",
+    cities: ["Sonmarg", "Kashmir Great Lakes"],
+    highlights: ["Great Lakes route", "Guide", "Meals", "Camping support"],
+    image: image("image09"),
+    description:
+      "Six days Kashmir Great Lakes trek. Standard: solo ₹75,000, couple ₹1,40,000, group ₹4,50,000. Deluxe: solo ₹1,45,000, couple ₹2,75,000, group ₹8,50,000. Luxury: solo ₹2,90,000, couple ₹5,50,000, group ₹18,00,000.",
+  },
+  {
+    name: "01 Night Camping",
+    tag: "Camping",
+    price: 7500,
+    originalPrice: 9500,
+    duration: "1N",
+    rating: "4.8",
+    types: ["summer", "camping", "adventure"],
+    routeTitle: "Kashmir",
+    routeDetails: "One night camping complete package",
+    cities: ["Kashmir"],
+    highlights: ["Tent stay", "Camp setup", "Outdoor experience", "Local support"],
+    image: image("image03"),
+    description: "One night camping package. Standard: solo ₹7,500, couple ₹14,000. Deluxe: solo ₹15,000, couple ₹28,000. Luxury: solo ₹35,000, couple ₹65,000.",
+  },
+  {
+    name: "02 Night Camping",
+    tag: "Camping",
+    price: 15000,
+    originalPrice: 18000,
+    duration: "2N",
+    rating: "4.8",
+    types: ["summer", "camping", "adventure"],
+    routeTitle: "Kashmir",
+    routeDetails: "Two night camping complete package",
+    cities: ["Kashmir"],
+    highlights: ["Tent stay", "Meals support", "Camp planning", "Outdoor route"],
+    image: image("image04"),
+    description: "Two night camping package. Standard: solo ₹15,000, couple ₹28,000. Deluxe: solo ₹28,000, couple ₹52,000. Luxury: solo ₹58,000, couple ₹1,10,000.",
+  },
+  {
+    name: "03 Night Camping",
+    tag: "Camping",
+    price: 22000,
+    originalPrice: 27000,
+    duration: "3N",
+    rating: "4.9",
+    types: ["summer", "camping", "group"],
+    routeTitle: "Kashmir",
+    routeDetails: "Three night camping complete package",
+    cities: ["Kashmir"],
+    highlights: ["Tent stay", "Bonfire", "Meals support", "Group planning"],
+    image: image("image05"),
+    description: "Three night camping package. Standard: solo ₹22,000, couple ₹42,000. Deluxe: solo ₹45,000, couple ₹85,000. Luxury: solo ₹95,000, couple ₹1,80,000.",
+  },
+  {
+    name: "06 Night Adventure Camp",
+    tag: "Adventure Camp",
+    price: 45000,
+    originalPrice: 54000,
+    duration: "6N",
+    rating: "5.0",
+    types: ["summer", "camping", "group", "adventure"],
+    routeTitle: "Kashmir",
+    routeDetails: "Six night adventure camping experience",
+    cities: ["Kashmir"],
+    highlights: ["Adventure camp", "Meals support", "Bonfire", "Route planning"],
+    image: image("image06"),
+    description: "Six night adventure camp. Standard: solo ₹45,000, couple ₹85,000. Deluxe: solo ₹85,000, couple ₹1,60,000. Luxury: solo ₹1,80,000, couple ₹3,40,000.",
+  },
+  {
+    name: "03 Days Honeymoon Package",
+    tag: "Honeymoon",
+    price: 68000,
+    originalPrice: 82000,
+    duration: "3D/2N",
     rating: "5.0",
     types: ["honeymoon", "luxury"],
     routeTitle: "Kashmir",
-    routeDetails: "Srinagar, Gulmarg, Pahalgam",
+    routeDetails: "Romantic hotel setup, private cab, candlelight dinner",
     cities: ["Srinagar", "Gulmarg", "Pahalgam"],
-    highlights: ["Candlelight dinner", "Premium houseboat", "Private cab", "Photoshoot"],
+    highlights: ["Private cab", "Romantic hotel setup", "Candlelight dinner", "Houseboat option"],
     image: image("image14"),
-    description: "Candlelight dinner, premium houseboat, private cab, photoshoot, Gulmarg day, and romantic add-ons.",
+    description: "Three days honeymoon package for couples. Standard ₹68,000, Deluxe ₹1,25,000, Luxury ₹2,80,000.",
   },
   {
-    name: "Pahalgam Group Trek",
-    tag: "Group",
-    price: 21800,
-    duration: "6D/5N",
-    rating: "4.7",
-    types: ["summer", "group"],
-    routeTitle: "Pahalgam",
-    routeDetails: "Betaab Valley, Aru Valley, Camps",
-    cities: ["Pahalgam", "Betaab Valley", "Aru Valley"],
-    highlights: ["Guides", "Camping", "Meals", "Activity permits"],
-    image: image("image01"),
-    description: "Guides, camping, meals, route planning, activity permits, and student or corporate group support.",
-  },
-  {
-    name: "Sonamarg Snow Day",
-    tag: "Family",
-    price: 6500,
-    duration: "1D",
-    rating: "4.8",
-    types: ["winter", "family"],
-    routeTitle: "Sonamarg",
-    routeDetails: "Glacier Point, Snow Activities",
-    cities: ["Sonamarg", "Srinagar"],
-    highlights: ["Scenic drive", "Snow activities", "Local guide", "Family transfers"],
-    image: image("image12"),
-    description: "Scenic drive, snow activities, local guide, family transfers, and real snowfall video stops.",
-  },
-  {
-    name: "Luxury Kashmir Circuit",
+    name: "06 Days Premium Honeymoon",
     tag: "Premium",
-    price: 68000,
-    duration: "7D/6N",
+    price: 135000,
+    originalPrice: 160000,
+    duration: "6D/5N",
     rating: "5.0",
-    types: ["luxury", "summer"],
-    routeTitle: "Kashmir",
-    routeDetails: "Srinagar, Gulmarg, Pahalgam, Sonamarg",
-    cities: ["Srinagar", "Gulmarg", "Pahalgam", "Sonamarg"],
-    highlights: ["Deluxe hotels", "Premium cab", "Houseboat", "Concierge planning"],
+    types: ["honeymoon", "luxury"],
+    routeTitle: "Srinagar, Gulmarg, Pahalgam",
+    routeDetails: "Airport pickup, private cab, romantic setup, houseboat",
+    cities: ["Srinagar", "Gulmarg", "Pahalgam", "Dal Lake"],
+    highlights: ["Airport pickup", "Private cab", "Romantic hotel setup", "Srinagar houseboat"],
     image: image("image20"),
-    description: "Deluxe hotels, premium cab, houseboat, concierge planning, custom route, and private experiences.",
+    description:
+      "Six days premium honeymoon package. Standard ₹1,35,000, Deluxe ₹2,60,000, Luxury ₹5,80,000. Includes airport pickup, private cab, romantic hotel setup, candlelight dinner, Gulmarg, Pahalgam, and Srinagar houseboat.",
+  },
+  {
+    name: "Airport To Airport Kashmir Package",
+    tag: "Custom",
+    price: 0,
+    originalPrice: 0,
+    duration: "Custom",
+    rating: "5.0",
+    types: ["family", "group", "luxury", "custom"],
+    routeTitle: "Airport To Airport",
+    routeDetails: "Pickup, entire tour, hotels, meals, driver, airport drop",
+    cities: ["Srinagar", "Gulmarg", "Pahalgam", "Sonmarg", "Dal Lake"],
+    highlights: ["Airport pickup", "Entire tour", "Hotels & meals", "Airport drop"],
+    image: image("image21"),
+    description: "Airport to airport package includes pickup from airport, entire tour, hotels, meals, driver, and drop at airport. Pricing is customized by travel dates, hotel category, room sharing, destinations, and group size.",
   },
 ];
 
 function clonePackage(item) {
   return {
     ...item,
+    packageDate: item.packageDate || premiumStructureDate,
     types: Array.isArray(item.types) ? [...item.types] : [],
     cities: Array.isArray(item.cities) ? [...item.cities] : [],
     highlights: Array.isArray(item.highlights) ? [...item.highlights] : [],
@@ -315,7 +538,7 @@ function clonePackage(item) {
 }
 
 function loadStoredPackages() {
-  const savedPackages = loadStoredValue("kashmir-packages", defaultPackages);
+  const savedPackages = loadStoredValue("kashmir-packages-premium-v2", defaultPackages);
   return Array.isArray(savedPackages) ? savedPackages.map(clonePackage) : defaultPackages.map(clonePackage);
 }
 
@@ -585,6 +808,10 @@ const bookingInquiryStatus = ref("");
 const isBookingSubmitting = ref(false);
 let bookingInquiryStatusTimeout = null;
 const web3FormsAccessKey = "3401ac69-832e-416d-b7e2-499ceed01137";
+const googleRecaptchaScriptSrc = "https://www.google.com/recaptcha/api.js?render=explicit";
+const recaptchaTokens = ref({ booking: "", contact: "" });
+const recaptchaWidgetIds = { booking: null, contact: null };
+let recaptchaScriptPromise = null;
 const bookingTotalAmount = computed(() => Math.round(Number(selectedPackage.value || 0) * Number(travelers.value || 1) * Number(priceClass.value || 1)));
 const bookingTotal = computed(() =>
   new Intl.NumberFormat("en-IN", {
@@ -599,6 +826,8 @@ const selectedPriceClassName = computed(() => {
   if (Number(priceClass.value) === 1.25) return "Deluxe";
   return "Standard";
 });
+const googleRecaptchaSiteKey = computed(() => (siteContent.value.googleRecaptchaSiteKey || siteContent.value.recaptchaSiteKey || "").trim());
+const isRecaptchaEnabled = computed(() => Boolean(googleRecaptchaSiteKey.value));
 
 const isAdminLoggedIn = ref(localStorage.getItem("kashmir-admin-auth") === "true");
 const adminUsername = ref("");
@@ -658,6 +887,85 @@ function validatePhone(phone) {
   return phoneRegex.test(phone.replace(/[^\d]/g, ""));
 }
 
+function loadGoogleRecaptchaScript() {
+  if (window.grecaptcha?.render) return Promise.resolve();
+
+  if (!recaptchaScriptPromise) {
+    recaptchaScriptPromise = new Promise((resolve, reject) => {
+      const existingScript = document.querySelector(`script[src="${googleRecaptchaScriptSrc}"]`);
+      if (existingScript) {
+        existingScript.addEventListener("load", resolve, { once: true });
+        existingScript.addEventListener("error", reject, { once: true });
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = googleRecaptchaScriptSrc;
+      script.async = true;
+      script.defer = true;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
+  return recaptchaScriptPromise;
+}
+
+function renderRecaptchaWidget(formName, elementId) {
+  if (!isRecaptchaEnabled.value || !window.grecaptcha?.render) return;
+
+  const element = document.getElementById(elementId);
+  if (!element || element.dataset.recaptchaRendered === "true") return;
+
+  recaptchaWidgetIds[formName] = window.grecaptcha.render(element, {
+    sitekey: googleRecaptchaSiteKey.value,
+    callback: (token) => {
+      recaptchaTokens.value = { ...recaptchaTokens.value, [formName]: token };
+    },
+    "expired-callback": () => {
+      recaptchaTokens.value = { ...recaptchaTokens.value, [formName]: "" };
+    },
+    "error-callback": () => {
+      recaptchaTokens.value = { ...recaptchaTokens.value, [formName]: "" };
+    },
+  });
+  element.dataset.recaptchaRendered = "true";
+}
+
+function initializeRecaptchaWidgets() {
+  if (!isRecaptchaEnabled.value) return;
+
+  window.setTimeout(async () => {
+    try {
+      await loadGoogleRecaptchaScript();
+      window.grecaptcha.ready(() => {
+        if (currentPage.value === "booking") {
+          renderRecaptchaWidget("booking", "booking-recaptcha");
+        }
+        if (currentPage.value === "contact") {
+          renderRecaptchaWidget("contact", "contact-recaptcha");
+        }
+      });
+    } catch {
+      setBookingInquiryStatus("Google reCAPTCHA could not load. Please refresh and try again.");
+    }
+  }, 0);
+}
+
+function resetRecaptchaWidget(formName) {
+  recaptchaTokens.value = { ...recaptchaTokens.value, [formName]: "" };
+
+  try {
+    const widgetId = recaptchaWidgetIds[formName];
+    if (widgetId !== null && window.grecaptcha?.reset) {
+      window.grecaptcha.reset(widgetId);
+    }
+  } catch {
+    recaptchaWidgetIds[formName] = null;
+  }
+}
+
 function setBookingInquiryStatus(message, shouldClear = true) {
   if (bookingInquiryStatusTimeout) {
     window.clearTimeout(bookingInquiryStatusTimeout);
@@ -694,6 +1002,16 @@ async function submitBookingInquiry() {
     return;
   }
 
+  if (!isRecaptchaEnabled.value) {
+    setBookingInquiryStatus("Add your Google reCAPTCHA site key in the admin panel before using the booking form.");
+    return;
+  }
+
+  if (!recaptchaTokens.value.booking) {
+    setBookingInquiryStatus("Please complete the Google reCAPTCHA verification.");
+    return;
+  }
+
   isBookingSubmitting.value = true;
   setBookingInquiryStatus("Sending booking inquiry...", false);
 
@@ -709,6 +1027,7 @@ async function submitBookingInquiry() {
   formData.append("Email", bookingInquiry.value.email);
   formData.append("Phone", bookingInquiry.value.phone);
   formData.append("Notes", bookingInquiry.value.notes || "No extra notes");
+  formData.append("g-recaptcha-response", recaptchaTokens.value.booking);
 
   try {
     const response = await fetch("https://api.web3forms.com/submit", {
@@ -723,8 +1042,10 @@ async function submitBookingInquiry() {
 
     setBookingInquiryStatus("Booking inquiry sent. We will contact you shortly.");
     bookingInquiry.value = { travelDate: "", name: "", email: "", phone: "", notes: "" };
+    resetRecaptchaWidget("booking");
   } catch (error) {
     setBookingInquiryStatus(error?.message || "Something went wrong. Please try again.");
+    resetRecaptchaWidget("booking");
   } finally {
     isBookingSubmitting.value = false;
   }
@@ -749,6 +1070,18 @@ function submitContactForm() {
     return;
   }
 
+  if (!isRecaptchaEnabled.value) {
+    bookingFormStatus.value = "Add your Google reCAPTCHA site key in the admin panel before using the contact form.";
+    window.setTimeout(() => { bookingFormStatus.value = ""; }, 3000);
+    return;
+  }
+
+  if (!recaptchaTokens.value.contact) {
+    bookingFormStatus.value = "Please complete the Google reCAPTCHA verification.";
+    window.setTimeout(() => { bookingFormStatus.value = ""; }, 3000);
+    return;
+  }
+
   const message = `
   Contact Form Submission:
   Name: ${bookingForm.value.name}
@@ -759,6 +1092,7 @@ function submitContactForm() {
 
   window.location.href = `https://wa.me/919055020408?text=${encodeURIComponent(message)}`;
   bookingForm.value = { name: "", email: "", phone: "", details: "" };
+  resetRecaptchaWidget("contact");
 }
 
 function loginAdmin() {
@@ -781,7 +1115,7 @@ function logoutAdmin() {
 
 function saveAdminChanges() {
   localStorage.setItem("kashmir-site-content", JSON.stringify(siteContent.value));
-  localStorage.setItem("kashmir-packages", JSON.stringify(packages.value));
+  localStorage.setItem("kashmir-packages-premium-v2", JSON.stringify(packages.value));
   localStorage.setItem("kashmir-gallery-images", JSON.stringify(galleryImages.value));
   localStorage.setItem("kashmir-gallery-collections", JSON.stringify(galleryCollections.value));
   localStorage.setItem("kashmir-gallery-highlights", JSON.stringify(galleryHighlights.value));
@@ -806,6 +1140,7 @@ function resetAdminChanges() {
   selectedPackage.value = packages.value[0]?.price || 0;
   localStorage.removeItem("kashmir-site-content");
   localStorage.removeItem("kashmir-packages");
+  localStorage.removeItem("kashmir-packages-premium-v2");
   localStorage.removeItem("kashmir-gallery-images");
   localStorage.removeItem("kashmir-gallery-collections");
   localStorage.removeItem("kashmir-gallery-highlights");
@@ -866,6 +1201,7 @@ function addPackage() {
     originalPrice: "",
     duration: "",
     rating: "",
+    packageDate: premiumStructureDate,
     types: [],
     routeTitle: "",
     routeDetails: "",
@@ -1284,6 +1620,9 @@ onUnmounted(() => {
                 </label>
                 <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72]">Rating
                   <input v-model="item.rating" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
+                </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72]">Package date
+                  <input v-model="item.packageDate" placeholder="18/05, 2:00 pm" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
                 </label>
                 <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Filter types
                   <input :value="packageTypesText(item)" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" @input="updatePackageTypes(item, $event.target.value)" />
@@ -1860,6 +2199,7 @@ onUnmounted(() => {
               <span>{{ detailCities.join(", ") }}</span>
               <span>{{ detailPackage.duration }}</span>
               <span>{{ detailPackage.rating }} guest rating</span>
+              <span>Updated {{ detailPackage.packageDate }}</span>
             </div>
           </div>
         </div>
@@ -1869,6 +2209,7 @@ onUnmounted(() => {
         <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_0.48fr]">
           <div>
             <h2 class="font-display text-3xl font-extrabold text-night sm:text-4xl">About This Package</h2>
+            <p class="mt-3 text-sm font-black uppercase tracking-[0.16em] text-lake">Package date: {{ detailPackage.packageDate }}</p>
             <p class="mt-5 max-w-4xl text-base leading-8 text-night/65 sm:text-lg">{{ detailPackage.description }} The route can be adjusted for arrival time, guest comfort, weather, and travel style.</p>
 
             <div class="mt-9">
@@ -1914,10 +2255,71 @@ onUnmounted(() => {
         class="min-h-screen bg-white pb-16 pt-32"
       >
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
-          <div class="mx-auto mb-12 max-w-3xl text-center">
-            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">{{ siteContent.packagesHeroEyebrow }}</p>
-            <h2 class="mt-4 font-display text-4xl font-extrabold text-night sm:text-5xl">{{ siteContent.packagesHeroTitle }}</h2>
-            <p class="mt-4 text-base font-semibold leading-7 text-night/[0.62]">{{ siteContent.packagesHeroText }}</p>
+          <div class="relative mb-8 overflow-hidden rounded-lg bg-night text-white shadow-premium">
+            <div class="image-cover absolute inset-0" :style="imageStyle('image23')"></div>
+            <div class="absolute inset-0 bg-gradient-to-br from-night/92 via-night/64 to-lake/20"></div>
+            <div class="relative grid gap-6 p-5 sm:p-7 lg:grid-cols-[1fr_0.78fr] lg:p-9">
+              <div class="max-w-3xl">
+                <p class="text-sm font-black uppercase tracking-[0.2em] text-gold">{{ siteContent.packagesHeroEyebrow }}</p>
+                <h2 class="mt-4 font-display text-4xl font-extrabold leading-tight sm:text-5xl">{{ siteContent.packagesHeroTitle }}</h2>
+                <p class="mt-4 max-w-2xl text-sm font-semibold leading-7 text-white/76">{{ siteContent.packagesHeroText }}</p>
+                <div class="mt-5 flex flex-wrap gap-3">
+                  <span class="rounded-lg border border-white/18 bg-white/14 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] backdrop-blur-xl">Updated {{ premiumStructureDate }}</span>
+                  <span class="rounded-lg border border-gold/30 bg-gold/18 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-gold backdrop-blur-xl">No hidden charges</span>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+
+          <div class="mb-8 rounded-lg border border-white/60 bg-white/42 p-3 shadow-premium backdrop-blur-2xl">
+            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <article v-for="[title, meta, text] in packageCategories" :key="title" class="relative min-h-36 overflow-hidden rounded-lg border border-white/70 bg-white/24 p-4 shadow-lift backdrop-blur-xl">
+                <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-gold via-lake to-alpine"></div>
+                <p class="text-sm font-black text-night">{{ title }}</p>
+                <p class="mt-2 text-xs font-black uppercase tracking-[0.14em] text-gold">{{ meta }}</p>
+                <p class="mt-3 line-clamp-2 text-sm font-semibold leading-6 text-night/[0.62]">{{ text }}</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="mb-10 grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+            <div class="relative overflow-hidden rounded-lg bg-night p-5 text-white shadow-premium sm:p-6">
+              <div class="image-cover absolute inset-0 opacity-30" :style="imageStyle('image15')"></div>
+              <div class="absolute inset-0 bg-gradient-to-br from-night/96 via-night/80 to-night/42"></div>
+              <div class="relative">
+                <p class="text-xs font-black uppercase tracking-[0.18em] text-gold">Winter pricing policy</p>
+                <p class="mt-4 text-sm font-semibold leading-7 text-white/76">{{ winterPricingNote }}</p>
+              </div>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="rounded-lg border border-white/70 bg-white/54 p-5 shadow-lift backdrop-blur-xl">
+                <p class="text-xs font-black uppercase tracking-[0.18em] text-lake">Room sharing</p>
+                <div class="mt-4 grid gap-2">
+                  <div v-for="[title, text] in roomSharingOptions" :key="title" class="flex items-center justify-between gap-3 rounded-lg bg-frost/80 px-3 py-3 text-sm">
+                    <span class="font-black text-night">{{ title }}</span>
+                    <span class="text-right font-semibold text-night/58">{{ text }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="rounded-lg border border-white/70 bg-white/54 p-5 shadow-lift backdrop-blur-xl">
+                <p class="text-xs font-black uppercase tracking-[0.18em] text-lake">Hotel categories</p>
+                <div class="mt-4 grid gap-2">
+                  <div v-for="[title, text] in hotelCategories" :key="title" class="flex items-center justify-between gap-3 rounded-lg bg-frost/80 px-3 py-3 text-sm">
+                    <span class="font-black text-night">{{ title }}</span>
+                    <span class="text-right font-semibold text-night/58">{{ text }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div v-for="message in trustMessages" :key="message" class="flex min-h-20 items-center gap-3 rounded-lg border border-white/70 bg-white/52 p-4 text-sm font-black leading-6 text-night shadow-lift backdrop-blur-xl">
+              <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-lake text-xs text-white">✓</span>
+              <span>{{ message }}</span>
+            </div>
           </div>
 
           <div class="mb-10 flex flex-wrap justify-center gap-2" role="group" aria-label="Package filters">
@@ -1936,6 +2338,7 @@ onUnmounted(() => {
 
               <div class="p-6">
                 <p class="text-sm font-semibold text-night/[0.58]">{{ packageRoute(item)[0] }} - {{ packageRoute(item)[1] }}</p>
+                <p class="mt-2 text-xs font-black uppercase tracking-[0.14em] text-lake">Updated {{ item.packageDate }}</p>
                 <h3 class="mt-3 font-display text-2xl font-extrabold text-night">{{ item.name }}</h3>
                 <div class="mt-4 flex flex-wrap gap-2">
                   <span v-for="chip in packageChips(item)" :key="`${item.name}-${chip}`" class="rounded-full bg-gradient-to-r from-frost to-lake/10 px-3 py-1 text-xs font-semibold text-night/[0.62]">{{ chip }}</span>
@@ -2091,7 +2494,7 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <form class="premium-card rounded-lg p-5 shadow-premium sm:p-6" @submit.prevent="submitBookingInquiry">
+          <form class="booking-form premium-card rounded-lg p-5 shadow-premium sm:p-6" @submit.prevent="submitBookingInquiry">
             <div class="mb-5 flex flex-col gap-3 border-b border-night/10 pb-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p class="text-sm font-black uppercase tracking-[0.18em] text-lake">Trip request</p>
@@ -2101,19 +2504,19 @@ onUnmounted(() => {
             </div>
 
             <div class="grid gap-4 md:grid-cols-2">
-              <label class="grid gap-2 text-sm font-bold"><span>Package <span class="text-red-600">*</span></span>
-                <select v-model="selectedPackage" required class="rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20">
+              <label class="grid min-w-0 gap-2 text-sm font-bold"><span>Package <span class="text-red-600">*</span></span>
+                <select v-model="selectedPackage" required class="w-full min-w-0 truncate rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20">
                   <option v-for="item in packages" :key="item.name" :value="item.price">{{ item.name }}</option>
                 </select>
               </label>
-              <label class="grid gap-2 text-sm font-bold"><span>Travel date <span class="text-red-600">*</span></span>
-                <input v-model="bookingInquiry.travelDate" type="date" required class="rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
+              <label class="grid min-w-0 gap-2 text-sm font-bold"><span>Travel date <span class="text-red-600">*</span></span>
+                <input v-model="bookingInquiry.travelDate" type="date" required class="w-full min-w-0 rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
               </label>
-              <label class="grid gap-2 text-sm font-bold"><span>Travelers <span class="text-red-600">*</span></span>
-                <input v-model.number="travelers" type="number" min="1" required class="rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
+              <label class="grid min-w-0 gap-2 text-sm font-bold"><span>Travelers <span class="text-red-600">*</span></span>
+                <input v-model.number="travelers" type="number" min="1" required class="w-full min-w-0 rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
               </label>
-              <label class="grid gap-2 text-sm font-bold"><span>Pricing class <span class="text-red-600">*</span></span>
-                <select v-model.number="priceClass" required class="rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20">
+              <label class="grid min-w-0 gap-2 text-sm font-bold"><span>Pricing class <span class="text-red-600">*</span></span>
+                <select v-model.number="priceClass" required class="w-full min-w-0 rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20">
                   <option :value="1">Standard</option>
                   <option :value="1.25">Deluxe</option>
                   <option :value="1.65">Luxury</option>
@@ -2399,22 +2802,22 @@ onUnmounted(() => {
                 <p class="mt-5 max-w-xl text-sm font-semibold leading-7 text-white/76">Reach us for package planning, booking changes, route suggestions, emergency coordination, or quick WhatsApp support.</p>
               </div>
 
-              <div class="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
-                <div class="rounded-lg border border-white/18 bg-white/12 p-4 backdrop-blur-xl">
-                  <p class="text-xs font-black uppercase tracking-[0.18em] text-gold">Call / WhatsApp</p>
-                  <p class="mt-2 font-black sm:text-sm lg:text-lg">{{ siteContent.contactPhone }}</p>
+              <div class="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <div class="min-w-0 rounded-lg border border-white/18 bg-white/12 p-3 backdrop-blur-xl">
+                  <p class="text-[0.62rem] font-black uppercase leading-4 tracking-[0.14em] text-gold">Call / WhatsApp</p>
+                  <p class="mt-2 break-words text-xs font-black leading-5 text-white sm:text-[0.8rem]">{{ siteContent.contactPhone }}</p>
                 </div>
-                <div class="rounded-lg border border-white/18 bg-white/12 p-4 backdrop-blur-xl">
-                  <p class="text-xs font-black uppercase tracking-[0.18em] text-gold">Email</p>
-                  <p class="mt-2 break-words font-black sm:text-sm lg:text-lg">{{ siteContent.contactEmail }}</p>
+                <div class="min-w-0 rounded-lg border border-white/18 bg-white/12 p-3 backdrop-blur-xl">
+                  <p class="text-[0.62rem] font-black uppercase leading-4 tracking-[0.14em] text-gold">Email</p>
+                  <p class="mt-2 break-all text-xs font-black leading-5 text-white sm:text-[0.8rem]">{{ siteContent.contactEmail }}</p>
                 </div>
-                <div class="rounded-lg border border-white/18 bg-white/12 p-4 backdrop-blur-xl">
-                  <p class="text-xs font-black uppercase tracking-[0.18em] text-gold">Office</p>
-                  <p class="mt-2 text-sm font-semibold leading-6 text-white/78">{{ siteContent.contactAddress }}</p>
+                <div class="min-w-0 rounded-lg border border-white/18 bg-white/12 p-3 backdrop-blur-xl">
+                  <p class="text-[0.62rem] font-black uppercase leading-4 tracking-[0.14em] text-gold">Office</p>
+                  <p class="mt-2 line-clamp-5 text-xs font-semibold leading-5 text-white/78 sm:text-[0.8rem]">{{ siteContent.contactAddress }}</p>
                 </div>
-                <div class="rounded-lg border border-white/18 bg-white/12 p-4 backdrop-blur-xl">
-                  <p class="text-xs font-black uppercase tracking-[0.18em] text-gold">Support</p>
-                  <p class="mt-2 text-sm font-semibold leading-6 text-white/78">{{ siteContent.contactSupport }}</p>
+                <div class="min-w-0 rounded-lg border border-white/18 bg-white/12 p-3 backdrop-blur-xl">
+                  <p class="text-[0.62rem] font-black uppercase leading-4 tracking-[0.14em] text-gold">Support</p>
+                  <p class="mt-2 text-xs font-semibold leading-5 text-white/78 sm:text-[0.8rem]">{{ siteContent.contactSupport }}</p>
                 </div>
               </div>
             </div>
