@@ -21,9 +21,22 @@ function imageStyle(item) {
   return { backgroundImage: `url('${source}')` };
 }
 
-const brandName = "Snow Feather";
+const brandName = "Snow Feather Adventures";
+const brandTagline = "Tours & Travels Kashmir";
 const logoSrc = "/snow-feather-logo.jpeg";
 const mainBackgroundVideoSrc = "/snow-feather-main-bg.mp4";
+
+const kashmirWebImages = {
+  gulmarg: image("image15"),
+  sonmarg: image("image11"),
+  pahalgam: image("image19"),
+  dalLake: image("image22"),
+  gurez: image("image06"),
+  yusmarg: image("image03"),
+  doodhpathri: image("image05"),
+  leh: image("image18"),
+  wular: image("image09"),
+};
 
 function loadStoredValue(key, fallback) {
   try {
@@ -35,14 +48,14 @@ function loadStoredValue(key, fallback) {
 }
 
 const navItems = [
+  ["Home", "/home"],
+  ["About Us", "/about"],
   ["Packages", "/packages"],
   ["Destinations", "/destinations"],
   ["Booking", "/booking"],
 ];
 
 const moreMenuItems = [
-  ["Home", "/home"],
-  ["About Us", "/about"],
   ["Gallery", "/gallery"],
   ["Blog", "/blog"],
   ["Contact", "/contact"],
@@ -75,16 +88,17 @@ const isMenuOpen = ref(false);
 const isMoreMenuOpen = ref(false);
 const isInitialLoading = ref(true);
 const activeFilter = ref("all");
+const activePriceRange = ref("all");
 const activeAdminTab = ref("packages");
 const openFaqs = ref([0]);
 const currentPage = computed(() => (currentPath.value.startsWith("/packages/") ? "packageDetail" : publicRoutes[currentPath.value] || "home"));
 let initialLoadingTimeout = null;
 
 const defaultSiteContent = {
-  heroBadge: "Premium Kashmir tours, skiing packages, houseboats, valleys, and local travel support",
-  heroTitle: "Kashmir, Planned Beautifully",
+  heroBadge: "Local Kashmir experts • Clear packages • 24/7 trip support",
+  heroTitle: "See Kashmir Beyond The Postcard",
   heroSubtitle:
-    "Snow Feather designs clear Kashmir tour packages across Srinagar, Gulmarg, Sonmarg, Pahalgam, Yusmarg, Gurez, Doodhpathri, Leh, Dal Lake, Mughal Gardens, Shikara rides, skiing, camping, hotels, and houseboats.",
+    "Snow Feather Adventures creates premium Kashmir journeys across Srinagar, Gulmarg, Sonmarg, Pahalgam, Yusmarg, Gurez, Doodhpathri, Kargil, and Leh—with transparent routes, stays, pricing, and local support.",
   homeActivitiesEyebrow: "Featured activities",
   homeActivitiesTitle: "Kashmir adventure, snow, lake, and mountain experiences.",
   homeGalleryEyebrow: "Media gallery",
@@ -100,7 +114,7 @@ const defaultSiteContent = {
   galleryHeroEyebrow: "Gallery",
   galleryHeroTitle: "Kashmir moments from snow peaks to quiet lake mornings.",
   galleryHeroText:
-    "Browse destination albums, seasonal travel moods, guest-style photo ideas, and the kind of scenes Snow Feather can plan into your Kashmir journey.",
+    "Browse destination albums, seasonal travel moods, guest-style photo ideas, and the kind of scenes Snow Feather Adventures can plan into your Kashmir journey.",
   galleryHeroImage: "image23",
   galleryStatOneValue: "23",
   galleryStatOneText: "Available Kashmir visuals currently in the project gallery.",
@@ -140,11 +154,11 @@ const defaultSiteContent = {
   googleRecaptchaSiteKey: "",
 };
 
-const siteContent = ref({ ...defaultSiteContent, ...loadStoredValue("kashmir-site-content-v2", defaultSiteContent) });
+const siteContent = ref({ ...defaultSiteContent, ...loadStoredValue("kashmir-site-content-v3", defaultSiteContent) });
 
 const premiumStructureDate = "June 2026";
 const premiumSourceNote =
-  "Indicative Snow Feather Kashmir package structure. Final rates are confirmed after checking travel dates, hotel availability, cab category, room sharing, destination access, Gondola/activity tickets, and seasonal winter demand.";
+  "Indicative Snow Feather Adventures Kashmir package structure. Final rates are confirmed after checking travel dates, hotel availability, cab category, room sharing, destination access, Gondola/activity tickets, and seasonal winter demand.";
 
 const packageCategories = [
   ["Standard", "Value stays", "Clean hotels or guest houses, private/shared cab planning, key sightseeing, and essential support."],
@@ -175,23 +189,24 @@ const trustMessages = [
   "Adventure Without Fear. Travel Without Doubt.",
 ];
 
-const registrationDetails = [
+const defaultRegistrationDetails = [
   ["UDYAM Registration", "UDYAM-JK-21-0096543"],
   ["GSTIN", "01AFYFS1763F1ZS"],
   ["Office", "Lal Chowk, Srinagar"],
 ];
+const registrationDetails = ref(loadStoredValue("kashmir-registration-details", defaultRegistrationDetails));
 
 const winterPricingNote =
   "During peak winter season in Gulmarg and Sonmarg, skiing, accommodation, transportation, and adventure activity prices increase significantly due to heavy tourist demand, snow conditions, equipment logistics, and limited premium availability.";
 
 const premiumFeatureImages = ["image08", "image10", "image19"];
 
-const purposeCards = [
+const defaultPurposeCards = [
   {
     label: "Our Vision",
     title: "To make Kashmir travel clear, trusted, and unforgettable.",
     text:
-      "Snow Feather aims to become a trusted Kashmir tourism company for travelers who want beautiful places, honest guidance, comfortable stays, and reliable local support from inquiry to return.",
+      "Snow Feather Adventures aims to become a trusted Kashmir tourism company for travelers who want beautiful places, honest guidance, comfortable stays, and reliable local support from inquiry to return.",
   },
   {
     label: "Our Mission",
@@ -206,18 +221,19 @@ const purposeCards = [
       "Our motto is simple: clear plans, local care, and memorable Kashmir experiences. From Gulmarg snow activities to Dal Lake houseboats, we keep every trip easy to understand and easy to enjoy.",
   },
 ];
+const purposeCards = ref(loadStoredValue("kashmir-purpose-cards", defaultPurposeCards));
 
 const pageSeo = computed(() => {
   const map = {
     home: {
-      title: "Snow Feather | Kashmir Tour Packages, Adventure Trips & Travel Support",
+      title: "Snow Feather Adventures | Kashmir Tour Packages & Local Travel Experts",
       description:
-        "Book Snow Feather Kashmir tour packages for Srinagar, Gulmarg, Pahalgam, Sonamarg, Dal Lake, skiing, trekking, camping, honeymoon tours, family holidays, and luxury travel.",
+        "Book Snow Feather Adventures Kashmir tour packages for Srinagar, Gulmarg, Pahalgam, Sonamarg, Dal Lake, skiing, trekking, camping, honeymoon tours, family holidays, and luxury travel.",
     },
     about: {
-      title: "About Snow Feather | Kashmir Tourism Company & Local Travel Experts",
+      title: "About Snow Feather Adventures | Kashmir Tourism Company & Local Experts",
       description:
-        "Learn about Snow Feather, a Kashmir tourism company offering custom tour packages, local travel planning, hotel and houseboat stays, cab transfers, snow activities, and trip support.",
+        "Learn about Snow Feather Adventures, a Kashmir tourism company offering custom tour packages, local travel planning, hotel and houseboat stays, cab transfers, snow activities, and trip support.",
     },
     packages: {
       title: "Kashmir Tour Packages | Gulmarg, Srinagar, Pahalgam & Sonamarg",
@@ -229,22 +245,22 @@ const pageSeo = computed(() => {
         "Explore Kashmir destinations including Srinagar, Gulmarg, Pahalgam, Sonamarg, Dal Lake, Mughal Gardens, snow points, valleys, and local sightseeing routes.",
     },
     booking: {
-      title: "Book Kashmir Tour Package | Snow Feather Booking Inquiry",
+      title: "Book Kashmir Tour Package | Snow Feather Adventures",
       description:
-        "Send a Kashmir trip inquiry to Snow Feather for custom packages, hotels, houseboats, cab transfers, adventure activities, honeymoon tours, and family travel plans.",
+        "Send a Kashmir trip inquiry to Snow Feather Adventures for custom packages, hotels, houseboats, cab transfers, adventure activities, honeymoon tours, and family travel plans.",
     },
     gallery: {
-      title: "Kashmir Travel Gallery | Snow Feather Photos & Trip Ideas",
+      title: "Kashmir Travel Gallery | Snow Feather Adventures",
       description: siteContent.value.galleryHeroText,
     },
     blog: {
-      title: "Kashmir Travel Blog | Snow Feather Travel Tips & Planning Guides",
+      title: "Kashmir Travel Blog | Snow Feather Adventures",
       description: siteContent.value.blogHeroText,
     },
     contact: {
-      title: "Contact Snow Feather | Kashmir Tour Booking Support",
+      title: "Contact Snow Feather Adventures | Kashmir Tour Support",
       description:
-        "Contact Snow Feather for Kashmir tour packages, WhatsApp booking, hotel and houseboat support, cab transfers, adventure activities, and custom travel planning.",
+        "Contact Snow Feather Adventures for Kashmir tour packages, WhatsApp booking, hotel and houseboat support, cab transfers, adventure activities, and custom travel planning.",
     },
   };
 
@@ -474,6 +490,22 @@ const defaultPackages = [
   },
 ];
 
+function normalizedPackageTiers(item) {
+  const fallbackTiers = [
+    ["Standard", "On request", "Essential stay, cab, and route support"],
+    ["Premium", "On request", "Comfort hotels and private trip planning"],
+    ["Luxurious", "On request", "Premium stays and curated experiences"],
+    ["VIP", "Custom quote", "Dedicated concierge and best available services"],
+  ];
+  const tiers = Array.isArray(item?.tiers) ? item.tiers.slice(0, 4).map((tier) => [...tier]) : [];
+
+  while (tiers.length < 4) {
+    tiers.push([...fallbackTiers[tiers.length]]);
+  }
+
+  return tiers;
+}
+
 function clonePackage(item) {
   return {
     ...item,
@@ -481,8 +513,8 @@ function clonePackage(item) {
     types: Array.isArray(item.types) ? [...item.types] : [],
     cities: Array.isArray(item.cities) ? [...item.cities] : [],
     highlights: Array.isArray(item.highlights) ? [...item.highlights] : [],
-    itinerary: Array.isArray(item.itinerary) ? [...item.itinerary] : [],
-    tiers: Array.isArray(item.tiers) ? item.tiers.map((tier) => [...tier]) : [],
+    itinerary: Array.isArray(item.itinerary) && item.itinerary.length ? [...item.itinerary] : ["Add day-wise itinerary"],
+    tiers: normalizedPackageTiers(item),
   };
 }
 
@@ -493,10 +525,32 @@ function loadStoredPackages() {
 
 const packages = ref(loadStoredPackages());
 const filters = ["all", "classic", "skiing", "students", "honeymoon", "offbeat", "camping"];
+const priceRanges = [
+  { value: "all", label: "All prices", min: 0, max: Infinity },
+  { value: "under-10000", label: "Under ₹10,000", min: 0, max: 9999 },
+  { value: "10000-15000", label: "₹10,000 - ₹15,000", min: 10000, max: 15000 },
+  { value: "15001-25000", label: "₹15,001 - ₹25,000", min: 15001, max: 25000 },
+  { value: "25001-40000", label: "₹25,001 - ₹40,000", min: 25001, max: 40000 },
+  { value: "above-40000", label: "₹40,001 and above", min: 40001, max: Infinity },
+];
 const filteredPackages = computed(() => {
-  if (activeFilter.value === "all") return packages.value;
-  return packages.value.filter((item) => Array.isArray(item.types) && item.types.includes(activeFilter.value));
+  const selectedRange = priceRanges.find((range) => range.value === activePriceRange.value) || priceRanges[0];
+
+  return packages.value.filter((item) => {
+    const matchesType =
+      activeFilter.value === "all" ||
+      (Array.isArray(item.types) && item.types.includes(activeFilter.value));
+    const price = Number(item.price || 0);
+    const matchesPrice = price >= selectedRange.min && price <= selectedRange.max;
+    return matchesType && matchesPrice;
+  });
 });
+const aboutPackages = computed(() => filteredPackages.value.slice(0, 6));
+
+function clearPackageFilters() {
+  activeFilter.value = "all";
+  activePriceRange.value = "all";
+}
 
 function slugifyPackageName(name) {
   return String(name || "")
@@ -567,12 +621,7 @@ function packageChips(item) {
 }
 
 function packageTiers(item) {
-  return Array.isArray(item.tiers) && item.tiers.length ? item.tiers : [
-    ["Standard", "On request", "Essential stay, cab, and route support"],
-    ["Premium", "On request", "Comfort hotels and private trip planning"],
-    ["Luxurious", "On request", "Premium stays and curated experiences"],
-    ["VIP", "Custom quote", "Dedicated concierge and best available services"],
-  ];
+  return normalizedPackageTiers(item);
 }
 
 function packageItinerary(item) {
@@ -583,8 +632,36 @@ function packageOriginalPrice(item) {
   return Math.max(Number(item.originalPrice || 0), Math.round(Number(item.price || 0) * 1.18));
 }
 
+function packageVisual(item) {
+  if (item?.image) return item.image;
+  const text = `${item?.name || ""} ${item?.routeTitle || ""} ${item?.routeDetails || ""}`.toLowerCase();
+  if (text.includes("leh") || text.includes("kargil")) return kashmirWebImages.leh;
+  if (text.includes("gurez")) return kashmirWebImages.gurez;
+  if (text.includes("yusmarg")) return kashmirWebImages.yusmarg;
+  if (text.includes("doodhpathri")) return kashmirWebImages.doodhpathri;
+  if (text.includes("pahalgam") || text.includes("aru") || text.includes("chandanwari")) return kashmirWebImages.pahalgam;
+  if (text.includes("sonmarg")) return kashmirWebImages.sonmarg;
+  if (text.includes("dal lake") || text.includes("srinagar") || text.includes("houseboat")) return kashmirWebImages.dalLake;
+  if (text.includes("gulmarg") || text.includes("ski")) return kashmirWebImages.gulmarg;
+  return item?.image || image("image23");
+}
+
+function packageDiscount(item) {
+  const originalPrice = packageOriginalPrice(item);
+  return Math.max(1, Math.round(((originalPrice - Number(item.price || 0)) / originalPrice) * 100));
+}
+
+function packageWhatsappLink(item) {
+  const message = `I want to talk to an expert about the ${item?.name || "Kashmir tour"} package.`;
+  return `https://wa.me/919055020408?text=${encodeURIComponent(message)}`;
+}
+
 function displayDuration(duration) {
   return String(duration || "").replace("/", " / ");
+}
+
+function displayCurrencyText(value) {
+  return String(value || "").replace(/₹\s?/g, "INR ");
 }
 
 const detailWhatsappLink = computed(() => {
@@ -615,12 +692,12 @@ function galleryImageDetail(source, index = 0) {
   if (typeof source === "object" && source !== null) {
     return [
       source.title || "Kashmir View",
-      source.text || "A scenic travel moment from the Snow Feather gallery.",
+      source.text || "A scenic travel moment from the Snow Feather Adventures gallery.",
     ];
   }
 
   const fallbackPlaces = [
-    ["Kashmir View", "A scenic travel moment from the Snow Feather gallery."],
+    ["Kashmir View", "A scenic travel moment from the Snow Feather Adventures gallery."],
     ["Mountain Escape", "Snow peaks, valleys, and fresh air for your next route."],
     ["Travel Memory", "A guest-style frame to help choose your Kashmir mood."],
   ];
@@ -700,74 +777,82 @@ const defaultBlogChecklist = [
 const blogChecklist = ref(loadStoredValue("kashmir-blog-checklist", defaultBlogChecklist));
 
 const heroStyle = computed(() => ({
-  backgroundImage: `linear-gradient(90deg, rgba(7, 24, 39, 0.88), rgba(7, 24, 39, 0.52), rgba(7, 24, 39, 0.2)), linear-gradient(0deg, rgba(7, 24, 39, 0.62), transparent 42%), url('${image("image23")}')`,
+  backgroundImage: `linear-gradient(90deg, rgba(7, 24, 39, 0.9), rgba(7, 24, 39, 0.56), rgba(7, 24, 39, 0.16)), linear-gradient(0deg, rgba(7, 24, 39, 0.72), transparent 48%), url('${kashmirWebImages.sonmarg}')`,
 }));
 
-const activities = [
-  ["SKI", "Skiing", "Gulmarg slopes, trainers, gear, and peak-season support."],
-  ["TRK", "Trekking", "Pahalgam and Sonamarg trails with certified local guides."],
-  ["CMP", "Camping", "Tenting, bonfires, alpine meals, and safety-led routes."],
-  ["GND", "Gondola Ride", "Gulmarg Gondola coordination with weather-aware planning."],
-  ["HRS", "Horse Riding", "Meadow rides around Betaab Valley and local scenic points."],
-  ["FSH", "Fishing", "Calm river days with permit guidance and local experts."],
-  ["SNW", "Snow Adventure", "Snowmobile, sledging, snowfall shoots, and winter transfers."],
-  ["NTR", "Nature Exploration", "Lakes, gardens, forests, viewpoints, and soft adventure days."],
+const defaultActivities = [
+  ["SKI", "Skiing", "Gulmarg slopes, instructors, equipment, and peak-season support.", "image15"],
+  ["TRK", "Trekking", "Pahalgam, Aru, Sonmarg, and alpine trails with local guidance.", kashmirWebImages.pahalgam],
+  ["CMP", "Camping", "Valley camps, bonfires, outdoor meals, and safety-led routes.", "image05"],
+  ["GND", "Gondola Ride", "Gulmarg Gondola coordination with weather-aware planning.", "image10"],
+  ["HRS", "Horse Riding", "Meadow rides around Betaab Valley, Yusmarg, and scenic points.", kashmirWebImages.yusmarg],
+  ["FSH", "Fishing", "Quiet river and lake days with permit guidance and local experts.", kashmirWebImages.wular],
+  ["SNW", "Snow Adventure", "Snowmobile, sledging, snowfall shoots, and winter transfers.", "image13"],
+  ["NTR", "Local Kashmir", "Gardens, houseboats, markets, food, crafts, lakes, and village life.", kashmirWebImages.dalLake],
 ];
+const activities = ref(loadStoredValue("kashmir-activities", defaultActivities));
 
-const destinations = [
-  ["Srinagar", "image18", "Dal Lake, Shikara rides, houseboats, Chashme Shahi, Mughal Gardens, Pari Mahal, local markets, food trails, and airport support."],
-  ["Gulmarg", "image15", "Skiing, Gondola, snow adventure, hotels, instructors, snowmobile options, mountain safety, and winter transfers."],
-  ["Sonmarg", "image11", "Thajiwas Glacier, snow points, pony routes, high-altitude photos, and onward Kargil or Leh road planning."],
-  ["Pahalgam", "image19", "Betaab Valley, Aru Valley, Chandanwari, pony rides, riverside stays, family sightseeing, trekking, and camping add-ons."],
-  ["Yusmarg", "image03", "Quiet meadows, pine forests, soft adventure routes, picnic days, camping, and offbeat Kashmir photography."],
-  ["Gurez Valley", "image06", "Remote valley roads, village stays, Kishanganga views, mountain scenery, and offbeat multi-day itineraries."],
-  ["Doodhpathri", "image05", "Green meadows, river views, day picnics, relaxed family routes, and photography-friendly open landscapes."],
-  ["Leh", "image18", "Srinagar to Leh road journey via Sonmarg and Kargil with acclimatized pacing, permits, and mountain-road support."],
-  ["Dal Lake", "image22", "Houseboats, Shikara rides, floating markets, lake-view dining, honeymoon evenings, and sunrise photography."],
-  ["Wular & Manasbal Lakes", "image09", "Large lake views, birding moods, quiet drives, local stops, and Srinagar extension routes."],
-  ["Mughal Gardens", "image07", "Nishat, Shalimar, Chashme Shahi, guided history walks, spring flowers, and family photography stops."],
-  ["Kargil", "image12", "Kashmir to Leh halt, mountain-road travel, heritage stops, and practical route support for longer journeys."],
+const defaultDestinations = [
+  ["Srinagar & Dal Lake", kashmirWebImages.dalLake, "Shikara rides, houseboats, Chashme Shahi, Mughal Gardens, Pari Mahal, Hazratbal, old-city markets, food trails, and airport support."],
+  ["Gulmarg", kashmirWebImages.gulmarg, "Gondola rides, Apharwat snow, skiing, snowboarding, snowmobile options, meadow walks, premium hotels, and winter transfers."],
+  ["Sonmarg", kashmirWebImages.sonmarg, "Thajiwas Glacier, snow points, Sindh River views, pony routes, fishing, mountain photography, and onward Kargil or Leh journeys."],
+  ["Pahalgam, Aru & Chandanwari", kashmirWebImages.pahalgam, "Lidder River, Betaab Valley, Aru Valley, Chandanwari, pony rides, riverside stays, trekking, and camping add-ons."],
+  ["Yusmarg", kashmirWebImages.yusmarg, "Quiet meadows, Doodhganga River, pine forests, Nilnag walks, horse riding, fishing, picnics, and offbeat photography."],
+  ["Gurez Valley", kashmirWebImages.gurez, "Habba Khatoon peak, Kishanganga River, Dawar, village stays, remote mountain roads, culture, and offbeat multi-day itineraries."],
+  ["Doodhpathri", kashmirWebImages.doodhpathri, "The Valley of Milk, rolling meadows, cold streams, pine forests, picnic days, family walks, and scenic countryside drives."],
+  ["Leh & Kargil", kashmirWebImages.leh, "Srinagar–Sonmarg–Kargil–Leh road journeys, monasteries, high-altitude landscapes, acclimatized pacing, and permit guidance."],
+  ["Wular & Manasbal Lakes", kashmirWebImages.wular, "Freshwater lake views, birding, fishing culture, quiet drives, village life, and relaxed extensions from Srinagar or Gurez routes."],
+  ["Mughal Gardens & Pari Mahal", "image07", "Nishat Bagh, Shalimar Bagh, Chashme Shahi, Pari Mahal, spring flowers, heritage walks, and family photography."],
+  ["Houseboats & Shikara Life", "image22", "Lake-view houseboats, sunrise Shikara rides, floating markets, local crafts, honeymoon evenings, and waterfront dining."],
+  ["Kashmir Local Markets", "image12", "Lal Chowk, old Srinagar bazaars, pashmina, papier-mâché, dry fruits, saffron, bakeries, cafés, and local food trails."],
 ];
+const destinations = ref(loadStoredValue("kashmir-destinations", defaultDestinations));
 
-const attractionHighlights = [
-  ["Dal Lake & Shikara", "Houseboats, floating markets, sunrise rides, sunset rides, honeymoon photos, and lake-view stays."],
-  ["Srinagar Local", "Chashme Shahi, Nishat, Shalimar, Pari Mahal, Hazratbal, old city markets, cafes, and handicrafts."],
-  ["Snow Activities", "Gulmarg skiing, beginner lessons, snowmobile, sledging, Gondola planning, and winter clothing guidance."],
-  ["Outdoor Experiences", "Camping, trekking, fishing guidance where permitted, bonfires, group trips, and student adventure camps."],
+const defaultAttractionHighlights = [
+  ["Lakes & Shikara", "Dal Lake, Wular Lake, Manasbal Lake, houseboats, floating markets, sunrise and sunset Shikara rides."],
+  ["Srinagar Heritage", "Chashme Shahi, Nishat Bagh, Shalimar Bagh, Pari Mahal, Hazratbal, old city lanes, markets, and handicrafts."],
+  ["Snow & Gondola", "Gulmarg skiing, beginner lessons, Gondola phases, snowmobile, sledging, winter clothing, and weather-aware transfers."],
+  ["Valleys & Outdoors", "Aru Valley, Chandanwari, Yusmarg, Doodhpathri, Gurez, camping, trekking, fishing, pony rides, and bonfires."],
 ];
+const attractionHighlights = ref(loadStoredValue("kashmir-attractions", defaultAttractionHighlights));
 
-const faqs = [
+const defaultFaqs = [
   ["Can pricing change in winter?", "Yes. Gulmarg and Sonamarg peak winter pricing can increase due to demand, weather, transportation limits, activity availability, and hotel inventory."],
   ["Do you support custom packages?", "Yes. Solo, couple, family, group, student, luxury, budget, airport-to-airport, and custom package types are supported."],
   ["Can this connect to real payment and weather APIs?", "The front-end is structured for Razorpay, Stripe, UPI, live weather, AI chatbot, multilingual content, and backend admin integration."],
 ];
+const faqs = ref(loadStoredValue("kashmir-faqs", defaultFaqs));
 
-const packageBenefits = [
+const defaultPackageBenefits = [
   ["Private cab", "Airport pickup, intercity transfers, sightseeing stops, and driver coordination are planned before arrival."],
   ["Stay options", "Houseboats, boutique hotels, family rooms, heated winter stays, and luxury resorts can be matched to budget."],
   ["Activity support", "Skiing, Gondola, pony rides, camping, guides, snow activities, and permits are coordinated by local teams."],
   ["Trip safety", "Weather checks, backup timing, route updates, and on-call support help guests travel with confidence."],
 ];
+const packageBenefits = ref(loadStoredValue("kashmir-package-benefits", defaultPackageBenefits));
 
-const seasonalPlans = [
+const defaultSeasonalPlans = [
   ["Winter", "December to March", "Gulmarg skiing, snowfall days, snowmobile rides, heated stays, and short scenic routes."],
   ["Spring", "March to May", "Tulip Garden, Mughal Gardens, Dal Lake, soft adventure, and relaxed family sightseeing."],
   ["Summer", "May to September", "Pahalgam, Sonamarg, alpine meadows, pony rides, trekking, camping, and river views."],
   ["Autumn", "October to November", "Chinar colors, quiet stays, premium photography routes, and honeymoon-friendly pacing."],
 ];
+const seasonalPlans = ref(loadStoredValue("kashmir-seasonal-plans", defaultSeasonalPlans));
 
-const routeIdeas = [
+const defaultRouteIdeas = [
   ["Classic Kashmir Circuit", "Srinagar -> Gulmarg -> Pahalgam -> Sonamarg", "Best for first-time guests who want lakes, snow points, valleys, and gardens in one balanced plan."],
   ["Honeymoon Slow Route", "Srinagar -> Gulmarg -> Pahalgam", "Premium stays, private cab time, Shikara rides, candlelight dinner, and relaxed late starts."],
   ["Adventure Route", "Gulmarg -> Sonamarg -> Pahalgam", "Built around snow sports, trekking, camping, pony trails, and mountain-view days."],
 ];
+const routeIdeas = ref(loadStoredValue("kashmir-route-ideas", defaultRouteIdeas));
 
-const bookingSteps = [
+const defaultBookingSteps = [
   ["01", "Share dates", "Send travel month, group size, preferred destinations, and budget range."],
   ["02", "Get route plan", "Receive a practical day-wise Kashmir itinerary with hotel and activity options."],
   ["03", "Confirm booking", "Lock the package with advance payment and receive confirmation details."],
   ["04", "Travel support", "Get pickup coordination, daily check-ins, weather guidance, and emergency help."],
 ];
+const bookingSteps = ref(loadStoredValue("kashmir-booking-steps", defaultBookingSteps));
 
 const supportCards = [
   ["Fast quote", "Most inquiries can receive a route and price range quickly on WhatsApp."],
@@ -993,8 +1078,8 @@ async function submitBookingInquiry() {
 
   const formData = new FormData();
   formData.append("access_key", web3FormsAccessKey);
-  formData.append("subject", "New Snow Feather Booking Inquiry");
-  formData.append("from_name", "Snow Feather Website");
+  formData.append("subject", "New Snow Feather Adventures Booking Inquiry");
+  formData.append("from_name", "Snow Feather Adventures Website");
   formData.append("Package", selectedPackageName.value);
   formData.append("Travel Date", bookingInquiry.value.travelDate || "Not selected");
   formData.append("Travelers", String(travelers.value));
@@ -1090,7 +1175,7 @@ function logoutAdmin() {
 }
 
 function saveAdminChanges() {
-  localStorage.setItem("kashmir-site-content-v2", JSON.stringify(siteContent.value));
+  localStorage.setItem("kashmir-site-content-v3", JSON.stringify(siteContent.value));
   localStorage.setItem("kashmir-packages-premium-v3", JSON.stringify(packages.value));
   localStorage.setItem("kashmir-gallery-images", JSON.stringify(galleryImages.value));
   localStorage.setItem("kashmir-gallery-collections", JSON.stringify(galleryCollections.value));
@@ -1098,6 +1183,16 @@ function saveAdminChanges() {
   localStorage.setItem("kashmir-blog-posts", JSON.stringify(blogPosts.value));
   localStorage.setItem("kashmir-blog-guides", JSON.stringify(blogGuides.value));
   localStorage.setItem("kashmir-blog-checklist", JSON.stringify(blogChecklist.value));
+  localStorage.setItem("kashmir-purpose-cards", JSON.stringify(purposeCards.value));
+  localStorage.setItem("kashmir-activities", JSON.stringify(activities.value));
+  localStorage.setItem("kashmir-destinations", JSON.stringify(destinations.value));
+  localStorage.setItem("kashmir-attractions", JSON.stringify(attractionHighlights.value));
+  localStorage.setItem("kashmir-faqs", JSON.stringify(faqs.value));
+  localStorage.setItem("kashmir-package-benefits", JSON.stringify(packageBenefits.value));
+  localStorage.setItem("kashmir-seasonal-plans", JSON.stringify(seasonalPlans.value));
+  localStorage.setItem("kashmir-route-ideas", JSON.stringify(routeIdeas.value));
+  localStorage.setItem("kashmir-booking-steps", JSON.stringify(bookingSteps.value));
+  localStorage.setItem("kashmir-registration-details", JSON.stringify(registrationDetails.value));
   adminSaved.value = "Saved. Website content updated in this browser.";
   window.setTimeout(() => {
     adminSaved.value = "";
@@ -1113,9 +1208,20 @@ function resetAdminChanges() {
   blogPosts.value = defaultBlogPosts.map((item) => ({ ...item }));
   blogGuides.value = defaultBlogGuides.map((item) => ({ ...item }));
   blogChecklist.value = defaultBlogChecklist.map((item) => ({ ...item }));
+  purposeCards.value = defaultPurposeCards.map((item) => ({ ...item }));
+  activities.value = defaultActivities.map((item) => [...item]);
+  destinations.value = defaultDestinations.map((item) => [...item]);
+  attractionHighlights.value = defaultAttractionHighlights.map((item) => [...item]);
+  faqs.value = defaultFaqs.map((item) => [...item]);
+  packageBenefits.value = defaultPackageBenefits.map((item) => [...item]);
+  seasonalPlans.value = defaultSeasonalPlans.map((item) => [...item]);
+  routeIdeas.value = defaultRouteIdeas.map((item) => [...item]);
+  bookingSteps.value = defaultBookingSteps.map((item) => [...item]);
+  registrationDetails.value = defaultRegistrationDetails.map((item) => [...item]);
   selectedPackage.value = packages.value[0]?.price || 0;
   localStorage.removeItem("kashmir-site-content");
   localStorage.removeItem("kashmir-site-content-v2");
+  localStorage.removeItem("kashmir-site-content-v3");
   localStorage.removeItem("kashmir-packages");
   localStorage.removeItem("kashmir-packages-premium-v2");
   localStorage.removeItem("kashmir-packages-premium-v3");
@@ -1125,6 +1231,16 @@ function resetAdminChanges() {
   localStorage.removeItem("kashmir-blog-posts");
   localStorage.removeItem("kashmir-blog-guides");
   localStorage.removeItem("kashmir-blog-checklist");
+  localStorage.removeItem("kashmir-purpose-cards");
+  localStorage.removeItem("kashmir-activities");
+  localStorage.removeItem("kashmir-destinations");
+  localStorage.removeItem("kashmir-attractions");
+  localStorage.removeItem("kashmir-faqs");
+  localStorage.removeItem("kashmir-package-benefits");
+  localStorage.removeItem("kashmir-seasonal-plans");
+  localStorage.removeItem("kashmir-route-ideas");
+  localStorage.removeItem("kashmir-booking-steps");
+  localStorage.removeItem("kashmir-registration-details");
   adminSaved.value = "Reset to default content.";
 }
 
@@ -1171,6 +1287,31 @@ function updatePackageHighlights(item, value) {
   item.highlights = textListToArray(value);
 }
 
+function packageItineraryText(item) {
+  return Array.isArray(item.itinerary) ? item.itinerary.join("\n") : "";
+}
+
+function updatePackageItinerary(item, value) {
+  item.itinerary = String(value || "")
+    .split("\n")
+    .map((step) => step.trim())
+    .filter(Boolean);
+}
+
+function addManagedItem(collection, item) {
+  collection.push(item);
+}
+
+function deleteManagedItem(collection, index) {
+  collection.splice(index, 1);
+}
+
+function updateManagedImage(event, collection, index, imageIndex) {
+  readImageFile(event, (result) => {
+    collection[index][imageIndex] = result;
+  });
+}
+
 function addPackage() {
   packages.value.unshift({
     name: "",
@@ -1185,6 +1326,13 @@ function addPackage() {
     routeDetails: "",
     cities: [],
     highlights: [],
+    itinerary: ["Add day-wise itinerary"],
+    tiers: [
+      ["Standard", "On request", "Essential stay, cab, and route support"],
+      ["Premium", "On request", "Comfort hotels and private trip planning"],
+      ["Luxurious", "On request", "Premium stays and curated experiences"],
+      ["VIP", "Custom quote", "Dedicated concierge and best available services"],
+    ],
     image: image("image18"),
     description: "",
   });
@@ -1561,6 +1709,161 @@ onUnmounted(() => {
           </div>
         </div>
 
+        <div class="mt-6 rounded-lg border border-white/[0.12] bg-white/[0.08] p-4">
+          <div>
+            <h3 class="text-xl font-black">Website sections manager</h3>
+            <p class="mt-1 text-sm text-white/[0.68]">Manage the public destination, experience, planning, FAQ, and business-information sections.</p>
+          </div>
+
+          <div class="mt-4 grid gap-4">
+            <details class="rounded-lg border border-white/[0.12] bg-white/[0.06] p-4">
+              <summary class="cursor-pointer font-black">Vision, mission, and motto</summary>
+              <div class="mt-4 grid gap-3">
+                <article v-for="(item, index) in purposeCards" :key="`admin-purpose-${index}`" class="grid gap-3 rounded-lg border border-white/[0.12] p-3 md:grid-cols-3">
+                  <input v-model="item.label" placeholder="Label" class="bg-white text-night" />
+                  <input v-model="item.title" placeholder="Title" class="bg-white text-night md:col-span-2" />
+                  <textarea v-model="item.text" placeholder="Description" class="min-h-20 bg-white text-night md:col-span-3"></textarea>
+                  <button type="button" class="justify-self-start rounded-lg border border-gold/40 px-3 py-2 text-xs font-black text-gold" @click="deleteManagedItem(purposeCards, index)">Delete</button>
+                </article>
+                <button type="button" class="justify-self-start rounded-lg bg-white px-4 py-2 text-sm font-black text-night" @click="addManagedItem(purposeCards, { label: 'New value', title: 'New title', text: 'Add description' })">Add Card</button>
+              </div>
+            </details>
+
+            <details class="rounded-lg border border-white/[0.12] bg-white/[0.06] p-4">
+              <summary class="cursor-pointer font-black">Activities and experiences</summary>
+              <div class="mt-4 grid gap-3 md:grid-cols-2">
+                <article v-for="(item, index) in activities" :key="`admin-activity-${index}`" class="rounded-lg border border-white/[0.12] p-3">
+                  <div class="image-cover h-32 rounded-lg" :style="imageStyle(item[3])"></div>
+                  <div class="mt-3 grid gap-2 sm:grid-cols-2">
+                    <input v-model="item[0]" maxlength="6" placeholder="Short code" class="bg-white text-night" />
+                    <input v-model="item[1]" placeholder="Activity title" class="bg-white text-night" />
+                    <textarea v-model="item[2]" placeholder="Description" class="min-h-20 bg-white text-night sm:col-span-2"></textarea>
+                  </div>
+                  <div class="mt-2 flex gap-2">
+                    <label class="cursor-pointer rounded-lg border border-white/20 px-3 py-2 text-xs font-black">Change image<input type="file" accept="image/*" class="hidden" @change="updateManagedImage($event, activities, index, 3)" /></label>
+                    <button type="button" class="rounded-lg border border-gold/40 px-3 py-2 text-xs font-black text-gold" @click="deleteManagedItem(activities, index)">Delete</button>
+                  </div>
+                </article>
+                <button type="button" class="justify-self-start rounded-lg bg-white px-4 py-2 text-sm font-black text-night" @click="addManagedItem(activities, ['NEW', 'New activity', 'Add activity description', image('image18')])">Add Activity</button>
+              </div>
+            </details>
+
+            <details class="rounded-lg border border-white/[0.12] bg-white/[0.06] p-4">
+              <summary class="cursor-pointer font-black">Destinations</summary>
+              <div class="mt-4 grid gap-3 md:grid-cols-2">
+                <article v-for="(item, index) in destinations" :key="`admin-destination-${index}`" class="rounded-lg border border-white/[0.12] p-3">
+                  <div class="image-cover h-32 rounded-lg" :style="imageStyle(item[1])"></div>
+                  <input v-model="item[0]" maxlength="70" placeholder="Destination name" class="mt-3 w-full bg-white text-night" />
+                  <textarea v-model="item[2]" placeholder="Destination details" class="mt-2 min-h-24 w-full bg-white text-night"></textarea>
+                  <div class="mt-2 flex gap-2">
+                    <label class="cursor-pointer rounded-lg border border-white/20 px-3 py-2 text-xs font-black">Change image<input type="file" accept="image/*" class="hidden" @change="updateManagedImage($event, destinations, index, 1)" /></label>
+                    <button type="button" class="rounded-lg border border-gold/40 px-3 py-2 text-xs font-black text-gold" @click="deleteManagedItem(destinations, index)">Delete</button>
+                  </div>
+                </article>
+                <button type="button" class="justify-self-start rounded-lg bg-white px-4 py-2 text-sm font-black text-night" @click="addManagedItem(destinations, ['New Destination', image('image18'), 'Add destination details'])">Add Destination</button>
+              </div>
+            </details>
+
+            <details class="rounded-lg border border-white/[0.12] bg-white/[0.06] p-4">
+              <summary class="cursor-pointer font-black">Attractions and package benefits</summary>
+              <div class="mt-4 grid gap-5 lg:grid-cols-2">
+                <div>
+                  <p class="mb-2 text-xs font-black uppercase tracking-wide text-gold">Attractions</p>
+                  <div class="grid gap-2">
+                    <div v-for="(item, index) in attractionHighlights" :key="`admin-attraction-${index}`" class="grid gap-2 rounded-lg border border-white/[0.12] p-3">
+                      <input v-model="item[0]" placeholder="Title" class="bg-white text-night" />
+                      <textarea v-model="item[1]" placeholder="Description" class="min-h-20 bg-white text-night"></textarea>
+                      <button type="button" class="justify-self-start text-xs font-black text-gold" @click="deleteManagedItem(attractionHighlights, index)">Delete</button>
+                    </div>
+                    <button type="button" class="justify-self-start rounded-lg bg-white px-3 py-2 text-xs font-black text-night" @click="addManagedItem(attractionHighlights, ['New attraction', 'Add description'])">Add Attraction</button>
+                  </div>
+                </div>
+                <div>
+                  <p class="mb-2 text-xs font-black uppercase tracking-wide text-gold">Package benefits</p>
+                  <div class="grid gap-2">
+                    <div v-for="(item, index) in packageBenefits" :key="`admin-benefit-${index}`" class="grid gap-2 rounded-lg border border-white/[0.12] p-3">
+                      <input v-model="item[0]" placeholder="Title" class="bg-white text-night" />
+                      <textarea v-model="item[1]" placeholder="Description" class="min-h-20 bg-white text-night"></textarea>
+                      <button type="button" class="justify-self-start text-xs font-black text-gold" @click="deleteManagedItem(packageBenefits, index)">Delete</button>
+                    </div>
+                    <button type="button" class="justify-self-start rounded-lg bg-white px-3 py-2 text-xs font-black text-night" @click="addManagedItem(packageBenefits, ['New benefit', 'Add description'])">Add Benefit</button>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <details class="rounded-lg border border-white/[0.12] bg-white/[0.06] p-4">
+              <summary class="cursor-pointer font-black">Season plans, route ideas, and booking steps</summary>
+              <div class="mt-4 grid gap-5">
+                <div>
+                  <p class="mb-2 text-xs font-black uppercase tracking-wide text-gold">Season plans</p>
+                  <div class="grid gap-2 md:grid-cols-2">
+                    <div v-for="(item, index) in seasonalPlans" :key="`admin-season-${index}`" class="grid gap-2 rounded-lg border border-white/[0.12] p-3">
+                      <input v-model="item[0]" placeholder="Season" class="bg-white text-night" />
+                      <input v-model="item[1]" placeholder="Months" class="bg-white text-night" />
+                      <textarea v-model="item[2]" placeholder="Description" class="min-h-20 bg-white text-night"></textarea>
+                      <button type="button" class="justify-self-start text-xs font-black text-gold" @click="deleteManagedItem(seasonalPlans, index)">Delete</button>
+                    </div>
+                  </div>
+                  <button type="button" class="mt-2 rounded-lg bg-white px-3 py-2 text-xs font-black text-night" @click="addManagedItem(seasonalPlans, ['New season', 'Months', 'Add description'])">Add Season</button>
+                </div>
+                <div>
+                  <p class="mb-2 text-xs font-black uppercase tracking-wide text-gold">Route ideas</p>
+                  <div class="grid gap-2 md:grid-cols-2">
+                    <div v-for="(item, index) in routeIdeas" :key="`admin-route-${index}`" class="grid gap-2 rounded-lg border border-white/[0.12] p-3">
+                      <input v-model="item[0]" placeholder="Route title" class="bg-white text-night" />
+                      <input v-model="item[1]" placeholder="Route" class="bg-white text-night" />
+                      <textarea v-model="item[2]" placeholder="Description" class="min-h-20 bg-white text-night"></textarea>
+                      <button type="button" class="justify-self-start text-xs font-black text-gold" @click="deleteManagedItem(routeIdeas, index)">Delete</button>
+                    </div>
+                  </div>
+                  <button type="button" class="mt-2 rounded-lg bg-white px-3 py-2 text-xs font-black text-night" @click="addManagedItem(routeIdeas, ['New route', 'Srinagar -> Destination', 'Add description'])">Add Route</button>
+                </div>
+                <div>
+                  <p class="mb-2 text-xs font-black uppercase tracking-wide text-gold">Booking steps</p>
+                  <div class="grid gap-2 md:grid-cols-2">
+                    <div v-for="(item, index) in bookingSteps" :key="`admin-step-${index}`" class="grid gap-2 rounded-lg border border-white/[0.12] p-3">
+                      <input v-model="item[0]" placeholder="Number" class="bg-white text-night" />
+                      <input v-model="item[1]" placeholder="Title" class="bg-white text-night" />
+                      <textarea v-model="item[2]" placeholder="Description" class="min-h-20 bg-white text-night"></textarea>
+                      <button type="button" class="justify-self-start text-xs font-black text-gold" @click="deleteManagedItem(bookingSteps, index)">Delete</button>
+                    </div>
+                  </div>
+                  <button type="button" class="mt-2 rounded-lg bg-white px-3 py-2 text-xs font-black text-night" @click="addManagedItem(bookingSteps, [String(bookingSteps.length + 1).padStart(2, '0'), 'New step', 'Add description'])">Add Step</button>
+                </div>
+              </div>
+            </details>
+
+            <details class="rounded-lg border border-white/[0.12] bg-white/[0.06] p-4">
+              <summary class="cursor-pointer font-black">FAQs and registered business details</summary>
+              <div class="mt-4 grid gap-5 lg:grid-cols-2">
+                <div>
+                  <p class="mb-2 text-xs font-black uppercase tracking-wide text-gold">FAQs</p>
+                  <div class="grid gap-2">
+                    <div v-for="(item, index) in faqs" :key="`admin-faq-${index}`" class="grid gap-2 rounded-lg border border-white/[0.12] p-3">
+                      <input v-model="item[0]" placeholder="Question" class="bg-white text-night" />
+                      <textarea v-model="item[1]" placeholder="Answer" class="min-h-20 bg-white text-night"></textarea>
+                      <button type="button" class="justify-self-start text-xs font-black text-gold" @click="deleteManagedItem(faqs, index)">Delete</button>
+                    </div>
+                    <button type="button" class="justify-self-start rounded-lg bg-white px-3 py-2 text-xs font-black text-night" @click="addManagedItem(faqs, ['New question?', 'Add answer'])">Add FAQ</button>
+                  </div>
+                </div>
+                <div>
+                  <p class="mb-2 text-xs font-black uppercase tracking-wide text-gold">Registered details</p>
+                  <div class="grid gap-2">
+                    <div v-for="(item, index) in registrationDetails" :key="`admin-registration-${index}`" class="grid gap-2 rounded-lg border border-white/[0.12] p-3">
+                      <input v-model="item[0]" placeholder="Label" class="bg-white text-night" />
+                      <input v-model="item[1]" placeholder="Value" class="bg-white text-night" />
+                      <button type="button" class="justify-self-start text-xs font-black text-gold" @click="deleteManagedItem(registrationDetails, index)">Delete</button>
+                    </div>
+                    <button type="button" class="justify-self-start rounded-lg bg-white px-3 py-2 text-xs font-black text-night" @click="addManagedItem(registrationDetails, ['New detail', 'Value'])">Add Detail</button>
+                  </div>
+                </div>
+              </div>
+            </details>
+          </div>
+        </div>
+
         <div class="mt-6 grid gap-4">
           <div class="flex flex-col justify-between gap-3 rounded-lg border border-white/[0.12] bg-white/[0.08] p-4 sm:flex-row sm:items-center">
             <div>
@@ -1582,7 +1885,7 @@ onUnmounted(() => {
               </div>
               <div class="grid gap-3 md:grid-cols-4">
                 <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Package name
-                  <input v-model="item.name" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
+                  <input v-model="item.name" maxlength="72" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
                 </label>
                 <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72]">Price
                   <input v-model.number="item.price" type="number" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
@@ -1606,10 +1909,10 @@ onUnmounted(() => {
                   <input :value="packageTypesText(item)" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" @input="updatePackageTypes(item, $event.target.value)" />
                 </label>
                 <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Route location
-                  <input v-model="item.routeTitle" placeholder="Example: Srinagar" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
+                  <input v-model="item.routeTitle" maxlength="55" placeholder="Example: Srinagar" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
                 </label>
                 <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Route details
-                  <input v-model="item.routeDetails" placeholder="Example: Dal Lake, Gulmarg, Pahalgam" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
+                  <input v-model="item.routeDetails" maxlength="100" placeholder="Example: Dal Lake, Gulmarg, Pahalgam" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
                 </label>
                 <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Cities covered
                   <input :value="packageCitiesText(item)" placeholder="Srinagar, Gulmarg" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" @input="updatePackageCities(item, $event.target.value)" />
@@ -1620,6 +1923,19 @@ onUnmounted(() => {
                 <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-4">Description
                   <textarea v-model="item.description" class="min-h-20 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night"></textarea>
                 </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-4">Day-wise itinerary — one day per line
+                  <textarea :value="packageItineraryText(item)" class="min-h-28 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" @input="updatePackageItinerary(item, $event.target.value)"></textarea>
+                </label>
+                <div class="md:col-span-4">
+                  <p class="text-xs font-black uppercase tracking-wide text-white/[0.72]">Four price tiers shown on package cards</p>
+                  <div class="mt-2 grid gap-3">
+                    <div v-for="(tier, tierIndex) in item.tiers" :key="`${index}-tier-${tierIndex}`" class="grid gap-2 rounded-lg border border-white/[0.12] bg-white/[0.06] p-3 md:grid-cols-[0.7fr_0.8fr_1.5fr]">
+                      <input v-model="tier[0]" maxlength="20" placeholder="Tier name" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
+                      <input v-model="tier[1]" maxlength="28" placeholder="From INR 18,999 pp" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
+                      <input v-model="tier[2]" maxlength="110" placeholder="Tier inclusions" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </article>
@@ -1832,7 +2148,10 @@ onUnmounted(() => {
           <span class="grid h-12 w-12 place-items-center overflow-hidden rounded-lg bg-white p-1.5 shadow-lift">
             <img :src="logoSrc" :alt="`${brandName} logo`" class="h-full w-full object-contain" />
           </span>
-          <span class="text-base font-black tracking-tight text-night">{{ brandName }}</span>
+          <span class="leading-tight">
+            <span class="block text-sm font-black tracking-tight text-night sm:text-base">{{ brandName }}</span>
+            <span class="block text-[0.62rem] font-black uppercase tracking-[0.16em] text-lake">{{ brandTagline }}</span>
+          </span>
         </a>
 
         <div class="hidden items-center gap-2 text-sm font-bold text-night/[0.78] lg:flex">
@@ -1918,14 +2237,68 @@ onUnmounted(() => {
         </div>
       </section>
 
+      <section v-if="currentPage === 'home'" class="relative z-10 -mt-7 px-4 sm:px-6">
+        <div class="mx-auto grid max-w-7xl overflow-hidden rounded-lg border border-white/70 bg-white shadow-premium sm:grid-cols-3 lg:grid-cols-6">
+          <button v-for="[name, img] in destinations.slice(0, 6)" :key="`home-shortcut-${name}`" type="button" class="group relative min-h-28 overflow-hidden border-b border-night/[0.08] text-left sm:border-r" @click="navigateTo('/destinations')">
+            <div class="image-cover absolute inset-0" :style="imageStyle(img)"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-night/90 via-night/25 to-transparent"></div>
+            <span class="absolute inset-x-0 bottom-0 p-3 text-sm font-black text-white">{{ name }}</span>
+          </button>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'home'" class="bg-white py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="mb-9 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div class="max-w-3xl">
+              <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Popular Kashmir packages</p>
+              <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Routes, prices, and inclusions you can understand at a glance.</h2>
+              <p class="mt-4 text-base leading-7 text-night/[0.62]">Every package shows its destination route, duration, starting price, important inclusions, and full day-wise itinerary.</p>
+            </div>
+            <button type="button" class="self-start rounded-lg bg-night px-6 py-3 text-sm font-black text-white shadow-lift hover:bg-lake lg:self-auto" @click="navigateTo('/packages')">Compare All Packages</button>
+          </div>
+
+          <div class="grid gap-6 lg:grid-cols-3">
+            <article v-for="item in packages.slice(0, 3)" :key="`home-package-${item.name}`" class="group flex h-full flex-col overflow-hidden rounded-lg border border-night/[0.08] bg-white shadow-premium">
+              <div class="relative h-64 overflow-hidden">
+                <div class="image-cover h-full transition duration-500 group-hover:scale-105" :style="{ backgroundImage: `url('${packageVisual(item)}')` }"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-night/82 via-night/8 to-transparent"></div>
+                <span class="absolute left-4 top-4 rounded-full bg-gold px-3 py-2 text-xs font-black text-night">{{ item.tag }}</span>
+                <span class="absolute right-4 top-4 rounded-full bg-white/95 px-3 py-2 text-xs font-black text-night">{{ displayDuration(item.duration) }}</span>
+                <div class="absolute inset-x-0 bottom-0 p-5 text-white">
+                  <p class="text-xs font-black uppercase tracking-[0.14em] text-gold">{{ packageRoute(item)[0] }}</p>
+                  <h3 class="mt-1 text-2xl font-black">{{ item.name }}</h3>
+                </div>
+              </div>
+              <div class="flex flex-1 flex-col p-5">
+                <p class="line-clamp-2 min-h-12 text-sm font-semibold leading-6 text-night/[0.58]">{{ packageRoute(item)[1] }}</p>
+                <div class="mt-4 flex min-h-14 flex-wrap content-start gap-2 overflow-hidden">
+                  <span v-for="chip in packageChips(item)" :key="`home-${item.name}-${chip}`" class="rounded-full bg-frost px-3 py-1.5 text-xs font-bold text-night/[0.68]">✓ {{ chip }}</span>
+                </div>
+                <div class="mt-auto flex items-end justify-between gap-4 border-t border-night/[0.08] pt-5">
+                  <div>
+                    <p class="text-xs font-bold uppercase tracking-wide text-night/[0.42]">Starting from</p>
+                    <div class="mt-1 flex flex-wrap items-end gap-2">
+                      <p class="font-display text-3xl font-extrabold text-lake">INR {{ item.price.toLocaleString("en-IN") }}</p>
+                      <p class="pb-1 text-sm font-bold text-night/35 line-through">INR {{ packageOriginalPrice(item).toLocaleString("en-IN") }}</p>
+                    </div>
+                  </div>
+                  <button type="button" class="rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake" @click="viewPackageDetails(item)">View Itinerary</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section v-if="currentPage === 'home'" class="bg-white py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="grid gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
             <div>
-              <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Why Snow Feather</p>
+              <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Why Snow Feather Adventures</p>
               <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Kashmir travel planning with a clear purpose.</h2>
               <p class="mt-5 text-base leading-8 text-night/[0.64]">
-                Snow Feather is a Kashmir tourism and adventure travel company helping guests book practical, beautiful, and well-supported trips across Srinagar, Gulmarg, Pahalgam, Sonamarg, Dal Lake, and beyond.
+                Snow Feather Adventures is a Srinagar-based Kashmir tourism team helping guests book practical, beautiful, and well-supported trips across famous landmarks and quieter valleys.
               </p>
             </div>
 
@@ -1947,10 +2320,14 @@ onUnmounted(() => {
             <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">{{ siteContent.homeActivitiesTitle }}</h2>
           </div>
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <article v-for="[icon, title, text] in activities" :key="title" class="premium-card rounded-lg p-5 hover-lift">
-              <p class="text-xs font-black tracking-[0.24em] text-transparent bg-gradient-to-r from-gold to-[#ff8b6d] bg-clip-text">{{ icon }}</p>
-              <h3 class="mt-4 text-xl font-black bg-gradient-to-r from-night to-alpine bg-clip-text text-transparent">{{ title }}</h3>
-              <p class="mt-2 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
+            <article v-for="[icon, title, text, activityImage] in activities" :key="title" class="group relative min-h-72 overflow-hidden rounded-lg shadow-premium">
+              <div class="image-cover absolute inset-0 transition duration-500 group-hover:scale-105" :style="imageStyle(activityImage)"></div>
+              <div class="absolute inset-0 bg-gradient-to-t from-night via-night/28 to-transparent"></div>
+              <div class="absolute inset-x-0 bottom-0 p-5 text-white">
+                <p class="text-xs font-black tracking-[0.24em] text-gold">{{ icon }}</p>
+                <h3 class="mt-2 text-2xl font-black text-white">{{ title }}</h3>
+                <p class="mt-2 text-sm font-semibold leading-6 text-white/76">{{ text }}</p>
+              </div>
             </article>
           </div>
         </div>
@@ -1996,50 +2373,12 @@ onUnmounted(() => {
 
             <h1 class="mt-10 font-display text-4xl font-extrabold leading-[1.02] text-white sm:text-5xl lg:text-5xl xl:text-6xl">
               About
-              <span class="bg-gradient-to-r from-gold via-[#ff8b6d] to-[#ff6fa8] bg-clip-text text-transparent">Snow Feather</span>
+              <span class="bg-gradient-to-r from-gold via-[#ff8b6d] to-[#ff6fa8] bg-clip-text text-transparent">Snow Feather Adventures</span>
             </h1>
             <p class="mt-6 max-w-2xl text-lg font-semibold leading-8 text-white/76">
               We are a Kashmir travel team helping guests plan honest routes, comfortable stays, local transfers, snow activities, family holidays, honeymoon trips, and smooth on-trip support.
             </p>
 
-            <div class="mt-9 grid grid-cols-2 gap-4 sm:grid-cols-5">
-              <button type="button" class="grid min-h-28 place-items-center rounded-lg border border-white/10 bg-black/30 px-4 py-5 text-center text-sm font-black text-white shadow-lift backdrop-blur transition hover:-translate-y-1 hover:border-lake/60 hover:bg-lake/20" @click="navigateTo('/booking')">
-                <span class="text-2xl">TREK</span>
-                <span>Mountain Trails</span>
-              </button>
-              <button type="button" class="grid min-h-28 place-items-center rounded-lg border border-white/10 bg-black/30 px-4 py-5 text-center text-sm font-black text-white shadow-lift backdrop-blur transition hover:-translate-y-1 hover:border-lake/60 hover:bg-lake/20" @click="navigateTo('/destinations')">
-                <span class="text-2xl">STAY</span>
-                <span>Hotels</span>
-              </button>
-              <button type="button" class="grid min-h-28 place-items-center rounded-lg border border-white/10 bg-black/30 px-4 py-5 text-center text-sm font-black text-white shadow-lift backdrop-blur transition hover:-translate-y-1 hover:border-lake/60 hover:bg-lake/20" @click="navigateTo('/contact')">
-                <span class="text-2xl">CAMP</span>
-                <span>Camping</span>
-              </button>
-              <button type="button" class="grid min-h-28 place-items-center rounded-lg border border-white/10 bg-black/30 px-4 py-5 text-center text-sm font-black text-white shadow-lift backdrop-blur transition hover:-translate-y-1 hover:border-lake/60 hover:bg-lake/20" @click="navigateTo('/contact')">
-                <span class="text-2xl">SNOW</span>
-                <span>Snow Activities</span>
-              </button>
-              <button type="button" class="grid min-h-28 place-items-center rounded-lg border border-white/10 bg-white/18 px-4 py-5 text-center text-sm font-black text-white shadow-lift backdrop-blur transition hover:-translate-y-1 hover:border-lake/60 hover:bg-lake/25" @click="navigateTo('/packages')">
-                <span class="text-2xl">TRIP</span>
-                <span>Packages</span>
-              </button>
-            </div>
-
-            <div class="mt-8 flex flex-wrap gap-3">
-              <span class="rounded-full border border-gold/24 bg-gold/16 px-4 py-2 text-sm font-bold text-white">Kashmir Tour Packages</span>
-              <span class="rounded-full border border-lake/24 bg-lake/16 px-4 py-2 text-sm font-bold text-white">Gulmarg Snow Trips</span>
-              <span class="rounded-full border border-white/16 bg-white/10 px-4 py-2 text-sm font-bold text-white">Dal Lake Houseboats</span>
-              <span class="rounded-full border border-lake/24 bg-lake/12 px-4 py-2 text-sm font-bold text-white">Pahalgam & Sonamarg</span>
-            </div>
-
-            <div class="mt-9 flex flex-col gap-4 sm:flex-row">
-              <button type="button" class="rounded-lg bg-lake px-8 py-4 text-base font-black text-white shadow-premium transition hover:-translate-y-1 hover:bg-white hover:text-night" @click="navigateTo('/booking')">
-                Start Planning
-              </button>
-              <button type="button" class="rounded-lg bg-white/12 px-8 py-4 text-base font-black text-white shadow-lift backdrop-blur transition hover:-translate-y-1 hover:bg-white hover:text-night" @click="navigateTo('/contact')">
-                Contact Us
-              </button>
-            </div>
           </div>
 
         </div>
@@ -2049,7 +2388,7 @@ onUnmounted(() => {
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mx-auto mb-10 max-w-4xl text-center">
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Vision, mission, and motto</p>
-            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">The promise behind every Snow Feather Kashmir tour.</h2>
+            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">The promise behind every Snow Feather Adventures tour.</h2>
             <p class="mt-5 text-base leading-8 text-night/[0.64]">
               Our work is built around trusted Kashmir travel planning, local destination knowledge, clear package details, and responsive support for families, couples, groups, and adventure travelers.
             </p>
@@ -2069,7 +2408,7 @@ onUnmounted(() => {
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-8 max-w-4xl">
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Why choose us?</p>
-            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">More benefits for every Snow Feather guest.</h2>
+            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">More confidence for every Kashmir guest.</h2>
           </div>
 
           <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -2098,32 +2437,89 @@ onUnmounted(() => {
       </section>
 
       <section v-if="currentPage === 'about'" class="section-band py-16">
-        <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div>
-            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Travel services</p>
-            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Flights, hotels, buses, cabs, and holiday package support.</h2>
-            <p class="mt-5 text-base leading-8 text-night/[0.62]">
-              Inspired by full-service travel desks, Snow Feather brings the essentials together for Kashmir guests: stay planning, transfers, local sightseeing, activity booking, package comparison, and quick contact support.
-            </p>
-            <button type="button" class="mt-7 rounded-lg bg-night px-6 py-3 text-sm font-black text-white shadow-lift hover:bg-lake" @click="navigateTo('/contact')">Contact & Support</button>
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div class="max-w-3xl">
+              <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Kashmir holiday packages</p>
+              <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Find a Snow Feather Adventures package made for your trip.</h2>
+              <p class="mt-4 text-base leading-7 text-night/[0.62]">Compare routes, duration, inclusions, and starting prices, then talk directly with our local Kashmir team.</p>
+            </div>
+            <button type="button" class="self-start rounded-lg bg-night px-6 py-3 text-sm font-black text-white shadow-lift hover:bg-lake lg:self-auto" @click="navigateTo('/packages')">View All Packages</button>
           </div>
 
-          <div class="grid gap-4 sm:grid-cols-2">
-            <div class="rounded-lg bg-gradient-to-br from-white via-[#fbfdff] to-white shadow-lift hover-lift p-5 transition">
-              <h3 class="text-xl font-black bg-gradient-to-r from-lake to-alpine bg-clip-text text-transparent">Holiday Packages</h3>
-              <p class="mt-3 text-sm leading-6 text-night/[0.62]">Winter, summer, honeymoon, family, group, and custom Kashmir packages.</p>
-            </div>
-            <div class="rounded-lg bg-gradient-to-br from-white via-[#fbfdff] to-white shadow-lift hover-lift p-5 transition">
-              <h3 class="text-xl font-black bg-gradient-to-r from-gold to-[#ff8b6d] bg-clip-text text-transparent">Hotels & Houseboats</h3>
-              <p class="mt-3 text-sm leading-6 text-night/[0.62]">Comfort hotels, premium stays, heated winter rooms, and houseboat options.</p>
-            </div>
-            <div class="rounded-lg bg-gradient-to-br from-white via-[#fbfdff] to-white shadow-lift hover-lift p-5 transition">
-              <h3 class="text-xl font-black bg-gradient-to-r from-lake to-gold bg-clip-text text-transparent">Cab & Transfers</h3>
-              <p class="mt-3 text-sm leading-6 text-night/[0.62]">Airport pickup, local sightseeing, intercity movement, and day-trip support.</p>
-            </div>
-            <div class="rounded-lg bg-gradient-to-br from-white via-[#fbfdff] to-white shadow-lift hover-lift p-5 transition">
-              <h3 class="text-xl font-black bg-gradient-to-r from-alpine to-[#ff8b6d] bg-clip-text text-transparent">Adventure Activities</h3>
-              <p class="mt-3 text-sm leading-6 text-night/[0.62]">Gondola, skiing, snowmobile, camping, trekking, pony rides, and Shikara rides.</p>
+          <div class="grid items-start gap-6 lg:grid-cols-[250px_minmax(0,1fr)]">
+            <aside class="overflow-hidden rounded-lg border border-night/[0.08] bg-white shadow-premium lg:sticky lg:top-28">
+              <div class="flex items-center justify-between bg-night px-5 py-4 text-white">
+                <p class="font-black">Filter Packages</p>
+                <button type="button" class="text-xs font-black text-gold hover:text-white" @click="clearPackageFilters">Clear All</button>
+              </div>
+
+              <div class="border-b border-night/[0.08] p-5">
+                <p class="text-sm font-black text-night">Tour Type</p>
+                <div class="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-1">
+                  <label v-for="filter in filters" :key="`about-filter-${filter}`" class="flex cursor-pointer items-center gap-2 text-sm font-semibold capitalize text-night/[0.68]">
+                    <input v-model="activeFilter" type="radio" name="about-tour-type" :value="filter" class="h-4 w-4 !border !p-0 accent-[#0ea5c6]" />
+                    <span>{{ filter === 'all' ? 'All tours' : filter }}</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="p-5">
+                <p class="text-sm font-black text-night">Price Range</p>
+                <div class="mt-4 grid gap-3">
+                  <label v-for="range in priceRanges" :key="`about-price-${range.value}`" class="flex cursor-pointer items-center gap-2 text-sm font-semibold text-night/[0.68]">
+                    <input v-model="activePriceRange" type="radio" name="about-price-range" :value="range.value" class="h-4 w-4 !border !p-0 accent-[#0ea5c6]" />
+                    <span>{{ range.label }}</span>
+                  </label>
+                </div>
+              </div>
+            </aside>
+
+            <div>
+              <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 class="text-2xl font-black text-night">{{ filteredPackages.length }} Holiday Packages</h3>
+                  <p class="mt-1 text-sm font-semibold text-night/[0.5]">Showing {{ aboutPackages.length }} of {{ filteredPackages.length }} matching packages</p>
+                </div>
+              </div>
+
+              <div v-if="aboutPackages.length" class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                <article v-for="item in aboutPackages" :key="`about-package-${item.name}`" class="group flex h-full flex-col overflow-hidden rounded-lg border border-night/[0.08] bg-white shadow-premium transition hover:-translate-y-1">
+                  <div class="relative h-52 overflow-hidden">
+                    <div class="image-cover h-full transition duration-500 group-hover:scale-105" :style="{ backgroundImage: `url('${packageVisual(item)}')` }"></div>
+                    <span class="absolute right-0 top-0 rounded-bl-lg bg-gradient-to-r from-gold to-[#ff8b6d] px-4 py-2 text-sm font-black text-white">{{ packageDiscount(item) }}% OFF</span>
+                    <span class="absolute bottom-3 left-3 rounded-full bg-night/85 px-3 py-1.5 text-xs font-black text-white backdrop-blur">{{ displayDuration(item.duration) }}</span>
+                  </div>
+
+                  <div class="flex flex-1 flex-col p-5">
+                    <p class="text-xs font-black uppercase tracking-[0.14em] text-lake">{{ packageRoute(item)[0] }}</p>
+                    <h3 class="mt-2 line-clamp-2 min-h-14 text-xl font-black leading-7 text-night">{{ item.name }}</h3>
+                    <div class="mt-3 flex items-center justify-between gap-3 text-sm">
+                      <span class="font-black text-gold">★ {{ item.rating }}</span>
+                      <span class="font-semibold text-night/[0.5]">{{ item.tag }}</span>
+                    </div>
+
+                    <div class="mt-auto border-t border-night/[0.08] pt-4">
+                      <p class="text-xs font-bold uppercase tracking-wide text-night/[0.46]">Starts From</p>
+                      <div class="mt-1 flex flex-wrap items-end gap-2">
+                        <p class="font-display text-2xl font-extrabold text-lake">INR {{ item.price.toLocaleString("en-IN") }}</p>
+                        <p class="pb-0.5 text-sm font-bold text-night/35 line-through">INR {{ packageOriginalPrice(item).toLocaleString("en-IN") }}</p>
+                      </div>
+                    </div>
+
+                    <div class="mt-4 grid grid-cols-2 gap-2">
+                      <a :href="packageWhatsappLink(item)" class="rounded-lg border border-night/[0.12] px-3 py-3 text-center text-xs font-black text-night hover:border-lake hover:text-lake">Talk to Expert</a>
+                      <button type="button" class="rounded-lg bg-gradient-to-r from-lake to-alpine px-3 py-3 text-xs font-black text-white" @click="viewPackageDetails(item)">Tour Details</button>
+                    </div>
+                  </div>
+                </article>
+              </div>
+
+              <div v-else class="rounded-lg border border-dashed border-night/20 bg-white p-10 text-center shadow-lift">
+                <h3 class="text-2xl font-black text-night">No packages match these filters.</h3>
+                <p class="mt-2 text-sm text-night/[0.58]">Try another tour type or price range.</p>
+                <button type="button" class="mt-5 rounded-lg bg-lake px-5 py-3 text-sm font-black text-white" @click="clearPackageFilters">Show All Packages</button>
+              </div>
             </div>
           </div>
         </div>
@@ -2143,7 +2539,7 @@ onUnmounted(() => {
           </div>
 
           <div>
-            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">About Snow Feather</p>
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">About Snow Feather Adventures</p>
             <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">A Kashmir travel partner focused on easy, honest planning.</h2>
             <p class="mt-5 text-base leading-8 text-night/[0.62]">
               We listen to your needs, recommend realistic routes, and coordinate the small details that make a trip smoother. Whether you want snow days in Gulmarg, lakeside stays in Srinagar, family sightseeing, or a slow honeymoon route, the plan stays clear before you arrive.
@@ -2164,7 +2560,7 @@ onUnmounted(() => {
       </section>
 
       <section v-if="currentPage === 'packageDetail' && detailPackage" class="relative flex min-h-[34rem] items-end overflow-hidden pt-28 text-white">
-        <div class="absolute inset-0 image-cover" :style="{ backgroundImage: `url('${detailPackage.image}')` }"></div>
+        <div class="absolute inset-0 image-cover" :style="{ backgroundImage: `url('${packageVisual(detailPackage)}')` }"></div>
         <div class="absolute inset-0 bg-gradient-to-t from-night via-night/55 to-night/10"></div>
         <div class="relative mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:pb-16">
           <button type="button" class="mb-6 inline-flex items-center gap-2 rounded-lg bg-white/12 px-4 py-2 text-sm font-black text-white backdrop-blur hover:bg-white/20" @click="navigateTo('/packages')">
@@ -2223,7 +2619,7 @@ onUnmounted(() => {
                 <div v-for="[tier, amount, text] in packageTiers(detailPackage)" :key="`${detailPackage.name}-${tier}`" class="rounded-lg border border-night/10 bg-white p-5 shadow-lift">
                   <div class="flex items-start justify-between gap-3">
                     <h4 class="text-xl font-black text-night">{{ tier }}</h4>
-                    <span class="rounded-lg bg-gold/15 px-3 py-2 text-xs font-black text-gold">{{ amount }}</span>
+                    <span class="rounded-lg bg-lake/10 px-3 py-2 font-display text-sm font-extrabold text-lake">{{ displayCurrencyText(amount) }}</span>
                   </div>
                   <p class="mt-3 text-sm font-semibold leading-6 text-night/62">{{ text }}</p>
                 </div>
@@ -2234,11 +2630,11 @@ onUnmounted(() => {
           <aside class="premium-card rounded-lg p-6 lg:sticky lg:top-28 lg:self-start">
             <p class="text-sm font-bold text-night/55">Starting From</p>
             <div class="mt-2 flex flex-wrap items-end gap-3">
-              <p class="font-display text-4xl font-extrabold text-lake">₹{{ detailPackage.price.toLocaleString("en-IN") }}</p>
-              <p class="pb-1 text-lg font-bold text-night/45 line-through">₹{{ detailOriginalPrice.toLocaleString("en-IN") }}</p>
+              <p class="font-display text-4xl font-extrabold text-lake">INR {{ detailPackage.price.toLocaleString("en-IN") }}</p>
+              <p class="pb-1 text-lg font-bold text-night/45 line-through">INR {{ detailOriginalPrice.toLocaleString("en-IN") }}</p>
             </div>
             <p class="mt-2 text-xs font-semibold text-night/55">Indicative starting estimate; final quote is confirmed after availability check.</p>
-            <p class="mt-6 rounded-lg bg-gold/15 px-4 py-3 text-center text-base font-black text-gold">Save ₹{{ detailSaveAmount.toLocaleString("en-IN") }}!</p>
+            <p class="mt-6 rounded-lg bg-lake/10 px-4 py-3 text-center font-display text-lg font-extrabold text-lake">Save INR {{ detailSaveAmount.toLocaleString("en-IN") }}!</p>
             <button type="button" class="mt-5 w-full rounded-lg bg-lake px-5 py-4 text-base font-black text-white shadow-lift hover:bg-night" @click="bookDetailPackage">
               Book & Pay Now
             </button>
@@ -2278,7 +2674,7 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <div class="mb-8 rounded-lg border border-white/60 bg-white/42 p-3 shadow-premium backdrop-blur-2xl">
+          <div class="hidden">
             <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <article v-for="[title, meta, text] in packageCategories" :key="title" class="relative min-h-36 overflow-hidden rounded-lg border border-white/70 bg-white/24 p-4 shadow-lift backdrop-blur-xl">
                 <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-gold via-lake to-alpine"></div>
@@ -2289,7 +2685,7 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <div class="mb-10 grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+          <div class="hidden">
             <div class="relative overflow-hidden rounded-lg bg-night p-5 text-white shadow-premium sm:p-6">
               <div class="image-cover absolute inset-0 opacity-30" :style="imageStyle('image15')"></div>
               <div class="absolute inset-0 bg-gradient-to-br from-night/96 via-night/80 to-night/42"></div>
@@ -2321,18 +2717,18 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <div class="mb-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="hidden">
             <div v-for="message in trustMessages" :key="message" class="flex min-h-20 items-center gap-3 rounded-lg border border-white/70 bg-white/52 p-4 text-sm font-black leading-6 text-night shadow-lift backdrop-blur-xl">
               <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-lake text-xs text-white">✓</span>
               <span>{{ message }}</span>
             </div>
           </div>
 
-          <div class="mb-10 rounded-lg border border-night/10 bg-night p-4 text-white shadow-premium sm:p-5">
+          <div class="hidden">
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p class="text-xs font-black uppercase tracking-[0.18em] text-gold">Registered details</p>
-                <p class="mt-1 text-sm font-semibold text-white/62">Snow Feather business identifiers</p>
+                <p class="mt-1 text-sm font-semibold text-white/62">Snow Feather Adventures business identifiers</p>
               </div>
               <span class="rounded-lg border border-white/14 bg-white/10 px-3 py-2 text-xs font-black text-white/80">Verified business info</span>
             </div>
@@ -2344,39 +2740,51 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <div class="mb-10 flex flex-wrap justify-center gap-2" role="group" aria-label="Package filters">
-            <button v-for="filter in filters" :key="filter" class="rounded-lg border px-4 py-2 text-sm font-black capitalize" :class="activeFilter === filter ? 'border-lake bg-lake text-white' : 'border-night/[0.12] bg-white text-night hover:border-lake hover:text-lake'" @click="activeFilter = filter">
-              {{ filter }}
-            </button>
+          <div class="mb-10 rounded-lg border border-night/[0.08] bg-frost/70 p-4 shadow-lift">
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div class="flex flex-wrap gap-2" role="group" aria-label="Package type filters">
+                <button v-for="filter in filters" :key="filter" class="rounded-lg border px-4 py-2 text-sm font-black capitalize" :class="activeFilter === filter ? 'border-lake bg-lake text-white' : 'border-night/[0.12] bg-white text-night hover:border-lake hover:text-lake'" @click="activeFilter = filter">
+                  {{ filter }}
+                </button>
+              </div>
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <label for="package-price-filter" class="text-xs font-black uppercase tracking-[0.14em] text-night/[0.5]">Price range</label>
+                <select id="package-price-filter" v-model="activePriceRange" class="min-w-48 rounded-lg border border-night/[0.12] bg-white px-4 py-2.5 text-sm font-black text-night">
+                  <option v-for="range in priceRanges" :key="`page-price-${range.value}`" :value="range.value">{{ range.label }}</option>
+                </select>
+                <button v-if="activeFilter !== 'all' || activePriceRange !== 'all'" type="button" class="rounded-lg px-3 py-2 text-xs font-black text-lake hover:bg-white" @click="clearPackageFilters">Clear All</button>
+              </div>
+            </div>
+            <p class="mt-3 text-sm font-semibold text-night/[0.5]">{{ filteredPackages.length }} matching packages</p>
           </div>
 
-          <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            <article v-for="item in filteredPackages" :key="item.name" class="overflow-hidden rounded-lg bg-white shadow-premium hover-lift">
+          <div v-if="filteredPackages.length" class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <article v-for="item in filteredPackages" :key="item.name" class="flex h-full flex-col overflow-hidden rounded-lg bg-white shadow-premium hover-lift">
               <div class="relative h-72 overflow-hidden">
-                <div class="image-cover h-full transition duration-500 hover:scale-110" :style="{ backgroundImage: `linear-gradient(180deg, rgba(7, 24, 39, 0.02), rgba(7, 24, 39, 0.56)), url('${item.image}')` }"></div>
+                <div class="image-cover h-full transition duration-500 hover:scale-110" :style="{ backgroundImage: `linear-gradient(180deg, rgba(7, 24, 39, 0.02), rgba(7, 24, 39, 0.56)), url('${packageVisual(item)}')` }"></div>
                 <span class="absolute left-4 top-4 rounded-full bg-gradient-to-r from-gold to-[#ff8b6d] px-4 py-2 text-sm font-black text-white shadow-lift">{{ item.tag }}</span>
                 <span class="absolute right-4 top-4 rounded-full bg-white/95 backdrop-blur px-4 py-2 text-sm font-black text-night shadow-lift">{{ displayDuration(item.duration) }}</span>
               </div>
 
-              <div class="p-6">
-                <p class="text-sm font-semibold text-night/[0.58]">{{ packageRoute(item)[0] }} - {{ packageRoute(item)[1] }}</p>
+              <div class="flex flex-1 flex-col p-6">
+                <p class="line-clamp-2 min-h-10 text-sm font-semibold leading-5 text-night/[0.58]">{{ packageRoute(item)[0] }} - {{ packageRoute(item)[1] }}</p>
                 <p class="mt-2 text-xs font-black uppercase tracking-[0.14em] text-lake">Updated {{ item.packageDate }}</p>
-                <h3 class="mt-3 font-display text-2xl font-extrabold text-night">{{ item.name }}</h3>
-                <div class="mt-4 flex flex-wrap gap-2">
+                <h3 class="mt-3 line-clamp-2 min-h-16 font-display text-2xl font-extrabold leading-8 text-night">{{ item.name }}</h3>
+                <div class="mt-4 flex min-h-14 flex-wrap content-start gap-2 overflow-hidden">
                   <span v-for="chip in packageChips(item)" :key="`${item.name}-${chip}`" class="rounded-full bg-gradient-to-r from-frost to-lake/10 px-3 py-1 text-xs font-semibold text-night/[0.62]">{{ chip }}</span>
                 </div>
 
-                <div class="mt-5 grid gap-2">
-                  <div v-for="[tier, amount] in packageTiers(item)" :key="`${item.name}-${tier}-mini`" class="flex items-center justify-between gap-3 rounded-lg bg-frost px-3 py-2 text-xs">
-                    <span class="font-black text-night">{{ tier }}</span>
-                    <span class="text-right font-black text-lake">{{ amount }}</span>
+                <div class="mt-5 grid grid-rows-4 gap-2">
+                  <div v-for="([tier, amount], tierIndex) in packageTiers(item)" :key="`${item.name}-${tier}-${tierIndex}-mini`" class="grid min-h-9 grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] items-center gap-2 rounded-lg bg-frost px-3 py-2 text-xs">
+                    <span class="truncate font-black text-night" :title="tier">{{ tier }}</span>
+                    <span class="truncate text-right font-display font-extrabold text-lake" :title="displayCurrencyText(amount)">{{ displayCurrencyText(amount) }}</span>
                   </div>
                 </div>
 
-                <div class="mt-5 border-t border-night/[0.08] pt-5">
+                <div class="mt-auto border-t border-night/[0.08] pt-5">
                   <p class="text-sm font-semibold text-night/[0.58]">Starting From</p>
                   <div class="mt-2 flex flex-wrap items-end gap-3">
-                    <p class="font-display text-3xl font-extrabold bg-gradient-to-r from-lake to-alpine bg-clip-text text-transparent">INR {{ item.price.toLocaleString("en-IN") }}</p>
+                    <p class="font-display text-3xl font-extrabold text-lake">INR {{ item.price.toLocaleString("en-IN") }}</p>
                     <p class="pb-1 text-base font-bold text-night/40 line-through">INR {{ packageOriginalPrice(item).toLocaleString("en-IN") }}</p>
                   </div>
                   <div class="mt-4 flex items-center justify-between gap-4">
@@ -2388,6 +2796,10 @@ onUnmounted(() => {
                 </div>
               </div>
             </article>
+          </div>
+          <div v-else class="rounded-lg border border-dashed border-night/20 bg-frost p-10 text-center">
+            <h3 class="text-2xl font-black text-night">No packages found in this price range.</h3>
+            <button type="button" class="mt-5 rounded-lg bg-lake px-5 py-3 text-sm font-black text-white" @click="clearPackageFilters">Reset Filters</button>
           </div>
         </div>
       </section>
@@ -2426,9 +2838,23 @@ onUnmounted(() => {
 
       <section v-if="currentPage === 'destinations'" id="destinations" class="section-band min-h-screen pb-16 pt-32">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
-          <div class="mb-8">
-            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">{{ siteContent.destinationsHeroEyebrow }}</p>
+          <div class="relative mb-10 min-h-[30rem] overflow-hidden rounded-lg shadow-premium">
+            <div class="image-cover absolute inset-0" :style="imageStyle(kashmirWebImages.dalLake)"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-night/92 via-night/62 to-night/12"></div>
+            <div class="relative flex min-h-[30rem] max-w-3xl flex-col justify-end p-6 text-white sm:p-10">
+              <p class="text-sm font-black uppercase tracking-[0.2em] text-gold">{{ siteContent.destinationsHeroEyebrow }}</p>
+              <h1 class="mt-3 font-display text-4xl font-extrabold leading-tight sm:text-6xl">From Dal Lake mornings to Gurez mountain roads.</h1>
+              <p class="mt-5 max-w-2xl text-base font-semibold leading-8 text-white/76">Explore famous Kashmir icons and quieter valleys, then combine them into a practical route based on season, travel time, and your preferred pace.</p>
+              <div class="mt-6 flex flex-wrap gap-2">
+                <span v-for="place in ['Gulmarg', 'Sonmarg', 'Pahalgam', 'Yusmarg', 'Gurez', 'Doodhpathri', 'Leh']" :key="`hero-place-${place}`" class="rounded-full border border-white/20 bg-white/12 px-4 py-2 text-xs font-black backdrop-blur">{{ place }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-8 max-w-4xl">
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Explore Kashmir</p>
             <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">{{ siteContent.destinationsHeroTitle }}</h2>
+            <p class="mt-4 text-base leading-7 text-night/[0.62]">Each destination card now explains the experiences, nearby attractions, and travel style guests can expect.</p>
           </div>
           <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             <article v-for="[name, img, text] in destinations" :key="name" class="premium-card overflow-hidden rounded-lg hover-lift">
@@ -2499,7 +2925,7 @@ onUnmounted(() => {
               <div>
                 <p class="text-sm font-black uppercase tracking-[0.2em] text-gold">{{ siteContent.bookingHeroEyebrow }}</p>
                 <h2 class="mt-3 font-display text-4xl font-extrabold leading-tight sm:text-5xl">{{ siteContent.bookingHeroTitle }}</h2>
-                <p class="mt-5 max-w-xl text-sm font-semibold leading-7 text-white/78">Share your travel date, group size, and comfort level. The Snow Feather team can confirm route, stay, cab, and activity details from one clear inquiry.</p>
+                <p class="mt-5 max-w-xl text-sm font-semibold leading-7 text-white/78">Share your travel date, group size, and comfort level. The Snow Feather Adventures team will confirm the route, stays, cab, and activity details in one clear plan.</p>
               </div>
 
               <div class="mt-8 grid gap-3 sm:grid-cols-3">
@@ -2524,7 +2950,7 @@ onUnmounted(() => {
                 <div class="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p class="text-xs font-black uppercase tracking-[0.18em] text-white/58">Estimated total</p>
-                    <p class="mt-1 text-3xl font-black text-white">INR {{ bookingTotal }}</p>
+                    <p class="mt-1 font-display text-3xl font-extrabold text-lake">INR {{ bookingTotal }}</p>
                   </div>
                   <span class="rounded-lg bg-gold px-4 py-2 text-xs font-black text-night">{{ selectedPriceClassName }}</span>
                 </div>
@@ -2613,13 +3039,13 @@ onUnmounted(() => {
         <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.05fr]">
           <div>
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Scan and pay</p>
-            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Pay your advance with the Snow Feather UPI scanner.</h2>
+            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Pay your advance with the Snow Feather Adventures UPI scanner.</h2>
             <p class="mt-5 text-base leading-7 text-night/[0.62]">After submitting your booking inquiry, scan the QR code, complete the advance payment, and share the payment screenshot on WhatsApp for faster confirmation.</p>
           </div>
 
           <div class="rounded-lg bg-frost p-5 shadow-lift">
             <div class="grid gap-5 sm:grid-cols-[13rem_1fr] sm:items-center">
-              <img src="/upi-img.jpeg" alt="Snow Feather UPI payment QR scanner" class="mx-auto aspect-square w-full max-w-52 rounded-lg border border-night/10 bg-white object-contain p-3 shadow-lift" />
+              <img src="/upi-img.jpeg" alt="Snow Feather Adventures UPI payment QR scanner" class="mx-auto aspect-square w-full max-w-52 rounded-lg border border-night/10 bg-white object-contain p-3 shadow-lift" />
               <div>
                 <p class="text-sm font-black uppercase tracking-[0.18em] text-lake">UPI payment</p>
                 <h3 class="mt-2 text-2xl font-black text-night">Scan QR to pay</h3>
@@ -2937,7 +3363,7 @@ onUnmounted(() => {
         <div class="mx-auto max-w-5xl px-4 sm:px-6">
           <div class="max-w-4xl">
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Privacy Policy</p>
-            <h1 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">How Snow Feather handles guest information.</h1>
+            <h1 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">How Snow Feather Adventures handles guest information.</h1>
             <p class="mt-5 text-base leading-8 text-night/[0.64]">
               We respect guest privacy and collect only the information needed to plan, confirm, and support your Kashmir travel inquiry or booking. This policy explains what we collect, how we use it, and how guests can contact us about their data.
             </p>
@@ -2985,9 +3411,9 @@ onUnmounted(() => {
         <div class="mx-auto max-w-5xl px-4 sm:px-6">
           <div class="max-w-4xl">
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Terms of Service</p>
-            <h1 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">Booking terms for Snow Feather guests.</h1>
+            <h1 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">Booking terms for Snow Feather Adventures guests.</h1>
             <p class="mt-5 text-base leading-8 text-night/[0.64]">
-              These terms explain the conditions for inquiries, package planning, booking confirmation, payment, route changes, cancellations, and travel coordination with Snow Feather.
+              These terms explain the conditions for inquiries, package planning, booking confirmation, payment, route changes, cancellations, and travel coordination with Snow Feather Adventures.
             </p>
             <p class="mt-3 text-sm font-bold text-night/50">Last updated: June 15, 2026</p>
           </div>
@@ -3027,7 +3453,7 @@ onUnmounted(() => {
             </article>
             <article class="rounded-lg bg-white p-6 shadow-lift">
               <h2 class="text-2xl font-black text-night">Support And Contact</h2>
-              <p class="mt-3 text-sm leading-7 text-night/[0.64]">For booking support, itinerary changes, or service questions, contact Snow Feather at snowfeatheradventures@gmail.com or +91 919055020408.</p>
+              <p class="mt-3 text-sm leading-7 text-night/[0.64]">For booking support, itinerary changes, or service questions, contact Snow Feather Adventures at snowfeatheradventures@gmail.com or +91 919055020408.</p>
             </article>
           </div>
         </div>
@@ -3044,11 +3470,11 @@ onUnmounted(() => {
               </span>
               <span>
                 <span class="block font-display text-2xl font-extrabold text-lake">{{ brandName }}</span>
-                <span class="block text-xs font-semibold text-white/60">where every journey begins</span>
+                <span class="block text-xs font-black uppercase tracking-[0.14em] text-white/60">{{ brandTagline }}</span>
               </span>
             </button>
             <p class="mt-6 max-w-sm text-sm font-semibold leading-7 text-white/72">
-              Your trusted Kashmir travel partner for holiday packages, hotels, cabs, activities, honeymoon trips, and visa guidance.
+              Your Kashmir travel partner for transparent tour packages, hotels, houseboats, private cabs, snow adventures, valleys, and locally supported journeys.
             </p>
             <div class="mt-6 flex gap-3">
               <a href="https://www.instagram.com/" class="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/10 transition hover:-translate-y-1 hover:border-lake/40 hover:bg-white/15" aria-label="Instagram">
@@ -3070,11 +3496,8 @@ onUnmounted(() => {
             <h2 class="font-display text-2xl font-extrabold text-lake">Services</h2>
             <div class="mt-6 grid gap-3 text-base font-semibold text-white/78">
               <button type="button" class="text-left hover:text-lake" @click="navigateTo('/packages')">Holiday Packages</button>
-              <button type="button" class="text-left hover:text-lake" @click="navigateTo('/destinations')">Hotels</button>
-              <button type="button" class="text-left hover:text-lake" @click="navigateTo('/booking')">Booking</button>
-              <button type="button" class="text-left hover:text-lake" @click="navigateTo('/contact')">Visa Processing</button>
-              <button type="button" class="text-left hover:text-lake" @click="navigateTo('/contact')">Travel Insurance</button>
-            </div>
+              <button type="button" class="text-left hover:text-lake" @click="navigateTo('/destinations')">Kashmir Destinations</button>
+                </div>
           </div>
 
           <div>
@@ -3129,7 +3552,7 @@ onUnmounted(() => {
             <span class="rounded bg-white px-5 py-2 text-xs font-black text-lake">UPI</span>
             <span class="rounded bg-white px-5 py-2 text-xs font-black text-blue-500">Razorpay</span>
           </div>
-          <p class="text-sm font-semibold text-white/50">© 2026 Snow Feather. All rights reserved.</p>
+          <p class="text-sm font-semibold text-white/50">© 2026 Snow Feather Adventures. All rights reserved.</p>
         </div>
       </div>
     </footer>
