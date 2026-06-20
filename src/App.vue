@@ -81,20 +81,20 @@ const currentPage = computed(() => (currentPath.value.startsWith("/packages/") ?
 let initialLoadingTimeout = null;
 
 const defaultSiteContent = {
-  heroBadge: "Kashmir tour packages, adventure trips, and local travel support",
-  heroTitle: "Plan Your Kashmir Trip With Snow Feather",
+  heroBadge: "Premium Kashmir tours, skiing packages, houseboats, valleys, and local travel support",
+  heroTitle: "Kashmir, Planned Beautifully",
   heroSubtitle:
-    "Book curated Kashmir holiday packages for Srinagar, Gulmarg, Pahalgam, Sonamarg, Dal Lake, skiing, trekking, camping, honeymoon tours, family vacations, and luxury stays with local experts.",
+    "Snow Feather designs clear Kashmir tour packages across Srinagar, Gulmarg, Sonmarg, Pahalgam, Yusmarg, Gurez, Doodhpathri, Leh, Dal Lake, Mughal Gardens, Shikara rides, skiing, camping, hotels, and houseboats.",
   homeActivitiesEyebrow: "Featured activities",
   homeActivitiesTitle: "Kashmir adventure, snow, lake, and mountain experiences.",
   homeGalleryEyebrow: "Media gallery",
   homeGalleryTitle: "Instagram, video, snowfall, and drone ready layout.",
   packagesHeroEyebrow: "Tour Packages",
-  packagesHeroTitle: "Updated Premium Package Structure",
+  packagesHeroTitle: "Clear Kashmir Packages With Real Price Tiers",
   packagesHeroText:
-    "Snow Feather LLP premium packages for skiing, trekking, camping, honeymoon travel, group tours, and airport-to-airport Kashmir support with transparent seasonal pricing.",
+    "Compare Standard, Premium, Luxurious, and VIP options with destinations, day-wise route ideas, inclusions, and starting prices. Final quotes depend on travel dates, hotel inventory, cab type, and seasonal activity rates.",
   destinationsHeroEyebrow: "Destinations",
-  destinationsHeroTitle: "Kashmir routes your guests ask for.",
+  destinationsHeroTitle: "The Kashmir places travelers expect to see.",
   bookingHeroEyebrow: "Booking system",
   bookingHeroTitle: "Select, price, pay, confirm.",
   galleryHeroEyebrow: "Gallery",
@@ -102,8 +102,8 @@ const defaultSiteContent = {
   galleryHeroText:
     "Browse destination albums, seasonal travel moods, guest-style photo ideas, and the kind of scenes Snow Feather can plan into your Kashmir journey.",
   galleryHeroImage: "image23",
-  galleryStatOneValue: "23+",
-  galleryStatOneText: "Kashmir visuals ready for destination and package storytelling.",
+  galleryStatOneValue: "23",
+  galleryStatOneText: "Available Kashmir visuals currently in the project gallery.",
   galleryStatTwoValue: "4 seasons",
   galleryStatTwoText: "Snow, gardens, meadows, lakes, autumn colors, and honeymoon frames.",
   galleryCollectionsEyebrow: "Photo collections",
@@ -140,35 +140,35 @@ const defaultSiteContent = {
   googleRecaptchaSiteKey: "",
 };
 
-const siteContent = ref({ ...defaultSiteContent, ...loadStoredValue("kashmir-site-content", defaultSiteContent) });
+const siteContent = ref({ ...defaultSiteContent, ...loadStoredValue("kashmir-site-content-v2", defaultSiteContent) });
 
-const premiumStructureDate = "18/05, 2:00 pm";
+const premiumStructureDate = "June 2026";
 const premiumSourceNote =
-  "Updated Premium Package Structure from Snow Feather LLP - Expeditions & Adventures. These package details follow Kashmir seasonal market trends for skiing, trekking, camping, honeymoon, and airport-to-airport travel.";
+  "Indicative Snow Feather Kashmir package structure. Final rates are confirmed after checking travel dates, hotel availability, cab category, room sharing, destination access, Gondola/activity tickets, and seasonal winter demand.";
 
 const packageCategories = [
-  ["Solo Traveler Package", "01 Person", "Solo tourists, ski learners, adventure travelers, backpackers"],
-  ["Double Sharing Package", "02 Persons", "Friends, brothers, family members"],
-  ["Couple Package", "02 Persons / Honeymoon", "Honeymoon couples, romantic luxury travel"],
-  ["Group Package", "04-10 Persons", "Friends group, corporate groups, student groups"],
+  ["Standard", "Value stays", "Clean hotels or guest houses, private/shared cab planning, key sightseeing, and essential support."],
+  ["Premium", "Comfort hotels", "Better hotel locations, private cab, selected activities, smoother pacing, and stronger on-trip support."],
+  ["Luxurious", "4-star / boutique", "Premium rooms, houseboat or resort upgrades, private experiences, and curated photography stops."],
+  ["VIP", "Top-tier custom", "Best available stays, dedicated concierge, luxury cab, flexible routing, and priority coordination."],
 ];
 
 const roomSharingOptions = [
   ["Standard Sharing", "02 persons / room"],
   ["Triple Sharing", "03 persons / room"],
-  ["Luxury Private Room", "Private occupancy"],
+  ["Private Room", "Private occupancy"],
 ];
 
 const hotelCategories = [
-  ["Budget", "Guest House / Standard Hotel"],
-  ["Deluxe", "3 Star Hotels"],
-  ["Premium", "4 Star Hotels"],
-  ["Luxury", "5 Star Resorts"],
+  ["Standard", "Guest House / Standard Hotel"],
+  ["Premium", "3 Star / Better Located Hotels"],
+  ["Luxurious", "4 Star / Boutique / Premium Houseboat"],
+  ["VIP", "5 Star / Best Available Resorts"],
 ];
 
 const trustMessages = [
   "Transparent Pricing - No Hidden Charges",
-  "Legally Registered & Professionally Managed Adventure Company",
+  "Professionally Managed Kashmir Travel Company",
   "Experienced Local Team With Safety Commitment",
   "Your Journey, Our Responsibility",
   "We Believe In Commitment, Safety & Genuine Hospitality - Not False Promises.",
@@ -177,8 +177,8 @@ const trustMessages = [
 
 const registrationDetails = [
   ["UDYAM Registration", "UDYAM-JK-21-0096543"],
-  ["LLP Identification Number", "ACY-0451"],
   ["GSTIN", "01AFYFS1763F1ZS"],
+  ["Office", "Lal Chowk, Srinagar"],
 ];
 
 const winterPricingNote =
@@ -266,270 +266,211 @@ function updateSeoMeta() {
 
 const defaultPackages = [
   {
-    name: "01 Day Ski Package - Without Food & Accommodation",
-    tag: "Skiing",
-    price: 18000,
-    originalPrice: 22000,
-    duration: "1D",
+    name: "Classic Kashmir Circuit",
+    tag: "Best Seller",
+    price: 18999,
+    originalPrice: 23999,
+    duration: "5D/4N",
     rating: "4.9",
-    types: ["winter", "skiing", "adventure"],
-    routeTitle: "Gulmarg / Sonmarg",
-    routeDetails: "Beginner ski training, equipment, instructor, local transport",
-    cities: ["Gulmarg", "Sonmarg"],
-    highlights: ["Ski instructor", "Equipment", "Beginner training", "Local transport"],
-    image: image("image08"),
+    types: ["classic", "family", "premium"],
+    routeTitle: "Srinagar -> Gulmarg -> Pahalgam -> Sonmarg",
+    routeDetails: "Dal Lake, Mughal Gardens, Gulmarg, Pahalgam, Aru Valley, Chandanwari, Sonmarg",
+    cities: ["Srinagar", "Dal Lake", "Gulmarg", "Pahalgam", "Aru Valley", "Chandanwari", "Sonmarg"],
+    highlights: ["Hotel stay", "Private cab", "Shikara ride", "Mughal Gardens"],
+    image: image("image23"),
     description:
-      "Short skiing course without food and accommodation. Standard: 01 person ₹18,000, 02 persons ₹30,000, group ₹65,000. Deluxe: 01 person ₹28,000, 02 persons ₹50,000, group ₹1,10,000. Luxury: 01 person ₹45,000, 02 persons ₹80,000, group ₹1,80,000.",
+      "A balanced first-time Kashmir holiday covering Srinagar local sightseeing, Dal Lake, Mughal Gardens, Gulmarg, Pahalgam, Aru Valley, Chandanwari, and Sonmarg with clear hotel and cab options.",
+    itinerary: ["Arrival, Dal Lake, Shikara ride, local market", "Gulmarg day with Gondola and snow activity options", "Pahalgam with Aru Valley and Chandanwari", "Sonmarg or Doodhpathri day trip", "Airport drop"],
+    tiers: [
+      ["Standard", "From ₹18,999 pp", "Standard hotel, shared/timed sightseeing support, Sedan/Innova as per group"],
+      ["Premium", "From ₹29,999 pp", "3-star hotels, private cab, better room locations, Shikara included"],
+      ["Luxurious", "From ₹49,999 pp", "4-star/boutique stays, premium houseboat option, curated photo stops"],
+      ["VIP", "Custom quote", "5-star/resort stays, luxury cab, concierge routing, priority assistance"],
+    ],
   },
   {
-    name: "01 Day Ski Package - With Food & Accommodation",
-    tag: "Complete",
-    price: 28000,
-    originalPrice: 34000,
-    duration: "1D/1N",
+    name: "Gulmarg Skiing Package For Tourists",
+    tag: "Skiing",
+    price: 6500,
+    originalPrice: 8500,
+    duration: "1D",
     rating: "4.9",
-    types: ["winter", "skiing", "luxury"],
-    routeTitle: "Gulmarg / Sonmarg",
-    routeDetails: "Hotel stay, meals, ski equipment, instructor, pickup and drop",
-    cities: ["Gulmarg", "Sonmarg"],
-    highlights: ["Hotel stay", "Breakfast & dinner", "Ski equipment", "Pickup & drop"],
+    types: ["winter", "skiing", "tourists"],
+    routeTitle: "Gulmarg",
+    routeDetails: "Beginner ski lesson, ski gear, instructor, snow activity coordination",
+    cities: ["Gulmarg", "Apharwat", "Kongdoori"],
+    highlights: ["Ski instructor", "Ski equipment", "Beginner training", "Gondola guidance"],
     image: image("image15"),
     description:
-      "Complete one day ski package. Standard: solo ₹28,000, couple ₹48,000, group ₹1,20,000. Deluxe: solo ₹45,000, couple ₹78,000, group ₹2,10,000. Luxury: solo ₹75,000, couple ₹1,35,000, group ₹3,80,000.",
+      "A simple tourist skiing experience for first-time visitors in Gulmarg. Gondola tickets, snowmobile, sledging, guide, and transfers can be added depending on weather and availability.",
+    itinerary: ["Pickup or Gulmarg reporting", "Ski equipment fitting and beginner briefing", "Instructor-led practice session", "Optional Gondola or snow activities", "Return transfer or hotel drop"],
+    tiers: [
+      ["Standard", "From ₹6,500 pp", "Basic ski gear and beginner instructor support"],
+      ["Premium", "From ₹12,500 pp", "Private instructor time, gear, local handling, activity guidance"],
+      ["Luxurious", "From ₹24,500 pp", "Premium transfer, longer instructor support, meal stop planning"],
+      ["VIP", "Custom quote", "Full-day concierge, best available instructor, priority logistics"],
+    ],
   },
   {
-    name: "02 Days Ski Course - Without Food & Accommodation",
-    tag: "Ski Course",
-    price: 35000,
-    originalPrice: 42000,
-    duration: "2D",
+    name: "Student Skiing Camp",
+    tag: "Students",
+    price: 9999,
+    originalPrice: 12999,
+    duration: "2D/1N",
     rating: "4.8",
-    types: ["winter", "skiing", "adventure"],
+    types: ["winter", "skiing", "students", "group"],
     routeTitle: "Gulmarg / Sonmarg",
-    routeDetails: "Two day ski learning course without meals and stay",
+    routeDetails: "Student group ski learning, gear, instructor, basic stay, meals, safety briefing",
     cities: ["Gulmarg", "Sonmarg"],
-    highlights: ["Two day training", "Instructor", "Equipment support", "Winter guidance"],
+    highlights: ["Student pricing", "Group instructor", "Basic stay", "Safety briefing"],
     image: image("image13"),
     description:
-      "Two day ski course without food and accommodation. Standard: 01 person ₹35,000, 02 persons ₹58,000. Deluxe: 01 person ₹55,000, 02 persons ₹95,000. Luxury: 01 person ₹95,000, 02 persons ₹1,65,000.",
+      "A dedicated skiing package for students and college groups with group pricing, beginner training, equipment, basic stay, meals, and safety-led coordination.",
+    itinerary: ["Arrival and room allocation", "Ski gear briefing and beginner lesson", "Group practice and snow activities", "Breakfast and return"],
+    tiers: [
+      ["Standard", "From ₹9,999 pp", "Group stay, basic meals, shared instructor, gear support"],
+      ["Premium", "From ₹15,999 pp", "Better stay, smaller training groups, private cab handling"],
+      ["Luxurious", "From ₹25,999 pp", "Premium rooms, upgraded meals, extended training support"],
+      ["VIP", "Custom quote", "Institution-level custom camp with dedicated coordinators"],
+    ],
   },
   {
-    name: "02 Days Ski Course - Complete Package",
-    tag: "Complete",
-    price: 48000,
-    originalPrice: 58000,
-    duration: "2D/2N",
-    rating: "4.9",
-    types: ["winter", "skiing", "luxury"],
-    routeTitle: "Gulmarg / Sonmarg",
-    routeDetails: "Accommodation, meals, ski training, instructor, transfers",
-    cities: ["Gulmarg", "Sonmarg"],
-    highlights: ["Accommodation", "Meals", "Ski training", "Transfers"],
-    image: image("image16"),
-    description:
-      "Complete two day ski course. Standard: solo ₹48,000, couple ₹85,000. Deluxe: solo ₹78,000, couple ₹1,40,000. Luxury: solo ₹1,35,000, couple ₹2,60,000.",
-  },
-  {
-    name: "03 Days Ski Course - Complete Package",
-    tag: "Ski Course",
-    price: 75000,
-    originalPrice: 90000,
-    duration: "3D/3N",
-    rating: "5.0",
-    types: ["winter", "skiing", "group", "luxury"],
-    routeTitle: "Gulmarg / Sonmarg",
-    routeDetails: "Three day premium skiing with stay, meals, and instructor",
-    cities: ["Gulmarg", "Sonmarg"],
-    highlights: ["Ski training", "Accommodation", "Meals", "Group support"],
-    image: image("image17"),
-    description:
-      "Complete three day ski course. Standard: solo ₹75,000, couple ₹1,35,000, group ₹3,20,000. Deluxe: solo ₹1,20,000, couple ₹2,10,000, group ₹5,40,000. Luxury: solo ₹2,00,000, couple ₹3,80,000, group ₹9,00,000.",
-  },
-  {
-    name: "06 Days Professional Ski Course",
-    tag: "Premium Winter",
-    price: 145000,
-    originalPrice: 175000,
-    duration: "6D/6N",
-    rating: "5.0",
-    types: ["winter", "skiing", "group", "luxury"],
-    routeTitle: "Gulmarg / Sonmarg",
-    routeDetails: "Professional ski training, Gondola guidance, meals, transport, safety support",
-    cities: ["Gulmarg", "Sonmarg"],
-    highlights: ["Professional instructor", "Gondola guidance", "Snow activities", "Winter safety support"],
-    image: image("image10"),
-    description:
-      "Premium winter professional ski course. Standard: solo ₹1,45,000, couple ₹2,65,000, group ₹6,50,000. Deluxe: solo ₹2,40,000, couple ₹4,20,000, group ₹10,50,000. Luxury: solo ₹4,20,000, couple ₹7,50,000, group ₹18,00,000. Includes ski training, Gondola access guidance, accommodation, meals, transport, snow activities, bonfire, professional instructor, and winter safety support.",
-  },
-  {
-    name: "01 Day Trek - Sonmarg Thajiwas Trek",
-    tag: "Trekking",
-    price: 8000,
-    originalPrice: 10000,
-    duration: "1D",
-    rating: "4.8",
-    types: ["summer", "trekking", "adventure"],
-    routeTitle: "Sonmarg",
-    routeDetails: "Thajiwas trek with local guidance",
-    cities: ["Sonmarg", "Thajiwas"],
-    highlights: ["Trek guide", "Scenic route", "Transport support", "Photography spots"],
-    image: image("image11"),
-    description:
-      "One day Sonmarg to Thajiwas trek. Standard: solo ₹8,000, couple ₹14,000, group ₹40,000. Deluxe: solo ₹15,000, couple ₹28,000, group ₹75,000. Luxury: solo ₹30,000, couple ₹55,000, group ₹1,50,000.",
-  },
-  {
-    name: "02 Days Trekking + Camping",
-    tag: "Camping",
-    price: 18000,
-    originalPrice: 22000,
-    duration: "2D/1N",
-    rating: "4.9",
-    types: ["summer", "trekking", "camping", "group"],
-    routeTitle: "Aru Valley / Yusmarg",
-    routeDetails: "Trekking, camping, meals, bonfire, guide, transport",
-    cities: ["Aru Valley", "Yusmarg"],
-    highlights: ["Camping", "Meals", "Trek guide", "Bonfire"],
-    image: image("image01"),
-    description:
-      "Two days trekking plus camping in Aru Valley or Yusmarg. Standard: solo ₹18,000, couple ₹32,000, group ₹85,000. Deluxe: solo ₹35,000, couple ₹62,000, group ₹1,70,000. Luxury: solo ₹65,000, couple ₹1,25,000, group ₹3,50,000. Includes camping, meals, trek guide, bonfire, transport, and photography spots.",
-  },
-  {
-    name: "03 Days Trekking Package",
-    tag: "Expedition",
-    price: 35000,
-    originalPrice: 42000,
+    name: "Srinagar Lake, Gardens & Houseboat",
+    tag: "Srinagar",
+    price: 11999,
+    originalPrice: 15999,
     duration: "3D/2N",
     rating: "4.9",
-    types: ["summer", "trekking", "group", "luxury"],
-    routeTitle: "Pahalgam / Sonmarg",
-    routeDetails: "Expedition route with guide, stay, meals, and support",
-    cities: ["Pahalgam", "Sonmarg"],
-    highlights: ["Expedition guide", "Meals", "Stay support", "Transport"],
+    types: ["classic", "family", "honeymoon"],
+    routeTitle: "Srinagar",
+    routeDetails: "Dal Lake, Shikara, Houseboat, Chashme Shahi, Mughal Gardens, Pari Mahal, markets",
+    cities: ["Srinagar", "Dal Lake", "Chashme Shahi", "Mughal Gardens", "Pari Mahal", "Manasbal Lake", "Wular Lake"],
+    highlights: ["Houseboat option", "Shikara ride", "Mughal Gardens", "Local markets"],
+    image: image("image22"),
+    description:
+      "A relaxed Srinagar-focused package for travelers who want Dal Lake, houseboats, Shikara rides, Mughal Gardens, Chashme Shahi, Pari Mahal, Manasbal Lake, Wular Lake, and local market time.",
+    itinerary: ["Arrival and Dal Lake evening", "Mughal Gardens, Chashme Shahi, Pari Mahal, markets", "Manasbal or Wular Lake drive and airport drop"],
+    tiers: [
+      ["Standard", "From ₹11,999 pp", "Standard hotel/houseboat and local sightseeing support"],
+      ["Premium", "From ₹19,999 pp", "Premium houseboat/hotel, private cab, Shikara included"],
+      ["Luxurious", "From ₹34,999 pp", "Boutique stay, premium lake experience, curated dining"],
+      ["VIP", "Custom quote", "Best houseboat/suite, concierge movement, private experiences"],
+    ],
+  },
+  {
+    name: "Pahalgam, Aru Valley & Chandanwari",
+    tag: "Valleys",
+    price: 14999,
+    originalPrice: 18999,
+    duration: "3D/2N",
+    rating: "4.8",
+    types: ["classic", "family", "camping"],
+    routeTitle: "Pahalgam",
+    routeDetails: "Pahalgam, Aru Valley, Betaab Valley, Chandanwari, riverside stays, pony ride options",
+    cities: ["Pahalgam", "Aru Valley", "Betaab Valley", "Chandanwari"],
+    highlights: ["Valley sightseeing", "Riverside stays", "Pony ride guidance", "Camping add-on"],
     image: image("image19"),
     description:
-      "Three days trekking expedition in Pahalgam or Sonmarg. Standard: solo ₹35,000, couple ₹65,000, group ₹1,80,000. Deluxe: solo ₹68,000, couple ₹1,25,000, group ₹3,50,000. Luxury: solo ₹1,30,000, couple ₹2,45,000, group ₹7,00,000.",
+      "A valley-focused package for families, couples, and nature travelers covering Pahalgam, Aru Valley, Betaab Valley, Chandanwari, riverside viewpoints, and optional camping.",
+    itinerary: ["Srinagar to Pahalgam with sightseeing stops", "Aru Valley, Betaab Valley, Chandanwari", "Leisure morning and return to Srinagar"],
+    tiers: [
+      ["Standard", "From ₹14,999 pp", "Standard stay, cab transfer, essential valley route"],
+      ["Premium", "From ₹24,999 pp", "3-star stay, private cab, better sightseeing timing"],
+      ["Luxurious", "From ₹42,999 pp", "Boutique/premium resort stay and curated valley stops"],
+      ["VIP", "Custom quote", "Top resort, premium cab, flexible private route"],
+    ],
   },
   {
-    name: "06 Days Great Lakes Trek",
-    tag: "Great Lakes",
-    price: 75000,
-    originalPrice: 90000,
-    duration: "6D/5N",
-    rating: "5.0",
-    types: ["summer", "trekking", "group", "luxury"],
-    routeTitle: "Kashmir Great Lakes",
-    routeDetails: "Multi-day trek with complete route support",
-    cities: ["Sonmarg", "Kashmir Great Lakes"],
-    highlights: ["Great Lakes route", "Guide", "Meals", "Camping support"],
-    image: image("image09"),
-    description:
-      "Six days Kashmir Great Lakes trek. Standard: solo ₹75,000, couple ₹1,40,000, group ₹4,50,000. Deluxe: solo ₹1,45,000, couple ₹2,75,000, group ₹8,50,000. Luxury: solo ₹2,90,000, couple ₹5,50,000, group ₹18,00,000.",
-  },
-  {
-    name: "01 Night Camping",
-    tag: "Camping",
-    price: 7500,
-    originalPrice: 9500,
-    duration: "1N",
-    rating: "4.8",
-    types: ["summer", "camping", "adventure"],
-    routeTitle: "Kashmir",
-    routeDetails: "One night camping complete package",
-    cities: ["Kashmir"],
-    highlights: ["Tent stay", "Camp setup", "Outdoor experience", "Local support"],
-    image: image("image03"),
-    description: "One night camping package. Standard: solo ₹7,500, couple ₹14,000. Deluxe: solo ₹15,000, couple ₹28,000. Luxury: solo ₹35,000, couple ₹65,000.",
-  },
-  {
-    name: "02 Night Camping",
-    tag: "Camping",
-    price: 15000,
-    originalPrice: 18000,
-    duration: "2N",
-    rating: "4.8",
-    types: ["summer", "camping", "adventure"],
-    routeTitle: "Kashmir",
-    routeDetails: "Two night camping complete package",
-    cities: ["Kashmir"],
-    highlights: ["Tent stay", "Meals support", "Camp planning", "Outdoor route"],
-    image: image("image04"),
-    description: "Two night camping package. Standard: solo ₹15,000, couple ₹28,000. Deluxe: solo ₹28,000, couple ₹52,000. Luxury: solo ₹58,000, couple ₹1,10,000.",
-  },
-  {
-    name: "03 Night Camping",
-    tag: "Camping",
-    price: 22000,
-    originalPrice: 27000,
-    duration: "3N",
+    name: "Hidden Kashmir: Yusmarg, Doodhpathri & Gurez",
+    tag: "Offbeat",
+    price: 24999,
+    originalPrice: 31999,
+    duration: "5D/4N",
     rating: "4.9",
-    types: ["summer", "camping", "group"],
-    routeTitle: "Kashmir",
-    routeDetails: "Three night camping complete package",
-    cities: ["Kashmir"],
-    highlights: ["Tent stay", "Bonfire", "Meals support", "Group planning"],
-    image: image("image05"),
-    description: "Three night camping package. Standard: solo ₹22,000, couple ₹42,000. Deluxe: solo ₹45,000, couple ₹85,000. Luxury: solo ₹95,000, couple ₹1,80,000.",
+    types: ["offbeat", "camping", "group"],
+    routeTitle: "Yusmarg -> Doodhpathri -> Gurez Valley",
+    routeDetails: "Meadows, rivers, camping, mountain roads, village stays, photography routes",
+    cities: ["Yusmarg", "Doodhpathri", "Gurez Valley", "Srinagar"],
+    highlights: ["Offbeat routes", "Camping option", "Photography stops", "Local guide"],
+    image: image("image03"),
+    description:
+      "An offbeat Kashmir route for travelers who want less-crowded meadows, riverside stops, village scenes, camping options, Yusmarg, Doodhpathri, and Gurez Valley.",
+    itinerary: ["Srinagar arrival and local evening", "Yusmarg day", "Doodhpathri day", "Gurez Valley route with local stay", "Return to Srinagar"],
+    tiers: [
+      ["Standard", "From ₹24,999 pp", "Basic stays, cab route, local assistance"],
+      ["Premium", "From ₹39,999 pp", "Better stays, private cab, guided stops"],
+      ["Luxurious", "From ₹69,999 pp", "Premium available stays and private experience planning"],
+      ["VIP", "Custom quote", "Fully custom offbeat route with dedicated support"],
+    ],
   },
   {
-    name: "06 Night Adventure Camp",
-    tag: "Adventure Camp",
-    price: 45000,
-    originalPrice: 54000,
-    duration: "6N",
-    rating: "5.0",
-    types: ["summer", "camping", "group", "adventure"],
-    routeTitle: "Kashmir",
-    routeDetails: "Six night adventure camping experience",
-    cities: ["Kashmir"],
-    highlights: ["Adventure camp", "Meals support", "Bonfire", "Route planning"],
-    image: image("image06"),
-    description: "Six night adventure camp. Standard: solo ₹45,000, couple ₹85,000. Deluxe: solo ₹85,000, couple ₹1,60,000. Luxury: solo ₹1,80,000, couple ₹3,40,000.",
-  },
-  {
-    name: "03 Days Honeymoon Package",
+    name: "Kashmir Honeymoon Signature",
     tag: "Honeymoon",
-    price: 68000,
-    originalPrice: 82000,
-    duration: "3D/2N",
-    rating: "5.0",
-    types: ["honeymoon", "luxury"],
-    routeTitle: "Kashmir",
-    routeDetails: "Romantic hotel setup, private cab, candlelight dinner",
-    cities: ["Srinagar", "Gulmarg", "Pahalgam"],
-    highlights: ["Private cab", "Romantic hotel setup", "Candlelight dinner", "Houseboat option"],
-    image: image("image14"),
-    description: "Three days honeymoon package for couples. Standard ₹68,000, Deluxe ₹1,25,000, Luxury ₹2,80,000.",
-  },
-  {
-    name: "06 Days Premium Honeymoon",
-    tag: "Premium",
-    price: 135000,
-    originalPrice: 160000,
+    price: 34999,
+    originalPrice: 44999,
     duration: "6D/5N",
     rating: "5.0",
-    types: ["honeymoon", "luxury"],
-    routeTitle: "Srinagar, Gulmarg, Pahalgam",
-    routeDetails: "Airport pickup, private cab, romantic setup, houseboat",
-    cities: ["Srinagar", "Gulmarg", "Pahalgam", "Dal Lake"],
-    highlights: ["Airport pickup", "Private cab", "Romantic hotel setup", "Srinagar houseboat"],
-    image: image("image20"),
+    types: ["honeymoon", "premium"],
+    routeTitle: "Srinagar -> Gulmarg -> Pahalgam",
+    routeDetails: "Houseboat, Shikara, candlelight setup, Gulmarg, Pahalgam, private cab",
+    cities: ["Srinagar", "Dal Lake", "Gulmarg", "Pahalgam", "Aru Valley"],
+    highlights: ["Private cab", "Houseboat option", "Romantic setup", "Candlelight dinner"],
+    image: image("image14"),
     description:
-      "Six days premium honeymoon package. Standard ₹1,35,000, Deluxe ₹2,60,000, Luxury ₹5,80,000. Includes airport pickup, private cab, romantic hotel setup, candlelight dinner, Gulmarg, Pahalgam, and Srinagar houseboat.",
+      "A honeymoon package with relaxed pacing, private cab, houseboat or premium hotel options, Shikara ride, romantic setup, Gulmarg snow or Gondola planning, and Pahalgam valley time.",
+    itinerary: ["Arrival and houseboat/Shikara", "Srinagar gardens and markets", "Gulmarg day", "Pahalgam and Aru Valley", "Leisure day or photoshoot", "Airport drop"],
+    tiers: [
+      ["Standard", "From ₹34,999 couple", "Clean stays, private cab, basic romantic setup"],
+      ["Premium", "From ₹64,999 couple", "3-star hotels, houseboat, candlelight dinner"],
+      ["Luxurious", "From ₹1,15,000 couple", "4-star/boutique stays, premium room decor, photoshoot assistance"],
+      ["VIP", "Custom quote", "Luxury resorts, private experiences, dedicated concierge"],
+    ],
   },
   {
-    name: "Airport To Airport Kashmir Package",
-    tag: "Custom",
-    price: 0,
-    originalPrice: 0,
-    duration: "Custom",
-    rating: "5.0",
-    types: ["family", "group", "luxury", "custom"],
-    routeTitle: "Airport To Airport",
-    routeDetails: "Pickup, entire tour, hotels, meals, driver, airport drop",
-    cities: ["Srinagar", "Gulmarg", "Pahalgam", "Sonmarg", "Dal Lake"],
-    highlights: ["Airport pickup", "Entire tour", "Hotels & meals", "Airport drop"],
-    image: image("image21"),
-    description: "Airport to airport package includes pickup from airport, entire tour, hotels, meals, driver, and drop at airport. Pricing is customized by travel dates, hotel category, room sharing, destinations, and group size.",
+    name: "Kashmir To Leh Road Journey",
+    tag: "Leh Add-on",
+    price: 42999,
+    originalPrice: 54999,
+    duration: "7D/6N",
+    rating: "4.8",
+    types: ["adventure", "group", "premium"],
+    routeTitle: "Srinagar -> Sonmarg -> Kargil -> Leh",
+    routeDetails: "Sonmarg, Zoji La, Kargil, Leh, mountain roads, acclimatized pacing",
+    cities: ["Srinagar", "Sonmarg", "Kargil", "Leh"],
+    highlights: ["Kargil halt", "Leh extension", "Mountain road support", "Permit guidance"],
+    image: image("image18"),
+    description:
+      "A road-trip style Kashmir to Leh package covering Srinagar, Sonmarg, Kargil, and Leh with realistic pacing, stopover planning, permit guidance, and mountain-road travel support.",
+    itinerary: ["Srinagar arrival", "Srinagar to Sonmarg", "Sonmarg to Kargil", "Kargil to Leh", "Leh local/rest day", "Leh experiences", "Departure"],
+    tiers: [
+      ["Standard", "From ₹42,999 pp", "Standard stays and route transfers"],
+      ["Premium", "From ₹69,999 pp", "Better hotels, private cab, permit guidance"],
+      ["Luxurious", "From ₹1,10,000 pp", "Premium stays and upgraded road support"],
+      ["VIP", "Custom quote", "Luxury route design, best available stays, concierge"],
+    ],
+  },
+  {
+    name: "Camping, Fishing & Outdoor Kashmir",
+    tag: "Adventure",
+    price: 15999,
+    originalPrice: 20999,
+    duration: "3D/2N",
+    rating: "4.8",
+    types: ["camping", "adventure", "students"],
+    routeTitle: "Aru Valley / Yusmarg / Sonmarg",
+    routeDetails: "Camping, bonfire, fishing guidance, trekking, outdoor meals, group support",
+    cities: ["Aru Valley", "Yusmarg", "Sonmarg", "Pahalgam"],
+    highlights: ["Camping", "Fishing guidance", "Bonfire", "Trekking"],
+    image: image("image05"),
+    description:
+      "An outdoor package for camping, soft trekking, bonfire evenings, fishing guidance where permitted, and student or group adventure travel across Aru Valley, Yusmarg, Sonmarg, or Pahalgam.",
+    itinerary: ["Arrival and camp transfer", "Outdoor activity day with guide", "Breakfast and return"],
+    tiers: [
+      ["Standard", "From ₹15,999 pp", "Basic camp, meals, guide support"],
+      ["Premium", "From ₹25,999 pp", "Better camp setup, private transport, activity coordination"],
+      ["Luxurious", "From ₹44,999 pp", "Premium camp/stay blend and curated outdoor experience"],
+      ["VIP", "Custom quote", "Private campsite planning and dedicated team"],
+    ],
   },
 ];
 
@@ -540,16 +481,18 @@ function clonePackage(item) {
     types: Array.isArray(item.types) ? [...item.types] : [],
     cities: Array.isArray(item.cities) ? [...item.cities] : [],
     highlights: Array.isArray(item.highlights) ? [...item.highlights] : [],
+    itinerary: Array.isArray(item.itinerary) ? [...item.itinerary] : [],
+    tiers: Array.isArray(item.tiers) ? item.tiers.map((tier) => [...tier]) : [],
   };
 }
 
 function loadStoredPackages() {
-  const savedPackages = loadStoredValue("kashmir-packages-premium-v2", defaultPackages);
+  const savedPackages = loadStoredValue("kashmir-packages-premium-v3", defaultPackages);
   return Array.isArray(savedPackages) ? savedPackages.map(clonePackage) : defaultPackages.map(clonePackage);
 }
 
 const packages = ref(loadStoredPackages());
-const filters = ["all", "winter", "summer", "honeymoon", "luxury"];
+const filters = ["all", "classic", "skiing", "students", "honeymoon", "offbeat", "camping"];
 const filteredPackages = computed(() => {
   if (activeFilter.value === "all") return packages.value;
   return packages.value.filter((item) => Array.isArray(item.types) && item.types.includes(activeFilter.value));
@@ -607,7 +550,7 @@ const packageRouteMap = {
   "Royal Kashmir Honeymoon": ["Kashmir", "Srinagar, Gulmarg, Pahalgam"],
   "Pahalgam Group Trek": ["Pahalgam", "Betaab Valley, Aru Valley, Camps"],
   "Sonamarg Snow Day": ["Sonamarg", "Glacier Point, Snow Activities"],
-  "Luxury Kashmir Circuit": ["Kashmir", "Srinagar, Gulmarg, Pahalgam, Sonamarg"],
+  "VIP Kashmir Circuit": ["Kashmir", "Srinagar, Gulmarg, Pahalgam, Sonamarg"],
 };
 
 function packageRoute(item) {
@@ -621,6 +564,19 @@ function packageRoute(item) {
 function packageChips(item) {
   const savedHighlights = Array.isArray(item.highlights) ? item.highlights.filter(Boolean).slice(0, 3) : [];
   return savedHighlights.length ? savedHighlights : descriptionHighlights(item).slice(0, 3);
+}
+
+function packageTiers(item) {
+  return Array.isArray(item.tiers) && item.tiers.length ? item.tiers : [
+    ["Standard", "On request", "Essential stay, cab, and route support"],
+    ["Premium", "On request", "Comfort hotels and private trip planning"],
+    ["Luxurious", "On request", "Premium stays and curated experiences"],
+    ["VIP", "Custom quote", "Dedicated concierge and best available services"],
+  ];
+}
+
+function packageItinerary(item) {
+  return Array.isArray(item.itinerary) && item.itinerary.length ? item.itinerary : ["Arrival and route briefing", "Destination sightseeing and activities", "Return or onward transfer"];
 }
 
 function packageOriginalPrice(item) {
@@ -759,12 +715,25 @@ const activities = [
 ];
 
 const destinations = [
-  ["Srinagar", "image18", "Dal Lake, Mughal Gardens, Shikara rides, houseboats, local markets, and city food trails."],
-  ["Gulmarg", "image02", "Skiing, Gondola, snow adventure, hotels, instructors, mountain safety, and winter transfers."],
-  ["Pahalgam", "image19", "Betaab Valley, pony rides, trekking, riverside stays, family routes, and camping add-ons."],
-  ["Sonamarg", "image11", "Glacier views, snow points, photography, horse routes, and high-altitude travel tips."],
-  ["Dal Lake", "image22", "Houseboats, Shikara rides, floating markets, lake-view dining, and sunset experiences."],
-  ["Mughal Gardens", "image07", "Nishat, Shalimar, Chashme Shahi, guided history walks, and family photography stops."],
+  ["Srinagar", "image18", "Dal Lake, Shikara rides, houseboats, Chashme Shahi, Mughal Gardens, Pari Mahal, local markets, food trails, and airport support."],
+  ["Gulmarg", "image15", "Skiing, Gondola, snow adventure, hotels, instructors, snowmobile options, mountain safety, and winter transfers."],
+  ["Sonmarg", "image11", "Thajiwas Glacier, snow points, pony routes, high-altitude photos, and onward Kargil or Leh road planning."],
+  ["Pahalgam", "image19", "Betaab Valley, Aru Valley, Chandanwari, pony rides, riverside stays, family sightseeing, trekking, and camping add-ons."],
+  ["Yusmarg", "image03", "Quiet meadows, pine forests, soft adventure routes, picnic days, camping, and offbeat Kashmir photography."],
+  ["Gurez Valley", "image06", "Remote valley roads, village stays, Kishanganga views, mountain scenery, and offbeat multi-day itineraries."],
+  ["Doodhpathri", "image05", "Green meadows, river views, day picnics, relaxed family routes, and photography-friendly open landscapes."],
+  ["Leh", "image18", "Srinagar to Leh road journey via Sonmarg and Kargil with acclimatized pacing, permits, and mountain-road support."],
+  ["Dal Lake", "image22", "Houseboats, Shikara rides, floating markets, lake-view dining, honeymoon evenings, and sunrise photography."],
+  ["Wular & Manasbal Lakes", "image09", "Large lake views, birding moods, quiet drives, local stops, and Srinagar extension routes."],
+  ["Mughal Gardens", "image07", "Nishat, Shalimar, Chashme Shahi, guided history walks, spring flowers, and family photography stops."],
+  ["Kargil", "image12", "Kashmir to Leh halt, mountain-road travel, heritage stops, and practical route support for longer journeys."],
+];
+
+const attractionHighlights = [
+  ["Dal Lake & Shikara", "Houseboats, floating markets, sunrise rides, sunset rides, honeymoon photos, and lake-view stays."],
+  ["Srinagar Local", "Chashme Shahi, Nishat, Shalimar, Pari Mahal, Hazratbal, old city markets, cafes, and handicrafts."],
+  ["Snow Activities", "Gulmarg skiing, beginner lessons, snowmobile, sledging, Gondola planning, and winter clothing guidance."],
+  ["Outdoor Experiences", "Camping, trekking, fishing guidance where permitted, bonfires, group trips, and student adventure camps."],
 ];
 
 const faqs = [
@@ -828,8 +797,9 @@ const bookingTotal = computed(() =>
 );
 const selectedPackageName = computed(() => packages.value.find((item) => Number(item.price) === Number(selectedPackage.value))?.name || "Custom Kashmir Package");
 const selectedPriceClassName = computed(() => {
-  if (Number(priceClass.value) === 1.65) return "Luxury";
-  if (Number(priceClass.value) === 1.25) return "Deluxe";
+  if (Number(priceClass.value) === 2.1) return "VIP";
+  if (Number(priceClass.value) === 1.65) return "Luxurious";
+  if (Number(priceClass.value) === 1.25) return "Premium";
   return "Standard";
 });
 const googleRecaptchaSiteKey = computed(() => (siteContent.value.googleRecaptchaSiteKey || siteContent.value.recaptchaSiteKey || "").trim());
@@ -1120,8 +1090,8 @@ function logoutAdmin() {
 }
 
 function saveAdminChanges() {
-  localStorage.setItem("kashmir-site-content", JSON.stringify(siteContent.value));
-  localStorage.setItem("kashmir-packages-premium-v2", JSON.stringify(packages.value));
+  localStorage.setItem("kashmir-site-content-v2", JSON.stringify(siteContent.value));
+  localStorage.setItem("kashmir-packages-premium-v3", JSON.stringify(packages.value));
   localStorage.setItem("kashmir-gallery-images", JSON.stringify(galleryImages.value));
   localStorage.setItem("kashmir-gallery-collections", JSON.stringify(galleryCollections.value));
   localStorage.setItem("kashmir-gallery-highlights", JSON.stringify(galleryHighlights.value));
@@ -1145,8 +1115,10 @@ function resetAdminChanges() {
   blogChecklist.value = defaultBlogChecklist.map((item) => ({ ...item }));
   selectedPackage.value = packages.value[0]?.price || 0;
   localStorage.removeItem("kashmir-site-content");
+  localStorage.removeItem("kashmir-site-content-v2");
   localStorage.removeItem("kashmir-packages");
   localStorage.removeItem("kashmir-packages-premium-v2");
+  localStorage.removeItem("kashmir-packages-premium-v3");
   localStorage.removeItem("kashmir-gallery-images");
   localStorage.removeItem("kashmir-gallery-collections");
   localStorage.removeItem("kashmir-gallery-highlights");
@@ -1824,7 +1796,7 @@ onUnmounted(() => {
             <div v-if="activeAdminTab === 'packages'">
               <h3 class="text-2xl font-black">Unlimited Package Fields</h3>
               <div class="mt-4 grid gap-3 md:grid-cols-3">
-                <div v-for="text in ['Name, category, package type, duration, description.', 'Featured image, multiple images, videos, gallery slider.', 'Solo, couple, group, standard, deluxe, luxury, seasonal pricing.']" :key="text" class="rounded-lg bg-white/10 p-4 text-sm leading-6">{{ text }}</div>
+                <div v-for="text in ['Name, category, package type, duration, description.', 'Featured image, multiple images, videos, gallery slider.', 'Solo, couple, group, Standard, Premium, Luxurious, VIP, seasonal pricing.']" :key="text" class="rounded-lg bg-white/10 p-4 text-sm leading-6">{{ text }}</div>
               </div>
             </div>
             <div v-else-if="activeAdminTab === 'bookings'">
@@ -2234,6 +2206,29 @@ onUnmounted(() => {
                 <span v-for="city in detailCities" :key="city" class="rounded-full bg-frost px-5 py-3 text-sm font-bold text-night/70">{{ city }}</span>
               </div>
             </div>
+
+            <div class="mt-9">
+              <h3 class="font-display text-3xl font-extrabold text-night">Route & Itinerary</h3>
+              <div class="mt-5 grid gap-3">
+                <div v-for="(step, index) in packageItinerary(detailPackage)" :key="`${detailPackage.name}-day-${index}`" class="rounded-lg border border-night/10 bg-frost p-4">
+                  <p class="text-xs font-black uppercase tracking-[0.16em] text-lake">Day {{ index + 1 }}</p>
+                  <p class="mt-2 text-sm font-semibold leading-6 text-night/70">{{ step }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-9">
+              <h3 class="font-display text-3xl font-extrabold text-night">Price Tiers</h3>
+              <div class="mt-5 grid gap-4 md:grid-cols-2">
+                <div v-for="[tier, amount, text] in packageTiers(detailPackage)" :key="`${detailPackage.name}-${tier}`" class="rounded-lg border border-night/10 bg-white p-5 shadow-lift">
+                  <div class="flex items-start justify-between gap-3">
+                    <h4 class="text-xl font-black text-night">{{ tier }}</h4>
+                    <span class="rounded-lg bg-gold/15 px-3 py-2 text-xs font-black text-gold">{{ amount }}</span>
+                  </div>
+                  <p class="mt-3 text-sm font-semibold leading-6 text-night/62">{{ text }}</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <aside class="premium-card rounded-lg p-6 lg:sticky lg:top-28 lg:self-start">
@@ -2242,7 +2237,7 @@ onUnmounted(() => {
               <p class="font-display text-4xl font-extrabold text-lake">₹{{ detailPackage.price.toLocaleString("en-IN") }}</p>
               <p class="pb-1 text-lg font-bold text-night/45 line-through">₹{{ detailOriginalPrice.toLocaleString("en-IN") }}</p>
             </div>
-            <p class="mt-2 text-xs font-semibold text-night/55">Per person, taxes included</p>
+            <p class="mt-2 text-xs font-semibold text-night/55">Indicative starting estimate; final quote is confirmed after availability check.</p>
             <p class="mt-6 rounded-lg bg-gold/15 px-4 py-3 text-center text-base font-black text-gold">Save ₹{{ detailSaveAmount.toLocaleString("en-IN") }}!</p>
             <button type="button" class="mt-5 w-full rounded-lg bg-lake px-5 py-4 text-base font-black text-white shadow-lift hover:bg-night" @click="bookDetailPackage">
               Book & Pay Now
@@ -2274,7 +2269,12 @@ onUnmounted(() => {
                   <span class="rounded-lg border border-gold/30 bg-gold/18 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-gold backdrop-blur-xl">No hidden charges</span>
                 </div>
               </div>
-              
+              <div class="grid min-h-72 grid-cols-2 gap-3">
+                <div class="image-cover rounded-lg border border-white/18" :style="imageStyle('image15')"></div>
+                <div class="image-cover rounded-lg border border-white/18" :style="imageStyle('image22')"></div>
+                <div class="image-cover rounded-lg border border-white/18" :style="imageStyle('image19')"></div>
+                <div class="image-cover rounded-lg border border-white/18" :style="imageStyle('image11')"></div>
+              </div>
             </div>
           </div>
 
@@ -2332,7 +2332,7 @@ onUnmounted(() => {
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p class="text-xs font-black uppercase tracking-[0.18em] text-gold">Registered details</p>
-                <p class="mt-1 text-sm font-semibold text-white/62">Snow Feather LLP business identifiers</p>
+                <p class="mt-1 text-sm font-semibold text-white/62">Snow Feather business identifiers</p>
               </div>
               <span class="rounded-lg border border-white/14 bg-white/10 px-3 py-2 text-xs font-black text-white/80">Verified business info</span>
             </div>
@@ -2366,6 +2366,13 @@ onUnmounted(() => {
                   <span v-for="chip in packageChips(item)" :key="`${item.name}-${chip}`" class="rounded-full bg-gradient-to-r from-frost to-lake/10 px-3 py-1 text-xs font-semibold text-night/[0.62]">{{ chip }}</span>
                 </div>
 
+                <div class="mt-5 grid gap-2">
+                  <div v-for="[tier, amount] in packageTiers(item)" :key="`${item.name}-${tier}-mini`" class="flex items-center justify-between gap-3 rounded-lg bg-frost px-3 py-2 text-xs">
+                    <span class="font-black text-night">{{ tier }}</span>
+                    <span class="text-right font-black text-lake">{{ amount }}</span>
+                  </div>
+                </div>
+
                 <div class="mt-5 border-t border-night/[0.08] pt-5">
                   <p class="text-sm font-semibold text-night/[0.58]">Starting From</p>
                   <div class="mt-2 flex flex-wrap items-end gap-3">
@@ -2373,7 +2380,7 @@ onUnmounted(() => {
                     <p class="pb-1 text-base font-bold text-night/40 line-through">INR {{ packageOriginalPrice(item).toLocaleString("en-IN") }}</p>
                   </div>
                   <div class="mt-4 flex items-center justify-between gap-4">
-                    <p class="text-xs font-semibold uppercase text-night/[0.52]">Taxes incl/person</p>
+                    <p class="text-xs font-semibold uppercase text-night/[0.52]">Indicative start rate</p>
                     <button type="button" class="rounded-lg bg-gradient-to-r from-lake to-alpine px-5 py-3 text-sm font-black text-white shadow-lift transition hover:-translate-y-0.5 hover:shadow-premium hover:from-alpine hover:to-lake" @click="viewPackageDetails(item)">
                       View Details
                     </button>
@@ -2433,6 +2440,19 @@ onUnmounted(() => {
                 <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ text }}</p>
               </div>
             </article>
+          </div>
+
+          <div class="mt-12">
+            <div class="mb-6 max-w-3xl">
+              <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Attractions</p>
+              <h3 class="mt-2 font-display text-3xl font-extrabold text-night sm:text-4xl">Important Kashmir experiences are now visible.</h3>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <article v-for="[title, text] in attractionHighlights" :key="title" class="rounded-lg border border-night/10 bg-white p-5 shadow-lift">
+                <h4 class="text-xl font-black text-night">{{ title }}</h4>
+                <p class="mt-3 text-sm font-semibold leading-6 text-night/62">{{ text }}</p>
+              </article>
+            </div>
           </div>
         </div>
       </section>
@@ -2540,8 +2560,9 @@ onUnmounted(() => {
               <label class="grid min-w-0 gap-2 text-sm font-bold"><span>Pricing class <span class="text-red-600">*</span></span>
                 <select v-model.number="priceClass" required class="w-full min-w-0 rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20">
                   <option :value="1">Standard</option>
-                  <option :value="1.25">Deluxe</option>
-                  <option :value="1.65">Luxury</option>
+                  <option :value="1.25">Premium</option>
+                  <option :value="1.65">Luxurious</option>
+                  <option :value="2.1">VIP</option>
                 </select>
               </label>
               <label class="grid gap-2 text-sm font-bold md:col-span-2"><span>Name <span class="text-red-600">*</span></span>
