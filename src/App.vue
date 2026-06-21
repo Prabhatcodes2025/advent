@@ -386,6 +386,30 @@ const defaultMentors = [
 const mentors = ref(loadStoredValue("kashmir-mentors", defaultMentors));
 const openMentorProfiles = ref([]);
 
+const defaultInclusionShowcase = {
+  eyebrow: "Included in your journey",
+  title: "Package Inclusions",
+  backgroundImage: "/images/image39.jpeg",
+  items: [
+    {
+      title: "Breakfast & Dinner",
+      text: "Meal plan as mentioned in your final hotel and package confirmation.",
+      image: "/images/image24.jpeg",
+    },
+    {
+      title: "Cab for Sightseeing",
+      text: "Comfortable private or group transport according to the selected package.",
+      image: "/images/image17.jpeg",
+    },
+    {
+      title: "Pickup & Drop",
+      text: "Airport, railway station, or bus stand transfers as mentioned in the itinerary.",
+      image: "/images/image18.jpeg",
+    },
+  ],
+};
+const inclusionShowcase = ref(loadStoredValue("kashmir-inclusion-showcase", defaultInclusionShowcase));
+
 const pageSeo = computed(() => {
   const map = {
     home: {
@@ -1434,6 +1458,7 @@ function saveAdminChanges() {
   localStorage.setItem("kashmir-trust-guarantees", JSON.stringify(trustGuarantees.value));
   localStorage.setItem("kashmir-testimonials", JSON.stringify(testimonials.value));
   localStorage.setItem("kashmir-mentors", JSON.stringify(mentors.value));
+  localStorage.setItem("kashmir-inclusion-showcase", JSON.stringify(inclusionShowcase.value));
   adminSaved.value = "Saved. Website content updated in this browser.";
   window.setTimeout(() => {
     adminSaved.value = "";
@@ -1465,6 +1490,10 @@ function resetAdminChanges() {
   trustGuarantees.value = [...defaultTrustGuarantees];
   testimonials.value = defaultTestimonials.map((item) => ({ ...item }));
   mentors.value = defaultMentors.map((item) => ({ ...item }));
+  inclusionShowcase.value = {
+    ...defaultInclusionShowcase,
+    items: defaultInclusionShowcase.items.map((item) => ({ ...item })),
+  };
   selectedPackage.value = packages.value[0]?.price || 0;
   localStorage.removeItem("kashmir-site-content");
   localStorage.removeItem("kashmir-site-content-v2");
@@ -1495,6 +1524,7 @@ function resetAdminChanges() {
   localStorage.removeItem("kashmir-trust-guarantees");
   localStorage.removeItem("kashmir-testimonials");
   localStorage.removeItem("kashmir-mentors");
+  localStorage.removeItem("kashmir-inclusion-showcase");
   adminSaved.value = "Reset to default content.";
 }
 
@@ -1569,6 +1599,13 @@ function updateManagedImage(event, collection, index, imageIndex) {
 function updateManagedObjectImage(event, collection, index, field = "image") {
   readImageFile(event, (result) => {
     collection[index][field] = result;
+  });
+}
+
+function updateInclusionImage(event, index = null) {
+  readImageFile(event, (result) => {
+    if (index === null) inclusionShowcase.value.backgroundImage = result;
+    else inclusionShowcase.value.items[index].image = result;
   });
 }
 
@@ -2043,6 +2080,36 @@ onUnmounted(() => {
                         </label>
                       </div>
                     </div>
+                  </article>
+                </div>
+              </div>
+            </details>
+
+            <details class="rounded-lg border border-white/[0.12] bg-white/[0.06] p-4">
+              <summary class="cursor-pointer font-black">Package inclusions showcase</summary>
+              <div class="mt-4 grid gap-4">
+                <div class="grid gap-3 md:grid-cols-2">
+                  <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/70">Section label
+                    <input v-model="inclusionShowcase.eyebrow" class="bg-white text-night" />
+                  </label>
+                  <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/70">Section title
+                    <input v-model="inclusionShowcase.title" class="bg-white text-night" />
+                  </label>
+                </div>
+                <div class="rounded-lg border border-white/12 p-3">
+                  <div class="image-cover h-40 rounded-lg" :style="imageStyle(inclusionShowcase.backgroundImage)"></div>
+                  <label class="mt-2 inline-block cursor-pointer rounded-lg border border-white/20 px-3 py-2 text-xs font-black">Change background image<input type="file" accept="image/*" class="hidden" @change="updateInclusionImage($event)" /></label>
+                </div>
+                <div class="grid gap-3 lg:grid-cols-3">
+                  <article v-for="(item, index) in inclusionShowcase.items" :key="`admin-inclusion-${index}`" class="rounded-lg border border-white/12 p-3">
+                    <div class="image-cover h-32 rounded-lg" :style="imageStyle(item.image)"></div>
+                    <label class="mt-3 grid gap-1 text-xs font-black uppercase tracking-wide text-white/70">Title
+                      <input v-model="item.title" class="bg-white text-night" />
+                    </label>
+                    <label class="mt-2 grid gap-1 text-xs font-black uppercase tracking-wide text-white/70">Description
+                      <textarea v-model="item.text" class="min-h-20 bg-white text-night"></textarea>
+                    </label>
+                    <label class="mt-2 inline-block cursor-pointer rounded-lg border border-white/20 px-3 py-2 text-xs font-black">Change image<input type="file" accept="image/*" class="hidden" @change="updateInclusionImage($event, index)" /></label>
                   </article>
                 </div>
               </div>
@@ -2604,9 +2671,9 @@ onUnmounted(() => {
     </header>
 
     <main>
-      <section v-if="currentPage === 'home'" class="hero-media relative flex min-h-screen overflow-hidden pt-28 text-white" :style="heroStyle">
+      <section v-if="currentPage === 'home'" class="hero-media relative flex min-h-[44rem] overflow-hidden pt-28 text-white sm:min-h-[48rem] lg:min-h-[50rem]" :style="heroStyle">
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_78%_22%,rgba(216,169,79,0.22),transparent_28%)]"></div>
-        <div class="relative mx-auto grid w-full max-w-7xl items-end gap-10 px-4 pb-14 pt-16 sm:px-6 lg:grid-cols-[1fr_0.42fr] lg:pb-20">
+        <div class="relative mx-auto grid w-full max-w-7xl items-end gap-10 px-4 pb-14 pt-8 sm:px-6 lg:grid-cols-[1fr_0.42fr] lg:pb-14 lg:pt-4">
           <div class="max-w-4xl">
             <p class="mb-5 inline-flex rounded-full border border-gold/35 bg-night/40 px-5 py-2.5 text-xs font-black uppercase tracking-[0.18em] text-gold backdrop-blur">{{ siteContent.heroBadge }}</p>
             <p class="mb-3 text-sm font-black uppercase tracking-[0.24em] text-white/70">Snow Feather Adventures • Tours & Travels Kashmir</p>
@@ -2703,7 +2770,7 @@ onUnmounted(() => {
         <div class="relative mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-10 max-w-4xl">
             <p class="text-sm font-black uppercase tracking-[0.2em] text-gold">Everything under one roof</p>
-            <h2 class="mt-3 font-display text-4xl font-extrabold sm:text-5xl">Tours, adventure, and transportation—professionally coordinated.</h2>
+            <h2 class="mt-3 font-display text-4xl font-extrabold sm:text-5xl">Tours, adventure, and transportation professionally coordinated.</h2>
           </div>
           <div class="grid gap-5 lg:grid-cols-3">
             <article v-for="service in serviceGroups" :key="service.title" class="rounded-lg border border-white/12 bg-white/8 p-6 backdrop-blur">
@@ -2807,7 +2874,7 @@ onUnmounted(() => {
       <section
         v-if="currentPage === 'about'"
         id="about"
-        class="relative min-h-screen overflow-hidden bg-night pt-28 text-white"
+        class="relative h-[28rem] overflow-hidden bg-night pt-28 text-white sm:h-[32rem] lg:h-[36rem]"
       >
         <div
           class="absolute inset-0 image-cover"
@@ -2826,33 +2893,6 @@ onUnmounted(() => {
         <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,11,18,0.88),rgba(3,20,31,0.64),rgba(3,22,34,0.28)),linear-gradient(0deg,rgba(3,11,18,0.78),rgba(3,11,18,0.08))]"></div>
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_76%_28%,rgba(9,165,213,0.24),transparent_34%)]"></div>
 
-        <div class="relative mx-auto flex min-h-[calc(100vh-7rem)] max-w-7xl items-center px-4 pb-14 pt-8 sm:px-6">
-          <div class="max-w-5xl">
-            <div class="flex flex-wrap gap-3">
-              <span class="inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/18 px-4 py-2 text-sm font-black text-white shadow-lift">
-               <!-- <span class="text-xs uppercase text-gold">IATA</span> -->
-               ✨ Premium Experiences
-              </span>
-              <span class="inline-flex items-center gap-2 rounded-full border border-lake/30 bg-lake/18 px-4 py-2 text-sm font-black text-white shadow-lift">
-              <!--  <span class="text-xs uppercase text-lake">ISO</span> -->
-                🤝 Dedicated Travel Concierge
-              </span>
-              <span class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-4 py-2 text-sm font-black text-white shadow-lift">
-               😊 Hassle-Free Travel
-              </span>
-            </div>
-
-            <h1 class="mt-10 font-display text-4xl font-extrabold leading-[1.02] text-white sm:text-5xl lg:text-5xl xl:text-6xl">
-              About
-              <span class="bg-gradient-to-r from-gold via-[#ff8b6d] to-[#ff6fa8] bg-clip-text text-transparent">Snow Feather Adventures</span>
-            </h1>
-            <p class="mt-6 max-w-2xl text-lg font-semibold leading-8 text-white/76">
-              We are a Kashmir travel team helping guests plan honest routes, comfortable stays, local transfers, snow activities, family holidays, honeymoon trips, and smooth on-trip support.
-            </p>
-
-          </div>
-
-        </div>
       </section>
 
       <section v-if="currentPage === 'about'" class="section-band py-20">
@@ -3311,6 +3351,33 @@ onUnmounted(() => {
           <div v-else class="rounded-lg border border-dashed border-night/20 bg-frost p-10 text-center">
             <h3 class="text-2xl font-black text-night">No packages found in this price range.</h3>
             <button type="button" class="mt-5 rounded-lg bg-lake px-5 py-3 text-sm font-black text-white" @click="clearPackageFilters">Reset Filters</button>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'packages' || currentPage === 'packageDetail'" class="bg-white py-16">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="relative overflow-hidden rounded-lg bg-night px-4 py-12 text-white shadow-premium sm:px-8 lg:py-16">
+            <div class="image-cover absolute inset-0 opacity-45" :style="imageStyle(inclusionShowcase.backgroundImage)"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-night/78 via-night/70 to-night/90"></div>
+            <div class="relative mx-auto max-w-4xl">
+              <div class="text-center">
+                <div class="mx-auto grid h-12 w-12 place-items-center rounded-full border border-gold/45 bg-gold/15 text-2xl text-gold">✦</div>
+                <p class="mt-4 text-xs font-black uppercase tracking-[0.22em] text-gold">{{ inclusionShowcase.eyebrow }}</p>
+                <h2 class="mt-2 font-display text-4xl font-extrabold uppercase tracking-tight sm:text-5xl">{{ inclusionShowcase.title }}</h2>
+              </div>
+
+              <div class="mt-9 grid gap-6">
+                <article v-for="item in inclusionShowcase.items" :key="item.title" class="text-center">
+                  <div class="relative aspect-[16/5] overflow-hidden rounded-[1.5rem] border-2 border-white bg-white/10 shadow-premium">
+                    <img :src="item.image" :alt="item.title" class="h-full w-full object-cover" loading="lazy" />
+                    <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-night/20"></div>
+                  </div>
+                  <h3 class="mt-3 text-2xl font-black text-white sm:text-3xl">{{ item.title }}</h3>
+                  <p class="mx-auto mt-1 max-w-2xl text-sm font-semibold leading-6 text-white/68">{{ item.text }}</p>
+                </article>
+              </div>
+            </div>
           </div>
         </div>
       </section>
