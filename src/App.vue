@@ -2895,46 +2895,6 @@ onUnmounted(() => {
 
       </section>
 
-      <section v-if="currentPage === 'about'" class="section-band py-20">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6">
-          <div class="mx-auto mb-12 max-w-4xl text-center">
-            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Our mentors & adventure legends</p>
-            <h2 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">Experience shaped by pioneers of Indian winter and adventure sports.</h2>
-            <p class="mt-5 text-base font-semibold leading-8 text-night/[0.62]">Our advisors, Olympic leaders, instructors, and mountain experts strengthen every Snow Feather adventure with decades of technical knowledge, safety leadership, athlete development, and Himalayan experience.</p>
-          </div>
-
-          <div class="grid gap-6 lg:grid-cols-2">
-            <article v-for="(mentor, index) in mentors" :key="mentor.name" class="overflow-hidden rounded-lg border border-night/[0.08] bg-white shadow-premium">
-              <div class="grid sm:grid-cols-[14rem_1fr]">
-                <div class="relative aspect-[4/5] overflow-hidden bg-frost sm:aspect-auto sm:min-h-[25rem]">
-                  <img :src="mentor.image" :alt="mentor.name" class="absolute inset-0 h-full w-full object-cover object-top" :style="mentorPortraitStyle(mentor)" loading="lazy" />
-                  <div class="absolute inset-0 bg-gradient-to-t from-night/55 via-transparent to-transparent"></div>
-                  <span class="absolute bottom-4 left-4 rounded-full bg-gold px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-night">Expert {{ String(index + 1).padStart(2, '0') }}</span>
-                </div>
-                <div class="flex flex-col p-6">
-                  <p class="text-xs font-black uppercase tracking-[0.16em] text-lake">{{ mentor.role }}</p>
-                  <h3 class="mt-2 font-display text-3xl font-extrabold leading-tight text-night">{{ mentor.name }}</h3>
-                  <p class="mt-3 text-sm font-black leading-6 text-gold">{{ mentor.credentials }}</p>
-                  <p class="mt-4 border-l-2 border-lake pl-4 text-sm font-semibold italic leading-6 text-night/[0.62]">“{{ mentor.quote }}”</p>
-
-                  <div v-if="openMentorProfiles.includes(index)" class="mt-5 grid gap-4 border-t border-night/[0.08] pt-5">
-                    <p v-for="(paragraph, paragraphIndex) in mentorParagraphs(mentor)" :key="`${mentor.name}-${paragraphIndex}`" class="text-sm font-semibold leading-7 text-night/[0.64]">{{ paragraph }}</p>
-                  </div>
-                  <button type="button" class="mt-5 self-start rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake" :aria-expanded="openMentorProfiles.includes(index)" @click="toggleMentorProfile(index)">
-                    {{ openMentorProfiles.includes(index) ? "Close Profile" : "Read Full Profile" }}
-                  </button>
-                </div>
-              </div>
-            </article>
-          </div>
-
-          <div class="mt-10 rounded-lg bg-night p-6 text-center text-white shadow-premium sm:p-8">
-            <p class="font-display text-2xl font-extrabold sm:text-3xl">Guided by experience. Driven by safety. Committed to excellence.</p>
-            <p class="mx-auto mt-3 max-w-3xl text-sm font-semibold leading-7 text-white/68">Their association with Snow Feather Adventures is a source of pride and a promise that our skiing, trekking, mountaineering, and outdoor programs remain rooted in professional leadership.</p>
-          </div>
-        </div>
-      </section>
-
       <section v-if="currentPage === 'about'" class="bg-white py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mx-auto mb-10 max-w-4xl text-center">
@@ -3106,6 +3066,44 @@ onUnmounted(() => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'about'" class="section-band py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="mx-auto mb-12 max-w-4xl text-center">
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Messages from our dignitaries</p>
+            <h2 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">Guidance from pioneers of Indian winter and adventure sports.</h2>
+            <p class="mt-5 text-base font-semibold leading-8 text-night/[0.62]">Concluding our story, we proudly acknowledge the advisors, Olympians, instructors, and mountain experts whose experience strengthens our standards of safety, professionalism, and service.</p>
+          </div>
+
+          <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <article v-for="(mentor, index) in mentors" :key="mentor.name" class="flex h-full flex-col overflow-hidden rounded-lg border border-night/[0.08] bg-white shadow-premium">
+              <div class="relative aspect-[4/3] overflow-hidden bg-frost">
+                <img :src="mentor.image" :alt="mentor.name" class="absolute inset-0 h-full w-full object-cover object-top" :style="mentorPortraitStyle(mentor)" loading="lazy" />
+                <div class="absolute inset-0 bg-gradient-to-t from-night/65 via-transparent to-transparent"></div>
+                <span class="absolute bottom-4 left-4 rounded-full bg-gold px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-night">Dignitary {{ String(index + 1).padStart(2, '0') }}</span>
+              </div>
+              <div class="flex flex-1 flex-col p-6">
+                <p class="text-xs font-black uppercase tracking-[0.16em] text-lake">{{ mentor.role }}</p>
+                <h3 class="mt-2 font-display text-2xl font-extrabold leading-tight text-night">{{ mentor.name }}</h3>
+                <p class="mt-3 text-sm font-black leading-6 text-gold">{{ mentor.credentials }}</p>
+                <p class="mt-4 border-l-2 border-lake pl-4 text-sm font-semibold italic leading-6 text-night/[0.62]">“{{ mentor.quote }}”</p>
+
+                <div v-if="openMentorProfiles.includes(index)" class="mt-5 grid gap-4 border-t border-night/[0.08] pt-5">
+                  <p v-for="(paragraph, paragraphIndex) in mentorParagraphs(mentor)" :key="`${mentor.name}-${paragraphIndex}`" class="text-sm font-semibold leading-7 text-night/[0.64]">{{ paragraph }}</p>
+                </div>
+                <button type="button" class="mt-5 self-start rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake" :aria-expanded="openMentorProfiles.includes(index)" @click="toggleMentorProfile(index)">
+                  {{ openMentorProfiles.includes(index) ? "Close Profile" : "Read Full Message" }}
+                </button>
+              </div>
+            </article>
+          </div>
+
+          <div class="mt-10 rounded-lg bg-night p-6 text-center text-white shadow-premium sm:p-8">
+            <p class="font-display text-2xl font-extrabold sm:text-3xl">Guided by experience. Driven by safety. Committed to excellence.</p>
+            <p class="mx-auto mt-3 max-w-3xl text-sm font-semibold leading-7 text-white/68">Their association with Snow Feather Adventures is a source of pride and a promise that our skiing, trekking, mountaineering, and outdoor programs remain rooted in professional leadership.</p>
           </div>
         </div>
       </section>
@@ -3662,31 +3660,6 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="bg-white py-20">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6">
-          <div class="mb-9 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div class="max-w-4xl">
-              <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Guided by legends</p>
-              <h2 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">Olympians, pioneers, instructors, and Himalayan experts.</h2>
-              <p class="mt-4 text-base font-semibold leading-7 text-night/[0.62]">Our advisory team brings generations of winter-sports leadership, international training, mountain knowledge, and safety expertise to Snow Feather Adventures.</p>
-            </div>
-            <button type="button" class="self-start rounded-lg bg-night px-6 py-3 text-sm font-black text-white hover:bg-lake lg:self-auto" @click="navigateTo('/about')">Meet Our Mentors</button>
-          </div>
-          <div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
-            <button v-for="mentor in mentors" :key="`home-mentor-${mentor.name}`" type="button" class="group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-night/[0.08] bg-white text-left shadow-lift" @click="navigateTo('/about')">
-              <div class="relative aspect-[4/5] w-full shrink-0 overflow-hidden bg-frost">
-                <img :src="mentor.image" :alt="mentor.name" class="h-full w-full object-cover object-top transition duration-500" :style="mentorPortraitStyle(mentor)" loading="lazy" />
-                <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-night/[0.06]"></div>
-              </div>
-              <div class="relative flex min-h-28 flex-1 flex-col border-t border-night/[0.08] bg-white p-3">
-                <p class="line-clamp-2 min-h-10 text-sm font-black leading-5 text-night">{{ mentor.name }}</p>
-                <p class="mt-2 line-clamp-3 min-h-12 text-[0.68rem] font-bold uppercase leading-4 tracking-[0.1em] text-lake">{{ mentor.role }}</p>
-              </div>
-            </button>
-          </div>
-        </div>
-      </section>
-
       <section v-if="currentPage === 'home'" class="section-band py-20">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-9 text-center">
@@ -3743,6 +3716,31 @@ onUnmounted(() => {
             <a href="https://wa.me/919055020408?text=I%20want%20a%20Kashmir%20tour%20quotation" class="rounded-lg bg-[#25D366] px-6 py-4 text-center text-base font-black text-white">WhatsApp For A Quote</a>
             <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="rounded-lg bg-white px-6 py-4 text-center text-base font-black text-night">Call {{ siteContent.contactPhone }}</a>
             <button type="button" class="rounded-lg border border-white/18 px-6 py-4 text-base font-black text-white" @click="navigateTo('/booking')">Send Enquiry Form</button>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'home'" class="bg-white py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="mb-9 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div class="max-w-4xl">
+              <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Messages from our dignitaries</p>
+              <h2 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">A concluding note from Olympians, pioneers, and Himalayan experts.</h2>
+              <p class="mt-4 text-base font-semibold leading-7 text-night/[0.62]">At the close of our presentation, meet the respected advisors whose experience supports Snow Feather Adventures and its commitment to professional, safe, and meaningful journeys.</p>
+            </div>
+            <button type="button" class="self-start rounded-lg bg-night px-6 py-3 text-sm font-black text-white hover:bg-lake lg:self-auto" @click="navigateTo('/about')">Read Their Messages</button>
+          </div>
+          <div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+            <button v-for="mentor in mentors" :key="`home-mentor-${mentor.name}`" type="button" class="group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-night/[0.08] bg-white text-left shadow-lift" @click="navigateTo('/about')">
+              <div class="relative aspect-[4/5] w-full shrink-0 overflow-hidden bg-frost">
+                <img :src="mentor.image" :alt="mentor.name" class="h-full w-full object-cover object-top transition duration-500" :style="mentorPortraitStyle(mentor)" loading="lazy" />
+                <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-night/[0.06]"></div>
+              </div>
+              <div class="relative flex min-h-28 flex-1 flex-col border-t border-night/[0.08] bg-white p-3">
+                <p class="line-clamp-2 min-h-10 text-sm font-black leading-5 text-night">{{ mentor.name }}</p>
+                <p class="mt-2 line-clamp-3 min-h-12 text-[0.68rem] font-bold uppercase leading-4 tracking-[0.1em] text-lake">{{ mentor.role }}</p>
+              </div>
+            </button>
           </div>
         </div>
       </section>
