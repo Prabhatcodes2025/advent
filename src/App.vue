@@ -23,7 +23,7 @@ function imageStyle(item) {
 
 const brandName = "Snow Feather Adventures";
 const brandTagline = "Tours & Travels Kashmir";
-const logoSrc = "/snow-feather-logo.jpeg";
+const logoSrc = "/snow-feather-adventures-logo-v2.png";
 const mainBackgroundVideoSrc = "/snow-feather-main-bg.mp4";
 
 const kashmirWebImages = {
@@ -95,10 +95,10 @@ const currentPage = computed(() => (currentPath.value.startsWith("/packages/") ?
 let initialLoadingTimeout = null;
 
 const defaultSiteContent = {
-  heroBadge: "Local Kashmir experts • Clear packages • 24/7 trip support",
-  heroTitle: "See Kashmir Beyond The Postcard",
+  heroBadge: "30+ Years of Excellence in Tourism, Adventure, Skiing & Hospitality",
+  heroTitle: "Kashmir, Crafted With Experience",
   heroSubtitle:
-    "Snow Feather Adventures creates premium Kashmir journeys across Srinagar, Gulmarg, Sonmarg, Pahalgam, Yusmarg, Gurez, Doodhpathri, Kargil, and Leh—with transparent routes, stays, pricing, and local support.",
+    "Adventure, luxury, and genuine Kashmiri hospitality—all under one roof. Discover transparent packages, trusted local planning, memorable stays, and expert support from arrival to departure.",
   homeActivitiesEyebrow: "Featured activities",
   homeActivitiesTitle: "Kashmir adventure, snow, lake, and mountain experiences.",
   homeGalleryEyebrow: "Media gallery",
@@ -116,8 +116,8 @@ const defaultSiteContent = {
   galleryHeroText:
     "Browse destination albums, seasonal travel moods, guest-style photo ideas, and the kind of scenes Snow Feather Adventures can plan into your Kashmir journey.",
   galleryHeroImage: "image23",
-  galleryStatOneValue: "23",
-  galleryStatOneText: "Available Kashmir visuals currently in the project gallery.",
+  galleryStatOneValue: "40+",
+  galleryStatOneText: "New Kashmir destination and experience photographs available in the gallery.",
   galleryStatTwoValue: "4 seasons",
   galleryStatTwoText: "Snow, gardens, meadows, lakes, autumn colors, and honeymoon frames.",
   galleryCollectionsEyebrow: "Photo collections",
@@ -151,6 +151,9 @@ const defaultSiteContent = {
   contactEmail: "snowfeatheradventures@gmail.com",
   contactAddress: "Karra Building, Court Road, Lal chowk, Srinagar, 190001, Jammu and Kashmir",
   contactSupport: "24/7 during active trips",
+  experienceLine: "Creating Unforgettable Kashmir Experiences Since 30 Years",
+  trustPromise: "No hidden charges. No false promises. No cheating—only transparent pricing and genuine local expertise.",
+  mapQuery: "Karra Building Court Road Lal Chowk Srinagar Kashmir",
   googleRecaptchaSiteKey: "",
 };
 
@@ -222,6 +225,166 @@ const defaultPurposeCards = [
   },
 ];
 const purposeCards = ref(loadStoredValue("kashmir-purpose-cards", defaultPurposeCards));
+
+const defaultExperienceStats = [
+  ["30+", "Years Experience"],
+  ["10,000+", "Happy Guests"],
+  ["500+", "Successful Tours"],
+  ["24/7", "Guest Support"],
+];
+const experienceStats = ref(loadStoredValue("kashmir-experience-stats", defaultExperienceStats));
+
+const defaultAccommodationCategories = [
+  {
+    name: "Standard",
+    tagline: "Comfortable & affordable",
+    price: "From INR 2,500 / night",
+    image: image("image21"),
+    features: ["Clean verified rooms", "Breakfast options", "Convenient locations", "Trip support"],
+  },
+  {
+    name: "Premier",
+    tagline: "Enhanced comfort",
+    price: "From INR 4,500 / night",
+    image: image("image04"),
+    features: ["Premium facilities", "Better room views", "Heated winter options", "Priority assistance"],
+  },
+  {
+    name: "Luxury",
+    tagline: "Elegant Kashmir stays",
+    price: "From INR 8,500 / night",
+    image: image("image22"),
+    features: ["Boutique hotels", "Premium houseboats", "Superior service", "Curated dining"],
+  },
+  {
+    name: "VIP",
+    tagline: "Exclusive & personalized",
+    price: "Custom quotation",
+    image: image("image14"),
+    features: ["Best available resorts", "Luxury transport", "Private experiences", "Dedicated concierge"],
+  },
+];
+const accommodationCategories = ref(loadStoredValue("kashmir-accommodation-categories", defaultAccommodationCategories));
+
+const defaultServiceGroups = [
+  {
+    number: "01",
+    title: "Tours",
+    text: "Personalized Kashmir journeys designed for every kind of traveler.",
+    items: ["Family Tours", "Honeymoon Tours", "Group Tours", "Corporate Tours", "Educational Tours"],
+  },
+  {
+    number: "02",
+    title: "Adventure",
+    text: "Local specialists, realistic planning, safety guidance, and reliable equipment support.",
+    items: ["Skiing", "Snowboarding", "Trekking", "Camping", "Mountaineering", "River Rafting", "Nature Exploration"],
+  },
+  {
+    number: "03",
+    title: "Transportation",
+    text: "Comfortable movement throughout Kashmir with locally coordinated drivers.",
+    items: ["Airport Transfers", "Private Vehicles", "Luxury Transport", "Group Transportation"],
+  },
+];
+const serviceGroups = ref(loadStoredValue("kashmir-service-groups", defaultServiceGroups));
+
+const defaultTrustGuarantees = [
+  "30 Years Experience",
+  "Honest Pricing",
+  "No Hidden Charges",
+  "Dedicated Support",
+  "Professional Team",
+  "Comfortable Accommodation",
+  "Customized Packages",
+  "Adventure Experts",
+  "Safe & Secure Travel",
+  "Local Knowledge & Expertise",
+];
+const trustGuarantees = ref(loadStoredValue("kashmir-trust-guarantees", defaultTrustGuarantees));
+
+const defaultTestimonials = [
+  {
+    name: "Aarav & Meera",
+    trip: "Kashmir Honeymoon",
+    rating: "5.0",
+    text: "Everything was clearly explained before our arrival. The hotels, private cab, houseboat, and Gulmarg day were beautifully coordinated.",
+    image: image("image14"),
+  },
+  {
+    name: "The Sharma Family",
+    trip: "Family Kashmir Circuit",
+    rating: "4.9",
+    text: "The itinerary never felt rushed. The team stayed in contact throughout and handled weather changes with honesty and professionalism.",
+    image: image("image21"),
+  },
+  {
+    name: "Adventure Group",
+    trip: "Gulmarg Ski Experience",
+    rating: "5.0",
+    text: "Excellent local instructors, proper equipment guidance, and transparent activity costs. A very dependable adventure team.",
+    image: image("image15"),
+  },
+];
+const testimonials = ref(loadStoredValue("kashmir-testimonials", defaultTestimonials));
+
+const defaultMentors = [
+  {
+    name: "Mr. Shabir Ahmad Wani",
+    role: "Mentor & Chief Advisor",
+    credentials: "Olympic Coach | Master of Winter Games | Adventure Sports Expert",
+    image: "/shabir-img.jpeg",
+    quote: "International experience, technical excellence, and leadership dedicated to safer, world-class adventure.",
+    bio:
+      "Mr. Shabir Ahmad Wani is a highly respected Olympic Coach, renowned Skiing and Mountaineering Instructor, and one of India's most accomplished figures in adventure sports and winter games. Known for his exceptional skill, dedication, and leadership, he has represented India at numerous international events and programs across the world, earning recognition and respect within the global adventure sports community.\n\nWith decades of experience in outdoor leadership, athlete development, and adventure education, he has trained, mentored, and guided hundreds of national and international skiers, athletes, and outdoor enthusiasts, inspiring generations to pursue excellence in sports and adventure.\n\nAs Mentor and Chief Advisor to Snow Feather Adventures Tours & Travels, he provides invaluable guidance, expertise, and vision, helping us uphold the highest standards of safety, professionalism, and operational excellence. His leadership continues to shape our adventure programs and strengthen our commitment to delivering world-class outdoor experiences.\n\nHis association with our organization is a source of pride, inspiration, and excellence.",
+  },
+  {
+    name: "Mr. Mushtaq Ahmad Wani",
+    role: "Chief Expert Advisor, Mentor & Guide",
+    credentials: 'Popularly Known as "Mushtaq Kachoru" | Adventure Sports Pioneer',
+    image: "/mushtaq-img.jpeg",
+    quote: "A living legend of adventure sports whose legacy inspires explorers, mountaineers, and skiers across the Himalayas.",
+    bio:
+      "Snow Feather Adventures Tours & Travels is immensely proud to be guided by one of the most respected and legendary figures in the history of adventure sports in Jammu & Kashmir, Mr. Mushtaq Ahmad Wani, affectionately known throughout the sports fraternity as “Mushtaq Kachoru.”\n\nA pioneer, mentor, and visionary, Mr. Wani is widely recognized as one of the founding personalities responsible for introducing, developing, and promoting adventure sports in Jammu & Kashmir. He is a Founder Member of the Jammu & Kashmir Mountaineering Club and has devoted more than three decades of his life to the advancement of mountaineering, skiing, trekking, water sports, and outdoor education.\n\nAmong the earliest batches trained at the prestigious Mountaineering & Skiing Institute (MOI), he successfully completed professional courses in Skiing, Mountaineering, Water Skiing, Swimming, Para-Sailing, and Adventure Leadership. Throughout his remarkable career, he represented Jammu & Kashmir and India in numerous national and international adventure expeditions, competitions, and training programs, including prestigious events across Europe and France.\n\nMr. Wani has successfully summited many of the highest and most challenging peaks of Jammu & Kashmir and has played a pivotal role in shaping generations of adventure enthusiasts. During his distinguished service with the Department of Youth Services & Sports, where he served for over 30 years as the officer in charge of Adventure Sports and Winter Sports, he trained and mentored thousands of students, many of whom went on to achieve national and international recognition.\n\nKnown for his honesty, dedication, professionalism, and selfless commitment to youth development, Mr. Wani also had the distinction of serving as one of India's pioneering Adventure Liaison Officers, coordinating and supporting international adventure groups and foreign expeditions visiting the region.\n\nToday, Snow Feather Adventures Tours & Travels is honored to have Mr. Mushtaq Ahmad Wani as our Chief Expert Advisor, Mentor, and Guide. His unmatched experience, wisdom, and lifelong contribution to adventure sports continue to inspire our team and ensure the highest standards of safety, professionalism, and excellence in every expedition we undertake.",
+  },
+  {
+    name: "Mr. Gul Mustafa Dev",
+    role: "Senior Skiing Instructor & Technical Advisor",
+    credentials: "India's First Winter Olympian | Asian Coach | Olympic Team Leader",
+    image: "/gul-mustafa-img.jpeg",
+    quote: "A true icon of Indian skiing whose legacy continues to inspire athletes and adventurers across generations.",
+    bio:
+      "Mr. Gul Mustafa Dev is one of India's most celebrated skiing legends and a pioneering figure in winter sports. A multiple-time National Skiing Champion, accomplished Racing Skier, and India's First Winter Olympian, he has dedicated his life to the promotion and development of skiing and winter sports at both national and international levels.\n\nRecognized for his exceptional achievements, leadership, and coaching excellence, he has represented India on prestigious international platforms and has served as an Asian and Olympic Coach, mentoring and inspiring generations of athletes and skiers.\n\nAs a Mentor and Technical Advisor to Snow Feather Adventures, Mr. Dev brings unparalleled expertise in skiing, outdoor leadership, adventure training, and winter sports development. His association reflects our commitment to excellence, safety, professionalism, and world-class adventure experiences.",
+  },
+  {
+    name: "Mr. G. M. Hajam",
+    role: "Senior Technical Advisor",
+    credentials: "International Ski & Mountaineering Instructor",
+    image: "/hajam-img.jpeg",
+    quote: "International qualifications and mountain-rescue expertise supporting the highest standards of safety.",
+    bio:
+      "Mr. G. M. Hajam is a highly respected International Ski and Mountaineering Instructor with advanced professional qualifications from France, Austria, and Japan. A pioneer in winter sports and adventure tourism, he possesses extensive expertise in skiing, mountain rescue, outdoor leadership, and expedition management.\n\nHis international credentials include a 1st Degree in Skiing from France, an International Ski Instructor Diploma from Austria, a Mountain & Ski Resort Rescue Management Diploma from France, a Special M.O.T. Ski Diploma from France, and advanced certification from Japan.\n\nAs Senior Technical Advisor to Snow Feather Adventures, he provides expert guidance in skiing, mountaineering, safety management, and adventure training, helping us deliver world-class outdoor experiences with the highest standards of professionalism and safety. His experience, knowledge, and leadership are a valuable asset to our organization.",
+  },
+  {
+    name: "Mrs. Hafeeza Hassan",
+    role: "Senior Advisor, Expert Instructor & Mentor",
+    credentials: "Pioneer of Women's Skiing & Adventure Sports in Jammu & Kashmir",
+    image: "/hafeeza-img.jpeg",
+    quote: "A national champion, pioneering instructor, and enduring inspiration for future generations of women adventurers.",
+    bio:
+      "Snow Feather Adventures is honored to have Mrs. Hafeeza Hassan as our Senior Advisor, Expert Instructor, and Mentor. A legendary skier, educator, and trailblazer in winter sports, she is widely recognized as one of the most accomplished female skiing personalities in Jammu & Kashmir.\n\nWith decades of experience in skiing, mountaineering, coaching, and sports administration, Mrs. Hafeeza Hassan has played a pioneering role in promoting adventure sports and empowering young women through outdoor activities. Throughout her distinguished career, she has trained and inspired hundreds of students, helping shape the future of winter sports in the region.\n\nA multiple-time National Champion, she has won numerous Gold and Silver Medals in National Skiing Championships and has proudly represented India at the First Winter Asian Games in Sapporo, Japan. Her achievements include the prestigious Sher-i-Kashmir Gold Medal, recognition as Best All-Round Skier, and honors as a Top Sportswoman of the Year.\n\nHer contribution extends far beyond medals and championships. As a mentor and role model, she has inspired generations of athletes and played a vital role in expanding opportunities for women in adventure sports across Jammu & Kashmir.\n\nAt Snow Feather Adventures, her expertise, guidance, and vision strengthen our commitment to excellence, safety, and professional adventure training.",
+  },
+  {
+    name: "Mr. Abdul Qayyum Bhat",
+    role: "Senior Skiing, Trekking & Mountaineering Expert",
+    credentials: "Skiing | Trekking | Mountaineering | Rock Climbing",
+    image: "/abdul-img.jpeg",
+    quote: "Experience the mountains with confidence under the guidance of one of Kashmir's most experienced adventure professionals.",
+    bio:
+      "Mr. Abdul Qayyum Bhat is a highly respected skiing professional, accomplished mountaineer, and experienced trekking expert with decades of dedication to adventure sports in Jammu & Kashmir. Known for his exceptional skiing skills, strong leadership, and unwavering commitment to the outdoor community, he has earned recognition as one of the region's most trusted adventure professionals.\n\nA graduate of the prestigious Mountaineering and Skiing Institute (MOI), Mr. Bhat has represented Jammu & Kashmir in numerous National Skiing Championships and has proudly represented India in International Nordic Skiing events. His vast experience spans competitive skiing, mountaineering expeditions, trekking leadership, rock climbing, and outdoor adventure training.\n\nThroughout his distinguished career with the Department of Youth Services & Sports, he has professionally trained and mentored thousands of young skiers, helping them develop technical excellence, discipline, confidence, and a passion for adventure sports.\n\nBeyond his professional achievements, Mr. Bhat is widely admired for his honesty, humility, and generous nature. Always ready to guide, support, and care for others, he has earned the respect and affection of colleagues, students, and adventure enthusiasts alike.\n\nAt Snow Feather Adventures Tours & Travels, Mr. Abdul Qayyum Bhat serves as our Senior Skiing, Trekking, Mountaineering & Rock Climbing Expert, bringing unmatched experience, technical expertise, and a deep love for the mountains. His presence ensures that every adventure is conducted with the highest standards of safety, professionalism, and excellence.",
+  },
+];
+const mentors = ref(loadStoredValue("kashmir-mentors", defaultMentors));
+const openMentorProfiles = ref([]);
 
 const pageSeo = computed(() => {
   const map = {
@@ -669,8 +832,52 @@ const detailWhatsappLink = computed(() => {
   return `https://wa.me/919055020408?text=${encodeURIComponent(message)}`;
 });
 
-const defaultGalleryImages = ["image03", "image04", "image05", "image06", "image09", "image10", "image11", "image13", "image15", "image16", "image17", "image18"];
-const galleryImages = ref(loadStoredValue("kashmir-gallery-images", defaultGalleryImages));
+const publicGalleryImages = [
+  { image: "/images/image1.jpeg", title: "Pahalgam Valley Park", text: "Lush lawns, walking routes, and family-friendly valley scenery." },
+  { image: "/images/image2.jpeg", title: "Kashmir Meadow Village", text: "Traditional mountain homes surrounded by vivid summer meadows." },
+  { image: "/images/image3.jpeg", title: "Dal Lake Shikara", text: "A colorful Shikara gliding through the calm waters of Srinagar." },
+  { image: "/images/image4.jpeg", title: "Pine Forest Retreat", text: "Quiet forest clearings, mountain streams, and rustic Kashmir stays." },
+  { image: "/images/image5.jpeg", title: "Mughal Garden Views", text: "Landscaped gardens, fountains, and mountain-backed Srinagar scenery." },
+  { image: "/images/image6.jpeg", title: "River Rafting Adventure", text: "White-water rafting for groups seeking an exciting Kashmir experience." },
+  { image: "/images/image7.jpeg", title: "Gulmarg Green Slopes", text: "Summer resort views, open trails, and scenic mountain facilities." },
+  { image: "/images/image8.jpeg", title: "High-Altitude Kashmir", text: "Dramatic brown mountains and remote Himalayan settlements." },
+  { image: "/images/image9.jpeg", title: "Glacier Valley Trail", text: "Rocky river routes framed by forest and snow-covered peaks." },
+  { image: "/images/image10.jpeg", title: "Lidder River Valley", text: "A winding blue river flowing through dense pine forests." },
+  { image: "/images/image11.jpeg", title: "Kashmir Mountain Range", text: "Layered Himalayan peaks under soft seasonal light." },
+  { image: "/images/image12.jpeg", title: "Pony Crossing", text: "Local pony routes crossing clear mountain water in the valley." },
+  { image: "/images/image13.jpeg", title: "Meadow Picnic Shelter", text: "A peaceful wooden shelter beside green meadow streams." },
+  { image: "/images/image14.jpeg", title: "Kashmir Saffron", text: "Purple saffron flowers representing Kashmir's prized harvest." },
+  { image: "/images/image15.jpeg", title: "Mountain Waterfall Route", text: "A remote waterfall cutting through a dramatic alpine valley." },
+  { image: "/images/image16.jpeg", title: "Gulmarg Gondola", text: "Cable-car views above the valley and surrounding mountain ranges." },
+  { image: "/images/image17.jpeg", title: "Scenic Kashmir Drive", text: "Private vehicles traveling through landscaped mountain roads." },
+  { image: "/images/image18.jpeg", title: "Sonmarg Road", text: "The mountain highway leading toward Sonmarg and high-altitude routes." },
+  { image: "/images/image19.jpeg", title: "Alpine Waterfall", text: "Fresh glacier water descending through dark mountain rock." },
+  { image: "/images/image20.jpeg", title: "Busy Valley Town", text: "A lively Kashmir destination filled with local movement and color." },
+  { image: "/images/image21.jpeg", title: "Forest Garden", text: "Tall trees, flowing water, and picnic-ready green spaces." },
+  { image: "/images/image22.jpeg", title: "Snow Mountain Pass", text: "A close view of rugged snow walls and Himalayan travel routes." },
+  { image: "/images/image23.jpeg", title: "Mountain Lake Village", text: "A serene lake reflecting colorful homes and green slopes." },
+  { image: "/images/image24.jpeg", title: "Kashmir Garden Walk", text: "Curved garden paths, manicured greenery, and peaceful family time." },
+  { image: "/images/image25.jpeg", title: "Hazratbal & Dal Lake", text: "Srinagar's iconic waterside landmark against the mountain skyline." },
+  { image: "/images/image26.jpeg", title: "River Valley Panorama", text: "A wide aerial view of a river winding through the Himalayas." },
+  { image: "/images/image27.jpeg", title: "Terraced Garden", text: "Formal Kashmir gardens with fountains and carefully shaped greenery." },
+  { image: "/images/image28.jpeg", title: "Mountain Reservoir", text: "Engineering and turquoise water set against rugged mountain terrain." },
+  { image: "/images/image29.jpeg", title: "Open Kashmir Meadow", text: "Visitors enjoying broad green meadows beneath snowy peaks." },
+  { image: "/images/image30.jpeg", title: "Highland Snow Valley", text: "Open alpine terrain, melting snow, and crystal-clear streams." },
+  { image: "/images/image31.jpeg", title: "Himalayan Trek View", text: "High mountain ridges and trekking landscapes beneath dramatic clouds." },
+  { image: "/images/image32.jpeg", title: "Remote Green Valley", text: "Untouched rolling hills and a small mountain shelter." },
+  { image: "/images/image33.jpeg", title: "Snow Peaks of Kashmir", text: "A broad mountain skyline viewed from the valley floor." },
+  { image: "/images/image34.jpeg", title: "Forest Horse Trail", text: "Horse-riding routes through quiet woodland meadows." },
+  { image: "/images/image35.jpeg", title: "Srinagar Panorama", text: "A sunset city view stretching across Srinagar and its surrounding hills." },
+  { image: "/images/image36.jpeg", title: "Mountain River Journey", text: "Fast-moving Himalayan water beside forested road routes." },
+  { image: "/images/image37.jpeg", title: "Alpine Lake Trek", text: "A spectacular high-altitude lake reached through mountain trekking." },
+  { image: "/images/image38.jpeg", title: "Valley Road & Peaks", text: "Open green valley roads with a sweeping Himalayan backdrop." },
+  { image: "/images/image39.jpeg", title: "River & Mountain Meadow", text: "A pristine river running through one of Kashmir's remote valleys." },
+  { image: "/images/image40.jpeg", title: "Winter Village", text: "Snow-covered homes and trees capturing Kashmir's quiet winter beauty." },
+];
+
+const legacyGalleryImages = ["image03", "image04", "image05", "image06", "image09", "image10", "image11", "image13", "image15", "image16", "image17", "image18"];
+const defaultGalleryImages = [...publicGalleryImages, ...legacyGalleryImages];
+const galleryImages = ref(loadStoredValue("kashmir-gallery-images-v2", defaultGalleryImages));
 
 const galleryImageDetails = {
   image03: ["Gulmarg Meadows", "Open valley views with alpine slopes and quiet picnic routes."],
@@ -723,10 +930,10 @@ function updateGalleryImageField(index, field, value) {
 }
 
 const defaultGalleryCollections = [
-  { title: "Snow Days", image: "image08", text: "Gulmarg skiing, snowmobile rides, Gondola views, and winter portraits for families, couples, and groups." },
-  { title: "Lake Life", image: "image22", text: "Dal Lake houseboats, Shikara rides, floating market mornings, sunset frames, and slow Srinagar evenings." },
-  { title: "Valley Routes", image: "image19", text: "Pahalgam meadows, pine roads, Betaab Valley, Aru Valley, and riverside picnic stops." },
-  { title: "Golden Hours", image: "image14", text: "Honeymoon shoots, garden walks, private cab pauses, and soft light around Kashmir's best viewpoints." },
+  { title: "Snow Days", image: "/images/image40.jpeg", text: "Winter villages, Gulmarg skiing, Gondola views, snow activities, and quiet Himalayan mornings." },
+  { title: "Lake Life", image: "/images/image3.jpeg", text: "Dal Lake Shikara rides, houseboats, waterfront landmarks, and slow Srinagar evenings." },
+  { title: "Valley Routes", image: "/images/image39.jpeg", text: "Pahalgam, Sonmarg, Gurez, pine roads, riverside trails, and broad mountain meadows." },
+  { title: "Adventure Kashmir", image: "/images/image6.jpeg", text: "Rafting, trekking, high-altitude lakes, horse trails, Gondola rides, and outdoor experiences." },
 ];
 const galleryCollections = ref(loadStoredValue("kashmir-gallery-collections", defaultGalleryCollections));
 
@@ -935,7 +1142,32 @@ function toggleFaq(index) {
   openFaqs.value = openFaqs.value.includes(index) ? openFaqs.value.filter((item) => item !== index) : [...openFaqs.value, index];
 }
 
-const bookingForm = ref({ name: "", email: "", phone: "", details: "" });
+function toggleMentorProfile(index) {
+  openMentorProfiles.value = openMentorProfiles.value.includes(index)
+    ? openMentorProfiles.value.filter((item) => item !== index)
+    : [...openMentorProfiles.value, index];
+}
+
+function mentorParagraphs(profile) {
+  return String(profile?.bio || "")
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+}
+
+function mentorPortraitStyle(profile) {
+  const needsBorderCrop = String(profile?.name || "").toLowerCase().includes("hafeeza");
+  return { transform: `scale(${needsBorderCrop ? 1.035 : 1})` };
+}
+
+function moveManagedItem(collection, index, direction) {
+  const nextIndex = index + direction;
+  if (nextIndex < 0 || nextIndex >= collection.length) return;
+  const [item] = collection.splice(index, 1);
+  collection.splice(nextIndex, 0, item);
+}
+
+const bookingForm = ref({ name: "", email: "", phone: "", destination: "", travelDate: "", guests: 2, details: "" });
 const bookingFormStatus = ref("");
 
 function validateEmail(email) {
@@ -1148,11 +1380,14 @@ function submitContactForm() {
   Name: ${bookingForm.value.name}
   Email: ${bookingForm.value.email}
   Phone: ${bookingForm.value.phone}
+  Destination: ${bookingForm.value.destination || "Not selected"}
+  Travel Date: ${bookingForm.value.travelDate || "Not selected"}
+  Guests: ${bookingForm.value.guests || "Not specified"}
   Details: ${bookingForm.value.details}
   `;
 
   window.location.href = `https://wa.me/919055020408?text=${encodeURIComponent(message)}`;
-  bookingForm.value = { name: "", email: "", phone: "", details: "" };
+  bookingForm.value = { name: "", email: "", phone: "", destination: "", travelDate: "", guests: 2, details: "" };
   resetRecaptchaWidget("contact");
 }
 
@@ -1177,7 +1412,7 @@ function logoutAdmin() {
 function saveAdminChanges() {
   localStorage.setItem("kashmir-site-content-v3", JSON.stringify(siteContent.value));
   localStorage.setItem("kashmir-packages-premium-v3", JSON.stringify(packages.value));
-  localStorage.setItem("kashmir-gallery-images", JSON.stringify(galleryImages.value));
+  localStorage.setItem("kashmir-gallery-images-v2", JSON.stringify(galleryImages.value));
   localStorage.setItem("kashmir-gallery-collections", JSON.stringify(galleryCollections.value));
   localStorage.setItem("kashmir-gallery-highlights", JSON.stringify(galleryHighlights.value));
   localStorage.setItem("kashmir-blog-posts", JSON.stringify(blogPosts.value));
@@ -1193,6 +1428,12 @@ function saveAdminChanges() {
   localStorage.setItem("kashmir-route-ideas", JSON.stringify(routeIdeas.value));
   localStorage.setItem("kashmir-booking-steps", JSON.stringify(bookingSteps.value));
   localStorage.setItem("kashmir-registration-details", JSON.stringify(registrationDetails.value));
+  localStorage.setItem("kashmir-experience-stats", JSON.stringify(experienceStats.value));
+  localStorage.setItem("kashmir-accommodation-categories", JSON.stringify(accommodationCategories.value));
+  localStorage.setItem("kashmir-service-groups", JSON.stringify(serviceGroups.value));
+  localStorage.setItem("kashmir-trust-guarantees", JSON.stringify(trustGuarantees.value));
+  localStorage.setItem("kashmir-testimonials", JSON.stringify(testimonials.value));
+  localStorage.setItem("kashmir-mentors", JSON.stringify(mentors.value));
   adminSaved.value = "Saved. Website content updated in this browser.";
   window.setTimeout(() => {
     adminSaved.value = "";
@@ -1218,6 +1459,12 @@ function resetAdminChanges() {
   routeIdeas.value = defaultRouteIdeas.map((item) => [...item]);
   bookingSteps.value = defaultBookingSteps.map((item) => [...item]);
   registrationDetails.value = defaultRegistrationDetails.map((item) => [...item]);
+  experienceStats.value = defaultExperienceStats.map((item) => [...item]);
+  accommodationCategories.value = defaultAccommodationCategories.map((item) => ({ ...item, features: [...item.features] }));
+  serviceGroups.value = defaultServiceGroups.map((item) => ({ ...item, items: [...item.items] }));
+  trustGuarantees.value = [...defaultTrustGuarantees];
+  testimonials.value = defaultTestimonials.map((item) => ({ ...item }));
+  mentors.value = defaultMentors.map((item) => ({ ...item }));
   selectedPackage.value = packages.value[0]?.price || 0;
   localStorage.removeItem("kashmir-site-content");
   localStorage.removeItem("kashmir-site-content-v2");
@@ -1226,6 +1473,7 @@ function resetAdminChanges() {
   localStorage.removeItem("kashmir-packages-premium-v2");
   localStorage.removeItem("kashmir-packages-premium-v3");
   localStorage.removeItem("kashmir-gallery-images");
+  localStorage.removeItem("kashmir-gallery-images-v2");
   localStorage.removeItem("kashmir-gallery-collections");
   localStorage.removeItem("kashmir-gallery-highlights");
   localStorage.removeItem("kashmir-blog-posts");
@@ -1241,6 +1489,12 @@ function resetAdminChanges() {
   localStorage.removeItem("kashmir-route-ideas");
   localStorage.removeItem("kashmir-booking-steps");
   localStorage.removeItem("kashmir-registration-details");
+  localStorage.removeItem("kashmir-experience-stats");
+  localStorage.removeItem("kashmir-accommodation-categories");
+  localStorage.removeItem("kashmir-service-groups");
+  localStorage.removeItem("kashmir-trust-guarantees");
+  localStorage.removeItem("kashmir-testimonials");
+  localStorage.removeItem("kashmir-mentors");
   adminSaved.value = "Reset to default content.";
 }
 
@@ -1310,6 +1564,20 @@ function updateManagedImage(event, collection, index, imageIndex) {
   readImageFile(event, (result) => {
     collection[index][imageIndex] = result;
   });
+}
+
+function updateManagedObjectImage(event, collection, index, field = "image") {
+  readImageFile(event, (result) => {
+    collection[index][field] = result;
+  });
+}
+
+function commaList(value) {
+  return Array.isArray(value) ? value.join(", ") : "";
+}
+
+function updateCommaList(target, field, value) {
+  target[field] = textListToArray(value);
 }
 
 function addPackage() {
@@ -1558,6 +1826,12 @@ onUnmounted(() => {
           <label class="grid gap-2 text-sm font-bold lg:col-span-3">Hero subtitle
             <textarea v-model="siteContent.heroSubtitle" class="min-h-24 rounded-lg border border-white/[0.18] bg-white px-4 py-3 text-night"></textarea>
           </label>
+          <label class="grid gap-2 text-sm font-bold lg:col-span-2">Experience line
+            <input v-model="siteContent.experienceLine" class="rounded-lg border border-white/[0.18] bg-white px-4 py-3 text-night" />
+          </label>
+          <label class="grid gap-2 text-sm font-bold lg:col-span-3">Trust promise
+            <textarea v-model="siteContent.trustPromise" class="min-h-20 rounded-lg border border-white/[0.18] bg-white px-4 py-3 text-night"></textarea>
+          </label>
         </div>
 
         <div class="mt-6 rounded-lg border border-white/[0.12] bg-white/[0.08] p-4">
@@ -1706,6 +1980,9 @@ onUnmounted(() => {
             <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] lg:col-span-3">Contact address
               <textarea v-model="siteContent.contactAddress" class="min-h-20 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night"></textarea>
             </label>
+            <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] lg:col-span-3">Google Maps search query
+              <input v-model="siteContent.mapQuery" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
+            </label>
           </div>
         </div>
 
@@ -1726,6 +2003,118 @@ onUnmounted(() => {
                   <button type="button" class="justify-self-start rounded-lg border border-gold/40 px-3 py-2 text-xs font-black text-gold" @click="deleteManagedItem(purposeCards, index)">Delete</button>
                 </article>
                 <button type="button" class="justify-self-start rounded-lg bg-white px-4 py-2 text-sm font-black text-night" @click="addManagedItem(purposeCards, { label: 'New value', title: 'New title', text: 'Add description' })">Add Card</button>
+              </div>
+            </details>
+
+            <details class="rounded-lg border border-white/[0.12] bg-white/[0.06] p-4">
+              <summary class="cursor-pointer font-black">Mentors and adventure experts</summary>
+              <div class="mt-4">
+                <div class="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                  <p class="text-sm text-white/[0.68]">Add, edit, reorder, replace portraits, or delete profiles shown on the About page.</p>
+                  <button type="button" class="rounded-lg bg-white px-4 py-2 text-sm font-black text-night" @click="addManagedItem(mentors, { name: 'New Mentor', role: 'Advisor', credentials: 'Add credentials', image: '/snow-feather-adventures-logo-v2.png', quote: 'Add a short profile quote.', bio: 'Add the full biography here.' })">Add Mentor</button>
+                </div>
+                <div class="grid gap-4">
+                  <article v-for="(mentor, index) in mentors" :key="`admin-mentor-${index}`" class="rounded-lg border border-white/[0.12] bg-white/[0.05] p-4">
+                    <div class="grid gap-4 lg:grid-cols-[12rem_1fr]">
+                      <div>
+                        <div class="image-cover h-56 rounded-lg" :style="imageStyle(mentor.image)"></div>
+                        <label class="mt-2 block cursor-pointer rounded-lg border border-white/20 px-3 py-2 text-center text-xs font-black">Replace portrait<input type="file" accept="image/*" class="hidden" @change="updateManagedObjectImage($event, mentors, index)" /></label>
+                        <div class="mt-2 grid grid-cols-2 gap-2">
+                          <button type="button" :disabled="index === 0" class="rounded-lg border border-white/20 px-2 py-2 text-xs font-black disabled:opacity-30" @click="moveManagedItem(mentors, index, -1)">Move Up</button>
+                          <button type="button" :disabled="index === mentors.length - 1" class="rounded-lg border border-white/20 px-2 py-2 text-xs font-black disabled:opacity-30" @click="moveManagedItem(mentors, index, 1)">Move Down</button>
+                        </div>
+                        <button type="button" class="mt-2 w-full rounded-lg border border-gold/40 px-3 py-2 text-xs font-black text-gold" @click="deleteManagedItem(mentors, index)">Delete Profile</button>
+                      </div>
+                      <div class="grid gap-3 md:grid-cols-2">
+                        <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/70">Full name
+                          <input v-model="mentor.name" class="bg-white text-night" />
+                        </label>
+                        <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/70">Role
+                          <input v-model="mentor.role" class="bg-white text-night" />
+                        </label>
+                        <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/70 md:col-span-2">Credentials
+                          <input v-model="mentor.credentials" class="bg-white text-night" />
+                        </label>
+                        <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/70 md:col-span-2">Featured quote
+                          <textarea v-model="mentor.quote" class="min-h-20 bg-white text-night"></textarea>
+                        </label>
+                        <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/70 md:col-span-2">Full biography
+                          <textarea v-model="mentor.bio" class="min-h-72 bg-white text-night"></textarea>
+                        </label>
+                      </div>
+                    </div>
+                  </article>
+                </div>
+              </div>
+            </details>
+
+            <details class="rounded-lg border border-white/[0.12] bg-white/[0.06] p-4">
+              <summary class="cursor-pointer font-black">Homepage experience, stays, services, trust, and reviews</summary>
+              <div class="mt-4 grid gap-6">
+                <div>
+                  <p class="mb-2 text-xs font-black uppercase tracking-wide text-gold">Experience statistics</p>
+                  <div class="grid gap-2 md:grid-cols-4">
+                    <div v-for="(item, index) in experienceStats" :key="`admin-stat-${index}`" class="grid gap-2 rounded-lg border border-white/12 p-3">
+                      <input v-model="item[0]" placeholder="Value" class="bg-white text-night" />
+                      <input v-model="item[1]" placeholder="Label" class="bg-white text-night" />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <p class="mb-2 text-xs font-black uppercase tracking-wide text-gold">Accommodation categories</p>
+                  <div class="grid gap-3 md:grid-cols-2">
+                    <article v-for="(stay, index) in accommodationCategories" :key="`admin-stay-${index}`" class="rounded-lg border border-white/12 p-3">
+                      <div class="image-cover h-32 rounded-lg" :style="imageStyle(stay.image)"></div>
+                      <div class="mt-3 grid gap-2 sm:grid-cols-2">
+                        <input v-model="stay.name" placeholder="Category name" class="bg-white text-night" />
+                        <input v-model="stay.tagline" placeholder="Tagline" class="bg-white text-night" />
+                        <input v-model="stay.price" placeholder="Sample price" class="bg-white text-night sm:col-span-2" />
+                        <textarea :value="commaList(stay.features)" placeholder="Facilities, separated by commas" class="min-h-20 bg-white text-night sm:col-span-2" @input="updateCommaList(stay, 'features', $event.target.value)"></textarea>
+                      </div>
+                      <label class="mt-2 inline-block cursor-pointer rounded-lg border border-white/20 px-3 py-2 text-xs font-black">Change image<input type="file" accept="image/*" class="hidden" @change="updateManagedObjectImage($event, accommodationCategories, index)" /></label>
+                    </article>
+                  </div>
+                </div>
+
+                <div>
+                  <p class="mb-2 text-xs font-black uppercase tracking-wide text-gold">Service groups</p>
+                  <div class="grid gap-3 lg:grid-cols-3">
+                    <article v-for="(service, index) in serviceGroups" :key="`admin-service-${index}`" class="grid gap-2 rounded-lg border border-white/12 p-3">
+                      <input v-model="service.number" placeholder="Number" class="bg-white text-night" />
+                      <input v-model="service.title" placeholder="Title" class="bg-white text-night" />
+                      <textarea v-model="service.text" placeholder="Description" class="min-h-20 bg-white text-night"></textarea>
+                      <textarea :value="commaList(service.items)" placeholder="Services, separated by commas" class="min-h-20 bg-white text-night" @input="updateCommaList(service, 'items', $event.target.value)"></textarea>
+                    </article>
+                  </div>
+                </div>
+
+                <div>
+                  <p class="mb-2 text-xs font-black uppercase tracking-wide text-gold">Trust guarantees</p>
+                  <div class="grid gap-2 md:grid-cols-2">
+                    <div v-for="(item, index) in trustGuarantees" :key="`admin-trust-${index}`" class="flex gap-2">
+                      <input v-model="trustGuarantees[index]" class="min-w-0 flex-1 bg-white text-night" />
+                      <button type="button" class="text-xs font-black text-gold" @click="deleteManagedItem(trustGuarantees, index)">Delete</button>
+                    </div>
+                  </div>
+                  <button type="button" class="mt-2 rounded-lg bg-white px-3 py-2 text-xs font-black text-night" @click="addManagedItem(trustGuarantees, 'New guarantee')">Add Guarantee</button>
+                </div>
+
+                <div>
+                  <p class="mb-2 text-xs font-black uppercase tracking-wide text-gold">Testimonials</p>
+                  <div class="grid gap-3 lg:grid-cols-3">
+                    <article v-for="(review, index) in testimonials" :key="`admin-review-${index}`" class="rounded-lg border border-white/12 p-3">
+                      <div class="image-cover h-28 rounded-lg" :style="imageStyle(review.image)"></div>
+                      <div class="mt-3 grid gap-2">
+                        <input v-model="review.name" placeholder="Guest name" class="bg-white text-night" />
+                        <input v-model="review.trip" placeholder="Trip name" class="bg-white text-night" />
+                        <input v-model="review.rating" placeholder="Rating" class="bg-white text-night" />
+                        <textarea v-model="review.text" placeholder="Review" class="min-h-24 bg-white text-night"></textarea>
+                      </div>
+                      <label class="mt-2 inline-block cursor-pointer rounded-lg border border-white/20 px-3 py-2 text-xs font-black">Change photo<input type="file" accept="image/*" class="hidden" @change="updateManagedObjectImage($event, testimonials, index)" /></label>
+                    </article>
+                  </div>
+                </div>
               </div>
             </details>
 
@@ -2216,24 +2605,34 @@ onUnmounted(() => {
 
     <main>
       <section v-if="currentPage === 'home'" class="hero-media relative flex min-h-screen overflow-hidden pt-28 text-white" :style="heroStyle">
-        <div class="mx-auto flex w-full max-w-7xl flex-col justify-end gap-8 px-4 pb-14 pt-16 sm:px-6 lg:pb-20">
-          <div class="max-w-3xl">
-            <p class="mb-5 inline-flex rounded-lg border border-white/20 bg-white/[0.12] px-4 py-2 text-xs font-black uppercase tracking-[0.18em] backdrop-blur">{{ siteContent.heroBadge }}</p>
-            <h1 class="font-display text-4xl font-extrabold leading-[1.04] sm:text-5xl lg:text-6xl xl:text-7xl">{{ siteContent.heroTitle }}</h1>
-            <p class="mt-5 max-w-xl text-base leading-7 text-white/[0.86] sm:text-lg">{{ siteContent.heroSubtitle }}</p>
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_78%_22%,rgba(216,169,79,0.22),transparent_28%)]"></div>
+        <div class="relative mx-auto grid w-full max-w-7xl items-end gap-10 px-4 pb-14 pt-16 sm:px-6 lg:grid-cols-[1fr_0.42fr] lg:pb-20">
+          <div class="max-w-4xl">
+            <p class="mb-5 inline-flex rounded-full border border-gold/35 bg-night/40 px-5 py-2.5 text-xs font-black uppercase tracking-[0.18em] text-gold backdrop-blur">{{ siteContent.heroBadge }}</p>
+            <p class="mb-3 text-sm font-black uppercase tracking-[0.24em] text-white/70">Snow Feather Adventures • Tours & Travels Kashmir</p>
+            <h1 class="font-display text-4xl font-extrabold leading-[1.02] sm:text-5xl lg:text-6xl xl:text-7xl">{{ siteContent.heroTitle }}</h1>
+            <p class="mt-5 max-w-2xl text-base font-semibold leading-8 text-white/[0.82] sm:text-lg">{{ siteContent.heroSubtitle }}</p>
+            <p class="mt-4 border-l-2 border-gold pl-4 text-sm font-black uppercase tracking-[0.13em] text-gold">{{ siteContent.experienceLine }}</p>
 
-            <div class="mt-7 flex flex-col gap-3 sm:flex-row">
-              <a href="/booking" class="rounded-lg bg-gold px-6 py-3.5 text-center text-sm font-black text-night shadow-premium hover:bg-white" @click.prevent="navigateTo('/booking')">Book Now</a>
-              <a href="/packages" class="rounded-lg border border-white/[0.24] bg-white/[0.12] px-6 py-3.5 text-center text-sm font-black text-white backdrop-blur hover:bg-white/[0.18]" @click.prevent="navigateTo('/packages')">Explore Packages</a>
-              <a href="https://wa.me/919055020408?text=I%20want%20instant%20Kashmir%20booking%20support" class="rounded-lg border border-white/[0.24] bg-white px-6 py-3.5 text-center text-sm font-black text-night hover:bg-frost">WhatsApp Now</a>
+            <div class="mt-8 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
+              <a href="/booking" class="rounded-lg bg-gold px-6 py-3.5 text-center text-sm font-black text-night shadow-premium hover:bg-white" @click.prevent="navigateTo('/booking')">Enquire Now</a>
+              <a href="https://wa.me/919055020408?text=I%20want%20to%20plan%20a%20Kashmir%20tour" class="rounded-lg bg-[#25D366] px-6 py-3.5 text-center text-sm font-black text-white shadow-premium hover:bg-white hover:text-night">WhatsApp Us</a>
+              <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="rounded-lg border border-white/25 bg-white/12 px-6 py-3.5 text-center text-sm font-black text-white backdrop-blur hover:bg-white hover:text-night">Call Now</a>
+              <a href="/packages" class="rounded-lg border border-white/25 bg-night/30 px-6 py-3.5 text-center text-sm font-black text-white backdrop-blur hover:bg-white hover:text-night" @click.prevent="navigateTo('/packages')">View Packages</a>
             </div>
           </div>
 
-          <div class="grid gap-3 sm:grid-cols-3 lg:max-w-3xl">
-            <div class="rounded-lg border border-white/20 bg-white/[0.12] p-4 backdrop-blur"><p class="text-2xl font-black">4.9</p><p class="mt-1 text-xs font-bold text-white/70">Guest rating</p></div>
-            <div class="rounded-lg border border-white/20 bg-white/[0.12] p-4 backdrop-blur"><p class="text-2xl font-black">24/7</p><p class="mt-1 text-xs font-bold text-white/70">Support</p></div>
-            <div class="rounded-lg border border-white/20 bg-white/[0.12] p-4 backdrop-blur"><p class="text-2xl font-black">120+</p><p class="mt-1 text-xs font-bold text-white/70">Tour plans</p></div>
-          </div>
+          <aside class="hidden rounded-lg border border-white/16 bg-night/48 p-5 shadow-premium backdrop-blur-xl lg:block">
+            <p class="text-xs font-black uppercase tracking-[0.2em] text-gold">Our promise</p>
+            <p class="mt-3 font-display text-2xl font-extrabold leading-tight">Travel Kashmir with complete confidence.</p>
+            <div class="mt-5 grid gap-3 text-sm font-bold text-white/78">
+              <p>✓ Transparent pricing</p>
+              <p>✓ No hidden charges</p>
+              <p>✓ No false promises</p>
+              <p>✓ Genuine local expertise</p>
+              <p>✓ Professional trip support</p>
+            </div>
+          </aside>
         </div>
       </section>
 
@@ -2244,6 +2643,78 @@ onUnmounted(() => {
             <div class="absolute inset-0 bg-gradient-to-t from-night/90 via-night/25 to-transparent"></div>
             <span class="absolute inset-x-0 bottom-0 p-3 text-sm font-black text-white">{{ name }}</span>
           </button>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'home'" class="bg-white py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+            <div>
+              <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Established Kashmir expertise</p>
+              <h2 class="mt-3 font-display text-4xl font-extrabold leading-tight text-night sm:text-5xl">Thirty years of planning journeys people remember for life.</h2>
+              <p class="mt-5 text-base font-semibold leading-8 text-night/[0.62]">Our local team brings together honest advice, destination knowledge, adventure expertise, comfortable stays, dependable transport, and warm Kashmiri hospitality. Every itinerary is personalized around your dates, interests, comfort, and budget.</p>
+              <div class="mt-6 rounded-lg border border-gold/25 bg-gold/10 p-5">
+                <p class="font-black leading-7 text-night">{{ siteContent.trustPromise }}</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <article v-for="[value, label] in experienceStats" :key="label" class="rounded-lg border border-night/[0.08] bg-frost p-6 shadow-lift">
+                <p class="font-display text-4xl font-extrabold text-lake sm:text-5xl">{{ value }}</p>
+                <p class="mt-2 text-sm font-black uppercase tracking-[0.12em] text-night/60">{{ label }}</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'home'" class="section-band py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="mb-9 max-w-4xl">
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Accommodation categories</p>
+            <h2 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">Stay your way, from trusted value to private luxury.</h2>
+            <p class="mt-4 text-base leading-7 text-night/[0.62]">Clear accommodation classes make it easy to compare comfort, facilities, service, and expected pricing before you enquire.</p>
+          </div>
+          <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            <article v-for="stay in accommodationCategories" :key="stay.name" class="group flex h-full flex-col overflow-hidden rounded-lg border border-night/[0.08] bg-white shadow-premium">
+              <div class="relative h-56 overflow-hidden">
+                <div class="image-cover h-full transition duration-500 group-hover:scale-105" :style="imageStyle(stay.image)"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-night/85 via-transparent to-transparent"></div>
+                <div class="absolute inset-x-0 bottom-0 p-5 text-white">
+                  <p class="text-xs font-black uppercase tracking-[0.18em] text-gold">{{ stay.tagline }}</p>
+                  <h3 class="mt-1 font-display text-3xl font-extrabold">{{ stay.name }}</h3>
+                </div>
+              </div>
+              <div class="flex flex-1 flex-col p-5">
+                <div class="grid gap-2 text-sm font-semibold text-night/65">
+                  <p v-for="feature in stay.features" :key="`${stay.name}-${feature}`">✓ {{ feature }}</p>
+                </div>
+                <div class="mt-auto border-t border-night/10 pt-5">
+                  <p class="font-display text-xl font-extrabold text-lake">{{ stay.price }}</p>
+                  <button type="button" class="mt-4 w-full rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake" @click="navigateTo('/booking')">Enquire for {{ stay.name }}</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'home'" class="relative overflow-hidden bg-night py-20 text-white">
+        <div class="absolute inset-0 opacity-15 image-cover" :style="imageStyle('image20')"></div>
+        <div class="relative mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="mb-10 max-w-4xl">
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-gold">Everything under one roof</p>
+            <h2 class="mt-3 font-display text-4xl font-extrabold sm:text-5xl">Tours, adventure, and transportation—professionally coordinated.</h2>
+          </div>
+          <div class="grid gap-5 lg:grid-cols-3">
+            <article v-for="service in serviceGroups" :key="service.title" class="rounded-lg border border-white/12 bg-white/8 p-6 backdrop-blur">
+              <p class="font-display text-4xl font-extrabold text-gold">{{ service.number }}</p>
+              <h3 class="mt-4 text-3xl font-black">{{ service.title }}</h3>
+              <p class="mt-3 text-sm font-semibold leading-6 text-white/62">{{ service.text }}</p>
+              <div class="mt-5 flex flex-wrap gap-2">
+                <span v-for="item in service.items" :key="item" class="rounded-full border border-white/12 bg-white/8 px-3 py-2 text-xs font-bold text-white/80">{{ item }}</span>
+              </div>
+            </article>
+          </div>
         </div>
       </section>
 
@@ -2381,6 +2852,46 @@ onUnmounted(() => {
 
           </div>
 
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'about'" class="section-band py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="mx-auto mb-12 max-w-4xl text-center">
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Our mentors & adventure legends</p>
+            <h2 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">Experience shaped by pioneers of Indian winter and adventure sports.</h2>
+            <p class="mt-5 text-base font-semibold leading-8 text-night/[0.62]">Our advisors, Olympic leaders, instructors, and mountain experts strengthen every Snow Feather adventure with decades of technical knowledge, safety leadership, athlete development, and Himalayan experience.</p>
+          </div>
+
+          <div class="grid gap-6 lg:grid-cols-2">
+            <article v-for="(mentor, index) in mentors" :key="mentor.name" class="overflow-hidden rounded-lg border border-night/[0.08] bg-white shadow-premium">
+              <div class="grid sm:grid-cols-[14rem_1fr]">
+                <div class="relative aspect-[4/5] overflow-hidden bg-frost sm:aspect-auto sm:min-h-[25rem]">
+                  <img :src="mentor.image" :alt="mentor.name" class="absolute inset-0 h-full w-full object-cover object-top" :style="mentorPortraitStyle(mentor)" loading="lazy" />
+                  <div class="absolute inset-0 bg-gradient-to-t from-night/55 via-transparent to-transparent"></div>
+                  <span class="absolute bottom-4 left-4 rounded-full bg-gold px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-night">Expert {{ String(index + 1).padStart(2, '0') }}</span>
+                </div>
+                <div class="flex flex-col p-6">
+                  <p class="text-xs font-black uppercase tracking-[0.16em] text-lake">{{ mentor.role }}</p>
+                  <h3 class="mt-2 font-display text-3xl font-extrabold leading-tight text-night">{{ mentor.name }}</h3>
+                  <p class="mt-3 text-sm font-black leading-6 text-gold">{{ mentor.credentials }}</p>
+                  <p class="mt-4 border-l-2 border-lake pl-4 text-sm font-semibold italic leading-6 text-night/[0.62]">“{{ mentor.quote }}”</p>
+
+                  <div v-if="openMentorProfiles.includes(index)" class="mt-5 grid gap-4 border-t border-night/[0.08] pt-5">
+                    <p v-for="(paragraph, paragraphIndex) in mentorParagraphs(mentor)" :key="`${mentor.name}-${paragraphIndex}`" class="text-sm font-semibold leading-7 text-night/[0.64]">{{ paragraph }}</p>
+                  </div>
+                  <button type="button" class="mt-5 self-start rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake" :aria-expanded="openMentorProfiles.includes(index)" @click="toggleMentorProfile(index)">
+                    {{ openMentorProfiles.includes(index) ? "Close Profile" : "Read Full Profile" }}
+                  </button>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="mt-10 rounded-lg bg-night p-6 text-center text-white shadow-premium sm:p-8">
+            <p class="font-display text-2xl font-extrabold sm:text-3xl">Guided by experience. Driven by safety. Committed to excellence.</p>
+            <p class="mx-auto mt-3 max-w-3xl text-sm font-semibold leading-7 text-white/68">Their association with Snow Feather Adventures is a source of pride and a promise that our skiing, trekking, mountaineering, and outdoor programs remain rooted in professional leadership.</p>
+          </div>
         </div>
       </section>
 
@@ -3065,6 +3576,72 @@ onUnmounted(() => {
         </div>
       </section>
 
+      <section v-if="currentPage === 'home'" class="bg-white py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
+            <div class="lg:sticky lg:top-28">
+              <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Why choose us</p>
+              <h2 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">Confidence is part of every package.</h2>
+              <p class="mt-5 text-base font-semibold leading-8 text-night/[0.62]">Thirty years in Kashmir tourism taught us that trust is built through clear information, realistic promises, responsive support, and consistent delivery.</p>
+              <button type="button" class="mt-7 rounded-lg bg-gold px-6 py-3.5 text-sm font-black text-night shadow-lift hover:bg-night hover:text-white" @click="navigateTo('/contact')">Talk To Our Team</button>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div v-for="item in trustGuarantees" :key="item" class="flex min-h-20 items-center gap-4 rounded-lg border border-night/[0.08] bg-frost p-4 shadow-lift">
+                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-lake text-sm font-black text-white">✓</span>
+                <p class="font-black text-night">{{ item }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'home'" class="bg-white py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="mb-9 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div class="max-w-4xl">
+              <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Guided by legends</p>
+              <h2 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">Olympians, pioneers, instructors, and Himalayan experts.</h2>
+              <p class="mt-4 text-base font-semibold leading-7 text-night/[0.62]">Our advisory team brings generations of winter-sports leadership, international training, mountain knowledge, and safety expertise to Snow Feather Adventures.</p>
+            </div>
+            <button type="button" class="self-start rounded-lg bg-night px-6 py-3 text-sm font-black text-white hover:bg-lake lg:self-auto" @click="navigateTo('/about')">Meet Our Mentors</button>
+          </div>
+          <div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+            <button v-for="mentor in mentors" :key="`home-mentor-${mentor.name}`" type="button" class="group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-night/[0.08] bg-white text-left shadow-lift" @click="navigateTo('/about')">
+              <div class="relative aspect-[4/5] w-full shrink-0 overflow-hidden bg-frost">
+                <img :src="mentor.image" :alt="mentor.name" class="h-full w-full object-cover object-top transition duration-500" :style="mentorPortraitStyle(mentor)" loading="lazy" />
+                <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-night/[0.06]"></div>
+              </div>
+              <div class="relative flex min-h-28 flex-1 flex-col border-t border-night/[0.08] bg-white p-3">
+                <p class="line-clamp-2 min-h-10 text-sm font-black leading-5 text-night">{{ mentor.name }}</p>
+                <p class="mt-2 line-clamp-3 min-h-12 text-[0.68rem] font-bold uppercase leading-4 tracking-[0.1em] text-lake">{{ mentor.role }}</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'home'" class="section-band py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="mb-9 text-center">
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Guest stories</p>
+            <h2 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">Trusted by families, couples, and adventurers.</h2>
+          </div>
+          <div class="grid gap-5 lg:grid-cols-3">
+            <article v-for="review in testimonials" :key="review.name" class="rounded-lg border border-night/[0.08] bg-white p-6 shadow-premium">
+              <div class="flex items-center gap-4">
+                <div class="image-cover h-14 w-14 rounded-full" :style="imageStyle(review.image)"></div>
+                <div>
+                  <h3 class="font-black text-night">{{ review.name }}</h3>
+                  <p class="text-xs font-bold uppercase tracking-[0.12em] text-lake">{{ review.trip }}</p>
+                </div>
+                <span class="ml-auto rounded-full bg-gold/15 px-3 py-2 text-sm font-black text-gold">★ {{ review.rating }}</span>
+              </div>
+              <p class="mt-5 text-sm font-semibold leading-7 text-night/[0.62]">“{{ review.text }}”</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section v-if="currentPage === 'home'" id="gallery" class="section-band py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-8 max-w-4xl">
@@ -3082,6 +3659,23 @@ onUnmounted(() => {
               </div>
             </div>
             <!-- <div class="dark-panel grid h-72 place-items-center rounded-lg p-6 text-center text-white"><div><p class="text-sm font-black uppercase tracking-[0.2em] text-gold">Video Gallery</p><p class="mt-3 text-3xl font-black">Play reels, drone shots, and customer clips here.</p></div></div> -->
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'home'" class="relative overflow-hidden bg-night py-20 text-white">
+        <div class="image-cover absolute inset-0 opacity-25" :style="imageStyle('image22')"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-night via-night/90 to-alpine/70"></div>
+        <div class="relative mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_0.82fr] lg:items-center">
+          <div>
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-gold">Plan your Kashmir journey</p>
+            <h2 class="mt-3 font-display text-4xl font-extrabold sm:text-5xl">One conversation can turn your Kashmir idea into a clear plan.</h2>
+            <p class="mt-5 max-w-2xl text-base font-semibold leading-8 text-white/70">Share your destination, dates, group size, and preferred comfort. Our local team will suggest the right route, stay, transport, activities, and transparent price range.</p>
+          </div>
+          <div class="grid gap-3 rounded-lg border border-white/14 bg-white/10 p-5 backdrop-blur">
+            <a href="https://wa.me/919055020408?text=I%20want%20a%20Kashmir%20tour%20quotation" class="rounded-lg bg-[#25D366] px-6 py-4 text-center text-base font-black text-white">WhatsApp For A Quote</a>
+            <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="rounded-lg bg-white px-6 py-4 text-center text-base font-black text-night">Call {{ siteContent.contactPhone }}</a>
+            <button type="button" class="rounded-lg border border-white/18 px-6 py-4 text-base font-black text-white" @click="navigateTo('/booking')">Send Enquiry Form</button>
           </div>
         </div>
       </section>
@@ -3303,18 +3897,18 @@ onUnmounted(() => {
             <div class="grid gap-4 md:grid-cols-2">
               <input v-model="bookingForm.name" type="text" placeholder="Full name" required class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
               <input v-model="bookingForm.phone" type="tel" placeholder="Phone / WhatsApp" required class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
-              <input v-model="bookingForm.email" type="email" placeholder="Email" required class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold md:col-span-2 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
-              <select class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold md:col-span-2 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20">
-                <option>Winter Package</option>
-                <option>Summer Package</option>
-                <option>Honeymoon Package</option>
-                <option>Custom Package</option>
+              <input v-model="bookingForm.email" type="email" placeholder="Email" required class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
+              <select v-model="bookingForm.destination" required class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20">
+                <option value="" disabled>Preferred destination</option>
+                <option v-for="[name] in destinations" :key="`contact-${name}`" :value="name">{{ name }}</option>
               </select>
+              <input v-model="bookingForm.travelDate" type="date" aria-label="Travel date" class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
+              <input v-model.number="bookingForm.guests" type="number" min="1" placeholder="Number of guests" aria-label="Number of guests" class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
               <textarea v-model="bookingForm.details" placeholder="Tell us your dates, travelers, budget, and preferred destinations" class="min-h-36 rounded-lg border border-night/10 px-4 py-3 text-sm font-bold md:col-span-2 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20"></textarea>
             </div>
             <p v-if="bookingFormStatus" :class="bookingFormStatus.includes('valid') ? 'text-red-600 bg-red-50' : 'text-green-600 bg-green-50'" class="mt-4 rounded-lg p-3 text-sm font-semibold">{{ bookingFormStatus }}</p>
             <div class="mt-5 grid gap-3 sm:grid-cols-2">
-              <button type="submit" class="rounded-lg bg-night px-5 py-3 text-sm font-black text-white transition hover:bg-alpine hover:-translate-y-0.5">Send Inquiry</button>
+              <button type="submit" class="rounded-lg bg-gold px-5 py-4 text-base font-black uppercase tracking-[0.12em] text-night transition hover:bg-night hover:text-white">Send Enquiry</button>
               <a href="https://wa.me/919055020408?text=I%20want%20to%20book%20a%20Kashmir%20tour" class="rounded-lg border border-night/[0.12] px-5 py-3 text-center text-sm font-black text-night transition hover:border-lake hover:text-lake hover:bg-frost">WhatsApp Live Chat</a>
             </div>
             <div class="mt-5 grid gap-3 sm:grid-cols-3">
@@ -3354,7 +3948,7 @@ onUnmounted(() => {
             </div>
           </div>
           <div class="premium-card overflow-hidden rounded-lg">
-            <iframe title="Kashmir contact map" class="h-[32rem] w-full" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Srinagar%20Kashmir&output=embed"></iframe>
+            <iframe title="Kashmir contact map" class="h-[32rem] w-full" loading="lazy" referrerpolicy="no-referrer-when-downgrade" :src="`https://www.google.com/maps?q=${encodeURIComponent(siteContent.mapQuery || siteContent.contactAddress)}&output=embed`"></iframe>
           </div>
         </div>
       </section>
@@ -3557,17 +4151,15 @@ onUnmounted(() => {
       </div>
     </footer>
 
-    <a
-      href="https://wa.me/919055020408?text=I%20want%20instant%20Kashmir%20booking%20support"
-      class="fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center rounded-full bg-[#25D366] text-white shadow-premium transition hover:-translate-y-1 hover:bg-[#1ebe5d] focus:outline-none focus:ring-4 focus:ring-[#25D366]/30"
-      aria-label="WhatsApp instant booking"
-      title="WhatsApp instant booking"
-    >
-      <svg class="h-7 w-7" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
-        <path
-          d="M16.04 3C9.02 3 3.32 8.7 3.32 15.72c0 2.24.58 4.41 1.69 6.33L3.2 28.67l6.78-1.78a12.63 12.63 0 0 0 6.06 1.54h.01c7.01 0 12.72-5.7 12.72-12.72C28.76 8.7 23.06 3 16.04 3Zm0 23.28h-.01c-1.93 0-3.83-.52-5.48-1.5l-.39-.23-4.02 1.05 1.07-3.92-.25-.4a10.5 10.5 0 0 1-1.6-5.56c0-5.9 4.79-10.69 10.69-10.69 2.85 0 5.54 1.11 7.55 3.13a10.62 10.62 0 0 1 3.13 7.55c-.01 5.88-4.8 10.67-10.69 10.67Zm5.86-8c-.32-.16-1.9-.94-2.19-1.05-.29-.11-.51-.16-.72.16-.21.32-.83 1.05-1.02 1.26-.19.21-.37.24-.69.08-.32-.16-1.36-.5-2.59-1.6-.96-.85-1.61-1.91-1.8-2.23-.19-.32-.02-.49.14-.65.15-.15.32-.37.48-.56.16-.19.21-.32.32-.53.11-.21.05-.4-.03-.56-.08-.16-.72-1.74-.99-2.39-.26-.62-.53-.54-.72-.55h-.61c-.21 0-.56.08-.85.4-.29.32-1.12 1.09-1.12 2.66 0 1.57 1.15 3.09 1.31 3.3.16.21 2.26 3.45 5.48 4.84.77.33 1.36.53 1.83.68.77.24 1.47.21 2.02.13.62-.09 1.9-.78 2.17-1.53.27-.75.27-1.39.19-1.53-.08-.13-.29-.21-.61-.37Z"
-        />
-      </svg>
-    </a>
+    <div class="fixed bottom-5 right-5 z-50 hidden gap-2 md:flex">
+      <button type="button" class="rounded-full bg-gold px-5 py-3 text-sm font-black text-night shadow-premium" @click="navigateTo('/booking')">Enquire</button>
+      <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="rounded-full bg-white px-5 py-3 text-sm font-black text-night shadow-premium">Call</a>
+      <a href="https://wa.me/919055020408?text=I%20want%20instant%20Kashmir%20booking%20support" class="rounded-full bg-[#25D366] px-5 py-3 text-sm font-black text-white shadow-premium">WhatsApp</a>
+    </div>
+    <div class="fixed inset-x-3 bottom-3 z-50 grid grid-cols-3 overflow-hidden rounded-lg border border-white/50 bg-night text-center text-xs font-black text-white shadow-premium md:hidden">
+      <button type="button" class="px-3 py-3" @click="navigateTo('/booking')">Enquire</button>
+      <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="border-x border-white/12 px-3 py-3">Call Now</a>
+      <a href="https://wa.me/919055020408?text=I%20want%20instant%20Kashmir%20booking%20support" class="bg-[#25D366] px-3 py-3">WhatsApp</a>
+    </div>
   </template>
 </template>
