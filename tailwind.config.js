@@ -4,11 +4,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        night: "#12304a",
-        alpine: "#075985",
-        lake: "#06b6d4",
-        frost: "#ecfeff",
-        gold: "#f59e0b",
+        night: "#071d35",
+        alpine: "#0b3b66",
+        lake: "#0b83a5",
+        frost: "#f1f7fb",
+        gold: "#e6ad45",
       },
       fontFamily: {
         display: ["Playfair Display", "Georgia", "serif"],

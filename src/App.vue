@@ -50,8 +50,8 @@ const navItems = [
   ["Home", "/home"],
   ["About Us", "/about"],
   ["Packages", "/packages"],
+  ["Honeymoon", "/honeymoon-packages"],
   ["Destinations", "/destinations"],
-  ["Booking", "/booking"],
 ];
 
 const moreMenuItems = [
@@ -65,6 +65,7 @@ const publicRoutes = {
   "/home": "home",
   "/about": "about",
   "/packages": "packages",
+  "/honeymoon-packages": "packages",
   "/destinations": "destinations",
   "/booking": "booking",
   "/gallery": "gallery",
@@ -1022,6 +1023,38 @@ const defaultBlogPosts = [
   },
 ];
 const blogPosts = ref(loadStoredValue("kashmir-blog-posts", defaultBlogPosts));
+let blogSyncChannel = null;
+let blogSyncTimeout = null;
+
+function loadLatestBlogPosts() {
+  const latestPosts = loadStoredValue("kashmir-blog-posts", defaultBlogPosts);
+  blogPosts.value = latestPosts.map((post) => ({ ...post }));
+}
+
+function notifyBlogUpdate() {
+  blogSyncChannel?.postMessage({ type: "blog-posts-updated" });
+}
+
+function persistBlogPosts() {
+  localStorage.setItem("kashmir-blog-posts", JSON.stringify(blogPosts.value));
+  notifyBlogUpdate();
+}
+
+function scheduleBlogPostSave() {
+  if (blogSyncTimeout) window.clearTimeout(blogSyncTimeout);
+  blogSyncTimeout = window.setTimeout(() => {
+    persistBlogPosts();
+    blogSyncTimeout = null;
+  }, 180);
+}
+
+function handleContentStorageUpdate(event) {
+  if (event.key === "kashmir-blog-posts" && event.newValue) {
+    loadLatestBlogPosts();
+  }
+}
+
+watch(blogPosts, scheduleBlogPostSave, { deep: true });
 
 const defaultBlogGuides = [
   { title: "Packing checklist", text: "Carry thermals in winter, light layers in summer, comfortable shoes, ID documents, basic medicine, sunscreen, power bank, and waterproof covers." },
@@ -1186,6 +1219,12 @@ const adminTabs = [
 function navigateTo(path) {
   const nextPath = normalizePath(path);
 
+  if (nextPath === "/honeymoon-packages") {
+    activeFilter.value = "honeymoon";
+  } else if (nextPath === "/packages" && currentPath.value !== "/packages") {
+    activeFilter.value = "all";
+  }
+
   if (currentPath.value !== nextPath) {
     window.history.pushState({}, "", nextPath);
     currentPath.value = nextPath;
@@ -1205,8 +1244,15 @@ function bookDetailPackage() {
   navigateTo("/booking");
 }
 
+function selectPackageAndBook(item) {
+  selectedPackage.value = item?.price || packages.value[0]?.price || 0;
+  navigateTo("/booking");
+}
+
 function handlePopState() {
   currentPath.value = normalizePath(window.location.pathname);
+  if (currentPath.value === "/honeymoon-packages") activeFilter.value = "honeymoon";
+  if (currentPath.value === "/packages") activeFilter.value = "all";
   isMenuOpen.value = false;
   isMoreMenuOpen.value = false;
 }
@@ -1489,6 +1535,7 @@ function saveAdminChanges() {
   localStorage.setItem("kashmir-gallery-collections", JSON.stringify(galleryCollections.value));
   localStorage.setItem("kashmir-gallery-highlights", JSON.stringify(galleryHighlights.value));
   localStorage.setItem("kashmir-blog-posts", JSON.stringify(blogPosts.value));
+  notifyBlogUpdate();
   localStorage.setItem("kashmir-blog-guides", JSON.stringify(blogGuides.value));
   localStorage.setItem("kashmir-blog-checklist", JSON.stringify(blogChecklist.value));
   localStorage.setItem("kashmir-purpose-cards", JSON.stringify(purposeCards.value));
@@ -1819,7 +1866,17 @@ function deleteBlogChecklistItem(index) {
 }
 
 onMounted(() => {
+  if (currentPath.value === "/honeymoon-packages") {
+    activeFilter.value = "honeymoon";
+  }
   window.addEventListener("popstate", handlePopState);
+  window.addEventListener("storage", handleContentStorageUpdate);
+  if ("BroadcastChannel" in window) {
+    blogSyncChannel = new BroadcastChannel("snow-feather-live-content");
+    blogSyncChannel.addEventListener("message", (event) => {
+      if (event.data?.type === "blog-posts-updated") loadLatestBlogPosts();
+    });
+  }
   updateSeoMeta();
   initialLoadingTimeout = window.setTimeout(() => {
     isInitialLoading.value = false;
@@ -1831,6 +1888,13 @@ watch(pageSeo, updateSeoMeta);
 
 onUnmounted(() => {
   window.removeEventListener("popstate", handlePopState);
+  window.removeEventListener("storage", handleContentStorageUpdate);
+  blogSyncChannel?.close();
+  blogSyncChannel = null;
+  if (blogSyncTimeout) {
+    window.clearTimeout(blogSyncTimeout);
+    blogSyncTimeout = null;
+  }
   if (initialLoadingTimeout) {
     window.clearTimeout(initialLoadingTimeout);
   }
@@ -2647,8 +2711,8 @@ onUnmounted(() => {
   </section>
 
   <template v-else>
-    <header class="fixed inset-x-0 top-0 z-50 px-4 py-3">
-      <nav class="glass-nav mx-auto flex max-w-7xl items-center justify-between rounded-lg px-4 py-3">
+    <header class="site-header fixed inset-x-0 top-0 z-50 px-3 py-3 sm:px-5">
+      <nav class="glass-nav mx-auto flex max-w-7xl items-center justify-between rounded-2xl px-3 py-2.5 sm:px-4">
         <a href="/home" class="flex items-center gap-3" :aria-label="`${brandName} home`" @click.prevent="navigateTo('/home')">
           <span class="grid h-12 w-12 place-items-center overflow-hidden rounded-lg bg-white p-1.5 shadow-lift">
             <img :src="logoSrc" :alt="`${brandName} logo`" class="h-full w-full object-contain" />
@@ -2665,7 +2729,7 @@ onUnmounted(() => {
             :key="label"
             :href="href"
             class="rounded-lg px-4 py-2 transition"
-            :class="currentPath === href || (href === '/packages' && currentPage === 'packageDetail') ? 'bg-night text-white shadow-lift' : 'hover:bg-white/[0.55] hover:text-lake'"
+            :class="currentPath === href || (href === '/packages' && currentPage === 'packageDetail') ? 'bg-night text-white shadow-lift' : 'hover:bg-white/[0.7] hover:text-lake'"
             @click.prevent="navigateTo(href)"
           >
             {{ label }}
@@ -2701,12 +2765,16 @@ onUnmounted(() => {
           <a href="/booking" class="rounded-lg bg-gold px-4 py-2 text-sm font-extrabold text-night shadow-lift hover:bg-white" @click.prevent="navigateTo('/booking')">Book Now</a>
         </div>
 
-        <button class="grid h-10 w-10 place-items-center rounded-lg border border-night/10 text-night lg:hidden" aria-label="Open menu" @click="isMenuOpen = !isMenuOpen">
-          <span class="text-xl leading-none">=</span>
+        <button class="grid h-10 w-10 place-items-center rounded-xl border border-night/10 bg-white/70 text-night lg:hidden" aria-label="Open menu" @click="isMenuOpen = !isMenuOpen">
+          <span class="grid gap-1">
+            <span class="block h-0.5 w-5 rounded bg-current"></span>
+            <span class="block h-0.5 w-5 rounded bg-current"></span>
+            <span class="block h-0.5 w-5 rounded bg-current"></span>
+          </span>
         </button>
       </nav>
 
-      <div v-if="isMenuOpen" class="glass-nav mx-auto mt-2 grid max-w-7xl rounded-lg px-4 py-4 text-sm font-bold text-night">
+      <div v-if="isMenuOpen" class="glass-nav mx-auto mt-2 grid max-w-7xl rounded-2xl px-4 py-4 text-sm font-bold text-night">
         <a v-for="[label, href] in navItems" :key="label" :href="href" class="rounded-lg px-3 py-2" :class="currentPath === href || (href === '/packages' && currentPage === 'packageDetail') ? 'bg-night text-white' : ''" @click.prevent="navigateTo(href)">
           {{ label }}
         </a>
@@ -2731,10 +2799,30 @@ onUnmounted(() => {
             <p class="mt-4 border-l-2 border-gold pl-4 text-sm font-black uppercase tracking-[0.13em] text-gold">{{ siteContent.experienceLine }}</p>
 
             <div class="mt-8 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
-              <a href="/booking" class="rounded-lg bg-gradient-to-r from-[#f97316] to-[#facc15] px-6 py-3.5 text-center text-sm font-black text-night shadow-premium hover:brightness-110" @click.prevent="navigateTo('/booking')">Enquire Now</a>
-              <a href="https://wa.me/919055020408?text=I%20want%20to%20plan%20a%20Kashmir%20tour" class="rounded-lg bg-[#25D366] px-6 py-3.5 text-center text-sm font-black text-white shadow-premium hover:bg-white hover:text-night">WhatsApp Us</a>
-              <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="rounded-lg border border-white/25 bg-white/12 px-6 py-3.5 text-center text-sm font-black text-white backdrop-blur hover:bg-white hover:text-night">Call Now</a>
-              <a href="/packages" class="rounded-lg border border-white/25 bg-night/30 px-6 py-3.5 text-center text-sm font-black text-white backdrop-blur hover:bg-white hover:text-night" @click.prevent="navigateTo('/packages')">View Packages</a>
+              <a href="/booking" class="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#f97316] to-[#facc15] px-6 py-3.5 text-center text-sm font-black text-night shadow-premium hover:brightness-110" @click.prevent="navigateTo('/booking')">
+                <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M5 5.75h14a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-8l-4.5 3v-3H5a2 2 0 0 1-2-2v-8.5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                  <path d="M7.5 10h9M7.5 13.5h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <span>Enquire Now</span>
+              </a>
+              <a href="https://wa.me/919055020408?text=I%20want%20to%20plan%20a%20Kashmir%20tour" class="cta-whatsapp inline-flex items-center justify-center gap-2 rounded-lg bg-[#25D366] px-6 py-3.5 text-center text-sm font-black text-white shadow-premium hover:bg-white hover:text-night">
+                <img src="/social/whatsapp.svg" alt="" class="h-6 w-6 shrink-0" />
+                <span>WhatsApp Us</span>
+              </a>
+              <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="inline-flex items-center justify-center gap-2 rounded-lg border border-white/25 bg-white/12 px-6 py-3.5 text-center text-sm font-black text-white backdrop-blur hover:bg-white hover:text-night">
+                <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M7.4 3.8 10 8.2 8.2 10c1.1 2.5 3.3 4.7 5.8 5.8l1.8-1.8 4.4 2.6-.9 3.2c-.2.7-.9 1.2-1.7 1.2C9.5 20.5 3.5 14.5 3 6.4c0-.8.5-1.5 1.2-1.7l3.2-.9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                </svg>
+                <span>Call Now</span>
+              </a>
+              <a href="/packages" class="inline-flex items-center justify-center gap-2 rounded-lg border border-white/25 bg-night/30 px-6 py-3.5 text-center text-sm font-black text-white backdrop-blur hover:bg-white hover:text-night" @click.prevent="navigateTo('/packages')">
+                <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M4 7.5h16v11H4v-11Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                  <path d="M8.5 7.5V5.8A1.8 1.8 0 0 1 10.3 4h3.4a1.8 1.8 0 0 1 1.8 1.8v1.7M4 12h16M10 12v2h4v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>View Packages</span>
+              </a>
             </div>
           </div>
 
@@ -2779,6 +2867,30 @@ onUnmounted(() => {
                 <p class="mt-2 text-sm font-black uppercase tracking-[0.12em] text-night/60">{{ label }}</p>
               </article>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'home'" class="bg-white py-20">
+        <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.72fr_1.28fr] lg:items-center">
+          <div>
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Kashmir in motion</p>
+            <h2 class="mt-3 font-display text-4xl font-extrabold leading-tight text-night sm:text-5xl">See the landscapes behind the journey.</h2>
+            <p class="mt-5 text-base font-semibold leading-8 text-night/[0.62]">A short visual introduction to Kashmir’s mountains, valleys, lakes, and adventure experiences. Playback stays under the visitor’s control for a calm, premium browsing experience.</p>
+            <button type="button" class="mt-7 btn-primary" @click="navigateTo('/gallery')">Explore Photo Gallery</button>
+          </div>
+          <div class="relative overflow-hidden rounded-[2rem] bg-night shadow-premium">
+            <video
+              class="aspect-video w-full object-cover"
+              src="/snow-feather-main-bg.mp4"
+              poster="/kashmir-hero-vibrant-v2.png"
+              controls
+              muted
+              loop
+              playsinline
+              preload="metadata"
+              aria-label="Snow Feather Adventures Kashmir travel video"
+            ></video>
           </div>
         </div>
       </section>
@@ -2862,7 +2974,7 @@ onUnmounted(() => {
                 <div class="mt-4 flex min-h-14 flex-wrap content-start gap-2 overflow-hidden">
                   <span v-for="chip in packageChips(item)" :key="`home-${item.name}-${chip}`" class="rounded-full bg-frost px-3 py-1.5 text-xs font-bold text-night/[0.68]">✓ {{ chip }}</span>
                 </div>
-                <div class="mt-auto flex items-end justify-between gap-4 border-t border-night/[0.08] pt-5">
+                <div class="mt-auto border-t border-night/[0.08] pt-5">
                   <div>
                     <p class="text-xs font-bold uppercase tracking-wide text-night/[0.42]">Starting from</p>
                     <div class="mt-1 flex flex-wrap items-end gap-2">
@@ -2870,7 +2982,15 @@ onUnmounted(() => {
                       <p class="pb-1 text-sm font-bold text-night/35 line-through">INR {{ packageOriginalPrice(item).toLocaleString("en-IN") }}</p>
                     </div>
                   </div>
-                  <button type="button" class="rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake" @click="viewPackageDetails(item)">View Itinerary</button>
+                  <div class="mt-4 grid grid-cols-2 gap-2">
+                    <button type="button" class="package-action package-action-primary" @click="viewPackageDetails(item)">View Details</button>
+                    <button type="button" class="package-action package-action-secondary" @click="selectPackageAndBook(item)">Enquire</button>
+                    <a :href="packageWhatsappLink(item)" class="package-action package-action-whatsapp">
+                      <img src="/social/whatsapp.svg" alt="" class="h-5 w-5" />
+                      <span>WhatsApp</span>
+                    </a>
+                    <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="package-action package-action-secondary">Call Now</a>
+                  </div>
                 </div>
               </div>
             </article>
@@ -2923,7 +3043,7 @@ onUnmounted(() => {
       <section
         v-if="currentPage === 'about'"
         id="about"
-        class="relative h-[28rem] overflow-hidden bg-night pt-28 text-white sm:h-[32rem] lg:h-[36rem]"
+        class="page-hero relative flex min-h-[34rem] items-end overflow-hidden bg-night pt-28 text-white sm:min-h-[38rem]"
       >
         <div
           class="absolute inset-0 image-cover"
@@ -2931,7 +3051,17 @@ onUnmounted(() => {
         ></div>
         <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(4,35,52,0.8),rgba(3,70,83,0.36),rgba(3,22,34,0.06)),linear-gradient(0deg,rgba(3,44,52,0.45),transparent)]"></div>
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_76%_28%,rgba(250,204,21,0.2),transparent_34%)]"></div>
-
+        <div class="relative mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 lg:pb-16">
+          <div class="max-w-3xl">
+            <p class="page-eyebrow text-sm font-black uppercase tracking-[0.2em] text-gold">About Snow Feather Adventures</p>
+            <h1 class="mt-4 font-display text-4xl font-extrabold leading-tight sm:text-6xl">Local Kashmir knowledge. Professional adventure leadership.</h1>
+            <p class="mt-5 max-w-2xl text-base font-semibold leading-8 text-white/78 sm:text-lg">More than 25 years of tourism, skiing, mountaineering, trekking, and hospitality experience—combined with clear planning and genuine guest care.</p>
+            <div class="mt-7 flex flex-wrap gap-3">
+              <button type="button" class="btn-primary" @click="navigateTo('/booking')">Plan Your Journey</button>
+              <button type="button" class="btn-light" @click="navigateTo('/contact')">Contact Our Team</button>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section v-if="currentPage === 'about'" class="bg-white py-16">
@@ -3058,8 +3188,13 @@ onUnmounted(() => {
                     </div>
 
                     <div class="mt-4 grid grid-cols-2 gap-2">
-                      <a :href="packageWhatsappLink(item)" class="rounded-lg border border-night/[0.12] px-3 py-3 text-center text-xs font-black text-night hover:border-lake hover:text-lake">Talk to Expert</a>
-                      <button type="button" class="rounded-lg bg-gradient-to-r from-lake to-alpine px-3 py-3 text-xs font-black text-white" @click="viewPackageDetails(item)">Tour Details</button>
+                      <button type="button" class="package-action package-action-primary" @click="viewPackageDetails(item)">View Details</button>
+                      <button type="button" class="package-action package-action-secondary" @click="selectPackageAndBook(item)">Enquire</button>
+                      <a :href="packageWhatsappLink(item)" class="package-action package-action-whatsapp">
+                        <img src="/social/whatsapp.svg" alt="" class="h-5 w-5" />
+                        <span>WhatsApp</span>
+                      </a>
+                      <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="package-action package-action-secondary">Call Now</a>
                     </div>
                   </div>
                 </article>
@@ -3147,7 +3282,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'packageDetail' && detailPackage" class="relative flex min-h-[34rem] items-end overflow-hidden pt-28 text-white">
+      <section v-if="currentPage === 'packageDetail' && detailPackage" class="page-hero relative flex min-h-[34rem] items-end overflow-hidden pt-28 text-white">
         <div class="absolute inset-0 image-cover" :style="{ backgroundImage: `url('${packageVisual(detailPackage)}')` }"></div>
         <div class="absolute inset-0 bg-gradient-to-t from-night via-night/55 to-night/10"></div>
         <div class="relative mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:pb-16">
@@ -3237,23 +3372,23 @@ onUnmounted(() => {
       <section
         v-if="currentPage === 'packages'"
         id="packages"
-        class="min-h-screen bg-white pb-16 pt-32"
+        class="min-h-screen bg-white pb-20 pt-28 sm:pt-32"
       >
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
-          <div class="relative mb-8 overflow-hidden rounded-lg bg-night text-white shadow-premium">
-            <div class="image-cover absolute inset-0" :style="imageStyle('image23')"></div>
+          <div class="page-hero relative mb-10 min-h-[31rem] overflow-hidden rounded-[2rem] bg-night text-white shadow-premium">
+            <div class="image-cover absolute inset-0" :style="imageStyle(currentPath === '/honeymoon-packages' ? '/kashmir-dal-lake-vibrant-v2.png' : '/kashmir-pahalgam-vibrant-v2.png')"></div>
             <div class="absolute inset-0 bg-gradient-to-br from-night/92 via-night/64 to-lake/20"></div>
-            <div class="relative grid gap-6 p-5 sm:p-7 lg:grid-cols-[1fr_0.78fr] lg:p-9">
+            <div class="relative grid min-h-[31rem] items-end gap-6 p-6 sm:p-9 lg:grid-cols-[1fr_0.68fr] lg:p-12">
               <div class="max-w-3xl">
-                <p class="text-sm font-black uppercase tracking-[0.2em] text-gold">{{ siteContent.packagesHeroEyebrow }}</p>
-                <h2 class="mt-4 font-display text-4xl font-extrabold leading-tight sm:text-5xl">{{ siteContent.packagesHeroTitle }}</h2>
-                <p class="mt-4 max-w-2xl text-sm font-semibold leading-7 text-white/76">{{ siteContent.packagesHeroText }}</p>
+                <p class="page-eyebrow text-sm font-black uppercase tracking-[0.2em] text-gold">{{ currentPath === '/honeymoon-packages' ? 'Kashmir Honeymoon Packages' : siteContent.packagesHeroEyebrow }}</p>
+                <h1 class="mt-4 font-display text-4xl font-extrabold leading-tight sm:text-6xl">{{ currentPath === '/honeymoon-packages' ? 'Private, romantic Kashmir journeys for two.' : siteContent.packagesHeroTitle }}</h1>
+                <p class="mt-5 max-w-2xl text-base font-semibold leading-8 text-white/78">{{ currentPath === '/honeymoon-packages' ? 'Explore relaxed honeymoon routes with private cabs, premium stays, Shikara moments, snow experiences, and time to enjoy Kashmir without rushing.' : siteContent.packagesHeroText }}</p>
                 <div class="mt-5 flex flex-wrap gap-3">
                   <span class="rounded-lg border border-white/18 bg-white/14 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] backdrop-blur-xl">Updated {{ premiumStructureDate }}</span>
                   <span class="rounded-lg border border-gold/30 bg-gold/18 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-gold backdrop-blur-xl">No hidden charges</span>
                 </div>
               </div>
-              <div class="grid min-h-72 grid-cols-2 gap-3">
+              <div class="hidden min-h-72 grid-cols-2 gap-3 lg:grid">
                 <div class="image-cover rounded-lg border border-white/18" :style="imageStyle('image15')"></div>
                 <div class="image-cover rounded-lg border border-white/18" :style="imageStyle('image22')"></div>
                 <div class="image-cover rounded-lg border border-white/18" :style="imageStyle('image19')"></div>
@@ -3375,11 +3510,14 @@ onUnmounted(() => {
                     <p class="font-display text-3xl font-extrabold text-lake">INR {{ item.price.toLocaleString("en-IN") }}</p>
                     <p class="pb-1 text-base font-bold text-night/40 line-through">INR {{ packageOriginalPrice(item).toLocaleString("en-IN") }}</p>
                   </div>
-                  <div class="mt-4 flex items-center justify-between gap-4">
-                    <p class="text-xs font-semibold uppercase text-night/[0.52]">Indicative start rate</p>
-                    <button type="button" class="rounded-lg bg-gradient-to-r from-lake to-alpine px-5 py-3 text-sm font-black text-white shadow-lift transition hover:-translate-y-0.5 hover:shadow-premium hover:from-alpine hover:to-lake" @click="viewPackageDetails(item)">
-                      View Details
-                    </button>
+                  <div class="mt-5 grid grid-cols-2 gap-2">
+                    <button type="button" class="package-action package-action-primary" @click="viewPackageDetails(item)">View Details</button>
+                    <button type="button" class="package-action package-action-secondary" @click="selectPackageAndBook(item)">Enquire</button>
+                    <a :href="packageWhatsappLink(item)" class="package-action package-action-whatsapp">
+                      <img src="/social/whatsapp.svg" alt="" class="h-5 w-5" />
+                      <span>WhatsApp</span>
+                    </a>
+                    <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="package-action package-action-secondary">Call Now</a>
                   </div>
                 </div>
               </div>
@@ -3451,9 +3589,9 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'destinations'" id="destinations" class="section-band min-h-screen pb-16 pt-32">
+      <section v-if="currentPage === 'destinations'" id="destinations" class="section-band min-h-screen pb-20 pt-28 sm:pt-32">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
-          <div class="relative mb-10 min-h-[30rem] overflow-hidden rounded-lg shadow-premium">
+          <div class="page-hero relative mb-12 min-h-[32rem] overflow-hidden rounded-[2rem] shadow-premium">
             <div class="image-cover absolute inset-0" :style="imageStyle(kashmirWebImages.dalLake)"></div>
             <div class="absolute inset-0 bg-gradient-to-r from-night/92 via-night/62 to-night/12"></div>
             <div class="relative flex min-h-[30rem] max-w-3xl flex-col justify-end p-6 text-white sm:p-10">
@@ -3531,7 +3669,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'booking'" id="booking" class="section-band min-h-screen pb-16 pt-32">
+      <section v-if="currentPage === 'booking'" id="booking" class="page-intro section-band min-h-screen pb-20 pt-28 sm:pt-32">
         <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
           <div class="relative min-h-[38rem] overflow-hidden rounded-lg shadow-premium">
             <div class="image-cover absolute inset-0" :style="imageStyle('image20')"></div>
@@ -3813,7 +3951,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'gallery'" class="section-band min-h-screen pb-16 pt-32">
+      <section v-if="currentPage === 'gallery'" class="page-intro section-band min-h-screen pb-20 pt-28 sm:pt-32">
         <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
           <div>
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">{{ siteContent.galleryHeroEyebrow }}</p>
@@ -3911,7 +4049,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'blog'" class="section-band min-h-screen pb-16 pt-32">
+      <section v-if="currentPage === 'blog'" class="page-intro section-band min-h-screen pb-20 pt-28 sm:pt-32">
         <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-center">
           <div>
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">{{ siteContent.blogHeroEyebrow }}</p>
@@ -3986,7 +4124,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'contact'" id="contact" class="section-band min-h-screen pb-16 pt-32">
+      <section v-if="currentPage === 'contact'" id="contact" class="page-intro section-band min-h-screen pb-20 pt-28 sm:pt-32">
         <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
           <div class="relative min-h-[37rem] overflow-hidden rounded-lg shadow-premium">
             <div class="image-cover absolute inset-0" :style="imageStyle('/kashmir-dal-lake-vibrant-v2.png')"></div>
@@ -4199,7 +4337,7 @@ onUnmounted(() => {
       </section>
     </main>
 
-    <footer class="bg-night px-4 py-12 text-white sm:px-6 lg:py-16">
+    <footer class="site-footer bg-night px-4 py-12 text-white sm:px-6 lg:py-16">
       <div class="mx-auto max-w-7xl">
         <div class="grid gap-10 border-b border-white/10 pb-10 md:grid-cols-2 xl:grid-cols-[1.25fr_0.8fr_0.85fr_1fr] xl:gap-12">
           <div>
@@ -4284,27 +4422,48 @@ onUnmounted(() => {
         </div>
 
         <div class="flex flex-col gap-6 pt-8 lg:flex-row lg:items-center lg:justify-between">
-          <div class="flex flex-wrap items-center gap-3">
-            <p class="text-sm font-black text-white/72">100% Secure Payments</p>
-            <span class="rounded bg-white px-5 py-2 text-xs font-black text-night">VISA</span>
-            <span class="rounded bg-white px-5 py-2 text-xs font-black text-red-600">MasterCard</span>
-            <span class="rounded bg-white px-5 py-2 text-xs font-black text-lake">UPI</span>
-            <span class="rounded bg-white px-5 py-2 text-xs font-black text-blue-500">Razorpay</span>
-          </div>
+          <p class="text-sm font-semibold text-white/62">Payments are accepted only through the methods confirmed directly by our team during booking.</p>
           <p class="text-sm font-semibold text-white/50">© 2026 Snow Feather Adventures. All rights reserved.</p>
         </div>
       </div>
     </footer>
 
     <div class="fixed bottom-5 right-5 z-50 hidden gap-2 md:flex">
-      <button type="button" class="rounded-full bg-gold px-5 py-3 text-sm font-black text-night shadow-premium" @click="navigateTo('/booking')">Enquire</button>
-      <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="rounded-full bg-white px-5 py-3 text-sm font-black text-night shadow-premium">Call</a>
-      <a href="https://wa.me/919055020408?text=I%20want%20instant%20Kashmir%20booking%20support" class="rounded-full bg-[#25D366] px-5 py-3 text-sm font-black text-white shadow-premium">WhatsApp</a>
+      <button type="button" class="inline-flex items-center gap-2 rounded-full bg-gold px-5 py-3 text-sm font-black text-night shadow-premium" @click="navigateTo('/booking')">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 5.75h14a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-8l-4.5 3v-3H5a2 2 0 0 1-2-2v-8.5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M7.5 10h9M7.5 13.5h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <span>Enquire</span>
+      </button>
+      <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-night shadow-premium">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M7.4 3.8 10 8.2 8.2 10c1.1 2.5 3.3 4.7 5.8 5.8l1.8-1.8 4.4 2.6-.9 3.2c-.2.7-.9 1.2-1.7 1.2C9.5 20.5 3.5 14.5 3 6.4c0-.8.5-1.5 1.2-1.7l3.2-.9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+        <span>Call</span>
+      </a>
+      <a href="https://wa.me/919055020408?text=I%20want%20instant%20Kashmir%20booking%20support" class="cta-whatsapp inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-black text-white shadow-premium">
+        <img src="/social/whatsapp.svg" alt="" class="h-6 w-6" />
+        <span>WhatsApp</span>
+      </a>
     </div>
     <div class="fixed inset-x-3 bottom-3 z-50 grid grid-cols-3 overflow-hidden rounded-lg border border-white/50 bg-night text-center text-xs font-black text-white shadow-premium md:hidden">
-      <button type="button" class="px-3 py-3" @click="navigateTo('/booking')">Enquire</button>
-      <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="border-x border-white/12 px-3 py-3">Call Now</a>
-      <a href="https://wa.me/919055020408?text=I%20want%20instant%20Kashmir%20booking%20support" class="bg-[#25D366] px-3 py-3">WhatsApp</a>
+      <button type="button" class="flex items-center justify-center gap-1.5 px-3 py-3" @click="navigateTo('/booking')">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 5.75h14a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-8l-4.5 3v-3H5a2 2 0 0 1-2-2v-8.5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+        <span>Enquire</span>
+      </button>
+      <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="flex items-center justify-center gap-1.5 border-x border-white/12 px-3 py-3">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M7.4 3.8 10 8.2 8.2 10c1.1 2.5 3.3 4.7 5.8 5.8l1.8-1.8 4.4 2.6-.9 3.2c-.2.7-.9 1.2-1.7 1.2C9.5 20.5 3.5 14.5 3 6.4c0-.8.5-1.5 1.2-1.7l3.2-.9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+        <span>Call</span>
+      </a>
+      <a href="https://wa.me/919055020408?text=I%20want%20instant%20Kashmir%20booking%20support" class="cta-whatsapp flex items-center justify-center gap-1.5 bg-[#25D366] px-3 py-3">
+        <img src="/social/whatsapp.svg" alt="" class="h-5 w-5" />
+        <span>WhatsApp</span>
+      </a>
     </div>
   </template>
 </template>
