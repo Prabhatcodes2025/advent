@@ -95,7 +95,7 @@ const currentPage = computed(() => (currentPath.value.startsWith("/packages/") ?
 let initialLoadingTimeout = null;
 
 const defaultSiteContent = {
-  heroBadge: "30+ Years of Excellence in Tourism, Adventure, Skiing & Hospitality",
+  heroBadge: "25+ Years of Excellence in Tourism, Adventure, Skiing & Hospitality",
   heroTitle: "Kashmir, Crafted With Experience",
   heroSubtitle:
     "Adventure, luxury, and genuine Kashmiri hospitality—all under one roof. Discover transparent packages, trusted local planning, memorable stays, and expert support from arrival to departure.",
@@ -151,13 +151,25 @@ const defaultSiteContent = {
   contactEmail: "snowfeatheradventures@gmail.com",
   contactAddress: "Karra Building, Court Road, Lal chowk, Srinagar, 190001, Jammu and Kashmir",
   contactSupport: "24/7 during active trips",
-  experienceLine: "Creating Unforgettable Kashmir Experiences Since 30 Years",
+  experienceLine: "25+ Years Across Kashmir Tourism, Skiing, Mountaineering, Trekking & Adventure",
   trustPromise: "No hidden charges. No false promises. No cheating—only transparent pricing and genuine local expertise.",
   mapQuery: "Karra Building Court Road Lal Chowk Srinagar Kashmir",
   googleRecaptchaSiteKey: "",
 };
 
-const siteContent = ref({ ...defaultSiteContent, ...loadStoredValue("kashmir-site-content-v3", defaultSiteContent) });
+const storedSiteContent = loadStoredValue("kashmir-site-content-v3", defaultSiteContent);
+const siteContent = ref({
+  ...defaultSiteContent,
+  ...storedSiteContent,
+  heroBadge:
+    storedSiteContent.heroBadge === "30+ Years of Excellence in Tourism, Adventure, Skiing & Hospitality"
+      ? defaultSiteContent.heroBadge
+      : storedSiteContent.heroBadge,
+  experienceLine:
+    storedSiteContent.experienceLine === "Creating Unforgettable Kashmir Experiences Since 30 Years"
+      ? defaultSiteContent.experienceLine
+      : storedSiteContent.experienceLine,
+});
 
 const premiumStructureDate = "June 2026";
 const premiumSourceNote =
@@ -227,12 +239,16 @@ const defaultPurposeCards = [
 const purposeCards = ref(loadStoredValue("kashmir-purpose-cards", defaultPurposeCards));
 
 const defaultExperienceStats = [
-  ["30+", "Years Experience"],
+  ["25+", "Years of Experience"],
   ["10,000+", "Happy Guests"],
   ["500+", "Successful Tours"],
   ["24/7", "Guest Support"],
 ];
-const experienceStats = ref(loadStoredValue("kashmir-experience-stats", defaultExperienceStats));
+const experienceStats = ref(
+  loadStoredValue("kashmir-experience-stats", defaultExperienceStats).map(([value, label]) =>
+    value === "30+" && label === "Years Experience" ? ["25+", "Years of Experience"] : [value, label],
+  ),
+);
 
 const defaultAccommodationCategories = [
   {
@@ -289,7 +305,7 @@ const defaultServiceGroups = [
 const serviceGroups = ref(loadStoredValue("kashmir-service-groups", defaultServiceGroups));
 
 const defaultTrustGuarantees = [
-  "30 Years Experience",
+  "25+ Years of Experience",
   "Honest Pricing",
   "No Hidden Charges",
   "Dedicated Support",
@@ -300,7 +316,11 @@ const defaultTrustGuarantees = [
   "Safe & Secure Travel",
   "Local Knowledge & Expertise",
 ];
-const trustGuarantees = ref(loadStoredValue("kashmir-trust-guarantees", defaultTrustGuarantees));
+const trustGuarantees = ref(
+  loadStoredValue("kashmir-trust-guarantees", defaultTrustGuarantees).map((item) =>
+    item === "30 Years Experience" ? "25+ Years of Experience" : item,
+  ),
+);
 
 const defaultTestimonials = [
   {
@@ -899,6 +919,20 @@ const publicGalleryImages = [
   { image: "/images/image40.jpeg", title: "Winter Village", text: "Snow-covered homes and trees capturing Kashmir's quiet winter beauty." },
 ];
 
+const destinationSpotlights = [
+  { name: "Gulmarg", image: "/images/image16.jpeg", note: "Gondola rides, ski slopes, snow adventures, and summer meadows." },
+  { name: "Pahalgam", image: "/images/image10.jpeg", note: "Lidder River, pine forests, family stays, and valley walks." },
+  { name: "Sonmarg", image: "/images/image18.jpeg", note: "Glacier routes, mountain roads, pony trails, and alpine views." },
+  { name: "Doodhpathri", image: "/images/image29.jpeg", note: "Rolling meadows, streams, picnic spaces, and peaceful countryside." },
+  { name: "Yousmarg", image: "/images/image32.jpeg", note: "Quiet green hills, pine trails, horse rides, and offbeat scenery." },
+  { name: "Dal Lake", image: "/images/image3.jpeg", note: "Shikara rides, houseboats, floating markets, and calm lake evenings." },
+  { name: "Srinagar", image: "/images/image35.jpeg", note: "Gardens, heritage, local markets, food, and panoramic city views." },
+  { name: "Aru Valley", image: "/images/image38.jpeg", note: "Open valley roads, trekking routes, camps, and mountain backdrops." },
+  { name: "Chandanwari", image: "/images/image30.jpeg", note: "Highland snow, clear streams, dramatic terrain, and scenic drives." },
+  { name: "Gurez Valley", image: "/images/image23.jpeg", note: "Kishanganga landscapes, village life, culture, and remote beauty." },
+  { name: "Tulail Valley", image: "/images/image39.jpeg", note: "Pristine rivers, wooden villages, broad meadows, and quiet mountains." },
+];
+
 const legacyGalleryImages = ["image03", "image04", "image05", "image06", "image09", "image10", "image11", "image13", "image15", "image16", "image17", "image18"];
 const defaultGalleryImages = [...publicGalleryImages, ...legacyGalleryImages];
 const galleryImages = ref(loadStoredValue("kashmir-gallery-images-v2", defaultGalleryImages));
@@ -1029,7 +1063,7 @@ const defaultDestinations = [
   ["Sonmarg", kashmirWebImages.sonmarg, "Thajiwas Glacier, snow points, Sindh River views, pony routes, fishing, mountain photography, and onward Kargil or Leh journeys."],
   ["Pahalgam, Aru & Chandanwari", kashmirWebImages.pahalgam, "Lidder River, Betaab Valley, Aru Valley, Chandanwari, pony rides, riverside stays, trekking, and camping add-ons."],
   ["Yusmarg", kashmirWebImages.yusmarg, "Quiet meadows, Doodhganga River, pine forests, Nilnag walks, horse riding, fishing, picnics, and offbeat photography."],
-  ["Gurez Valley", kashmirWebImages.gurez, "Habba Khatoon peak, Kishanganga River, Dawar, village stays, remote mountain roads, culture, and offbeat multi-day itineraries."],
+  ["Gurez & Tulail Valleys", kashmirWebImages.gurez, "Habba Khatoon peak, Kishanganga River, Dawar, Tulail's wooden villages, remote mountain roads, local culture, and offbeat multi-day itineraries."],
   ["Doodhpathri", kashmirWebImages.doodhpathri, "The Valley of Milk, rolling meadows, cold streams, pine forests, picnic days, family walks, and scenic countryside drives."],
   ["Leh & Kargil", kashmirWebImages.leh, "Srinagar–Sonmarg–Kargil–Leh road journeys, monasteries, high-altitude landscapes, acclimatized pacing, and permit guidance."],
   ["Wular & Manasbal Lakes", kashmirWebImages.wular, "Freshwater lake views, birding, fishing culture, quiet drives, village life, and relaxed extensions from Srinagar or Gurez routes."],
@@ -1037,7 +1071,17 @@ const defaultDestinations = [
   ["Houseboats & Shikara Life", "image22", "Lake-view houseboats, sunrise Shikara rides, floating markets, local crafts, honeymoon evenings, and waterfront dining."],
   ["Kashmir Local Markets", "image12", "Lal Chowk, old Srinagar bazaars, pashmina, papier-mâché, dry fruits, saffron, bakeries, cafés, and local food trails."],
 ];
-const destinations = ref(loadStoredValue("kashmir-destinations", defaultDestinations));
+const destinations = ref(
+  loadStoredValue("kashmir-destinations", defaultDestinations).map((item) =>
+    item[0] === "Gurez Valley"
+      ? [
+          "Gurez & Tulail Valleys",
+          item[1],
+          "Habba Khatoon peak, Kishanganga River, Dawar, Tulail's wooden villages, remote mountain roads, local culture, and offbeat multi-day itineraries.",
+        ]
+      : item,
+  ),
+);
 
 const defaultAttractionHighlights = [
   ["Lakes & Shikara", "Dal Lake, Wular Lake, Manasbal Lake, houseboats, floating markets, sunrise and sunset Shikara rides."],
@@ -1046,6 +1090,12 @@ const defaultAttractionHighlights = [
   ["Valleys & Outdoors", "Aru Valley, Chandanwari, Yusmarg, Doodhpathri, Gurez, camping, trekking, fishing, pony rides, and bonfires."],
 ];
 const attractionHighlights = ref(loadStoredValue("kashmir-attractions", defaultAttractionHighlights));
+
+const inquiryAssurances = [
+  ["1", "Send your requirements", "Share dates, guest count, destinations, budget, and preferred hotel category."],
+  ["2", "Receive a clear plan", "Our team confirms the route, stays, cab, activities, inclusions, and estimated price."],
+  ["3", "Confirm with confidence", "Review the details, ask questions, and book only after everything is clearly agreed."],
+];
 
 const defaultFaqs = [
   ["Can pricing change in winter?", "Yes. Gulmarg and Sonamarg peak winter pricing can increase due to demand, weather, transportation limits, activity availability, and hotel inventory."],
@@ -2718,8 +2768,8 @@ onUnmounted(() => {
           <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <div>
               <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Established Kashmir expertise</p>
-              <h2 class="mt-3 font-display text-4xl font-extrabold leading-tight text-night sm:text-5xl">Thirty years of planning journeys people remember for life.</h2>
-              <p class="mt-5 text-base font-semibold leading-8 text-night/[0.62]">Our local team brings together honest advice, destination knowledge, adventure expertise, comfortable stays, dependable transport, and warm Kashmiri hospitality. Every itinerary is personalized around your dates, interests, comfort, and budget.</p>
+              <h2 class="mt-3 font-display text-4xl font-extrabold leading-tight text-night sm:text-5xl">25+ years of planning journeys people remember for life.</h2>
+              <p class="mt-5 text-base font-semibold leading-8 text-night/[0.62]">Our experienced and highly qualified local team brings together tourism planning, skiing, mountaineering, trekking, destination knowledge, dependable transport, and warm Kashmiri hospitality. Every itinerary is personalized around your dates, interests, comfort, and budget.</p>
               <div class="mt-6 rounded-lg border border-gold/25 bg-gold/10 p-5">
                 <p class="font-black leading-7 text-night">{{ siteContent.trustPromise }}</p>
               </div>
@@ -3647,7 +3697,7 @@ onUnmounted(() => {
             <div class="lg:sticky lg:top-28">
               <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Why choose us</p>
               <h2 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">Confidence is part of every package.</h2>
-              <p class="mt-5 text-base font-semibold leading-8 text-night/[0.62]">Thirty years in Kashmir tourism taught us that trust is built through clear information, realistic promises, responsive support, and consistent delivery.</p>
+              <p class="mt-5 text-base font-semibold leading-8 text-night/[0.62]">More than 25 years in Kashmir tourism and adventure taught us that trust is built through clear information, realistic promises, responsive support, and consistent delivery.</p>
               <button type="button" class="mt-7 rounded-lg bg-gold px-6 py-3.5 text-sm font-black text-night shadow-lift hover:bg-night hover:text-white" @click="navigateTo('/contact')">Talk To Our Team</button>
             </div>
             <div class="grid gap-3 sm:grid-cols-2">
@@ -3660,11 +3710,40 @@ onUnmounted(() => {
         </div>
       </section>
 
+      <section v-if="currentPage === 'home'" class="bg-white py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="mb-9 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div class="max-w-4xl">
+              <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Kashmir destination gallery</p>
+              <h2 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">From famous landmarks to Kashmir’s quieter valleys.</h2>
+              <p class="mt-4 text-base font-semibold leading-8 text-night/[0.62]">Explore Gulmarg, Pahalgam, Sonmarg, Doodhpathri, Yousmarg, Dal Lake, Srinagar, Aru, Chandanwari, Gurez, and Tulail through a richer collection of destination photographs.</p>
+            </div>
+            <button type="button" class="self-start rounded-lg bg-night px-6 py-3 text-sm font-black text-white hover:bg-lake lg:self-auto" @click="navigateTo('/destinations')">Explore All Destinations</button>
+          </div>
+          <div class="grid auto-rows-[15rem] gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <article
+              v-for="(place, index) in destinationSpotlights"
+              :key="place.name"
+              class="group relative overflow-hidden rounded-lg shadow-premium"
+              :class="index === 0 || index === 5 || index === 9 ? 'sm:col-span-2' : ''"
+            >
+              <div class="image-cover absolute inset-0 transition duration-700 group-hover:scale-105" :style="imageStyle(place.image)"></div>
+              <div class="absolute inset-0 bg-gradient-to-t from-night/92 via-night/20 to-transparent"></div>
+              <div class="absolute inset-x-0 bottom-0 p-5 text-white">
+                <h3 class="font-display text-2xl font-extrabold">{{ place.name }}</h3>
+                <p class="mt-2 max-w-md text-sm font-semibold leading-6 text-white/76">{{ place.note }}</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section v-if="currentPage === 'home'" class="section-band py-20">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-9 text-center">
-            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Guest stories</p>
-            <h2 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">Trusted by families, couples, and adventurers.</h2>
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Guest reviews & testimonials</p>
+            <h2 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">Real experiences. Lasting trust.</h2>
+            <p class="mx-auto mt-4 max-w-3xl text-base font-semibold leading-8 text-night/[0.62]">See why families, couples, groups, and adventure travelers trust our local team to plan and support their Kashmir journeys.</p>
           </div>
           <div class="grid gap-5 lg:grid-cols-3">
             <article v-for="review in testimonials" :key="review.name" class="rounded-lg border border-night/[0.08] bg-white p-6 shadow-premium">
@@ -3724,11 +3803,11 @@ onUnmounted(() => {
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-9 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div class="max-w-4xl">
-              <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Messages from our dignitaries</p>
-              <h2 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">A concluding note from Olympians, pioneers, and Himalayan experts.</h2>
-              <p class="mt-4 text-base font-semibold leading-7 text-night/[0.62]">At the close of our presentation, meet the respected advisors whose experience supports Snow Feather Adventures and its commitment to professional, safe, and meaningful journeys.</p>
+              <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Experienced & highly qualified team</p>
+              <h2 class="mt-3 font-display text-4xl font-extrabold text-night sm:text-5xl">Guided by Olympians, national champions, instructors, and Himalayan experts.</h2>
+              <p class="mt-4 text-base font-semibold leading-7 text-night/[0.62]">Our professional strength comes from respected specialists in skiing, mountaineering, trekking, mountain rescue, winter sports, outdoor leadership, and Kashmir tourism. Their knowledge helps us maintain high standards of safety, planning, and guest care.</p>
             </div>
-            <button type="button" class="self-start rounded-lg bg-night px-6 py-3 text-sm font-black text-white hover:bg-lake lg:self-auto" @click="navigateTo('/about')">Read Their Messages</button>
+            <button type="button" class="self-start rounded-lg bg-night px-6 py-3 text-sm font-black text-white hover:bg-lake lg:self-auto" @click="navigateTo('/about')">Meet Our Expert Team</button>
           </div>
           <div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
             <button v-for="mentor in mentors" :key="`home-mentor-${mentor.name}`" type="button" class="group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-night/[0.08] bg-white text-left shadow-lift" @click="navigateTo('/about')">
@@ -3931,18 +4010,18 @@ onUnmounted(() => {
               </div>
 
               <div class="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                <div class="min-w-0 rounded-lg border border-white/18 bg-white/12 p-3 backdrop-blur-xl">
+                <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="min-w-0 rounded-lg border border-white/18 bg-white/12 p-3 backdrop-blur-xl transition hover:bg-white/20">
                   <p class="text-[0.62rem] font-black uppercase leading-4 tracking-[0.14em] text-gold">Call / WhatsApp</p>
                   <p class="mt-2 break-words text-xs font-black leading-5 text-white sm:text-[0.8rem]">{{ siteContent.contactPhone }}</p>
-                </div>
-                <div class="min-w-0 rounded-lg border border-white/18 bg-white/12 p-3 backdrop-blur-xl">
+                </a>
+                <a :href="`mailto:${siteContent.contactEmail}`" class="min-w-0 rounded-lg border border-white/18 bg-white/12 p-3 backdrop-blur-xl transition hover:bg-white/20">
                   <p class="text-[0.62rem] font-black uppercase leading-4 tracking-[0.14em] text-gold">Email</p>
                   <p class="mt-2 break-all text-xs font-black leading-5 text-white sm:text-[0.8rem]">{{ siteContent.contactEmail }}</p>
-                </div>
-                <div class="min-w-0 rounded-lg border border-white/18 bg-white/12 p-3 backdrop-blur-xl">
+                </a>
+                <a :href="`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteContent.mapQuery || siteContent.contactAddress)}`" target="_blank" rel="noreferrer" class="min-w-0 rounded-lg border border-white/18 bg-white/12 p-3 backdrop-blur-xl transition hover:bg-white/20">
                   <p class="text-[0.62rem] font-black uppercase leading-4 tracking-[0.14em] text-gold">Office</p>
                   <p class="mt-2 line-clamp-5 text-xs font-semibold leading-5 text-white/78 sm:text-[0.8rem]">{{ siteContent.contactAddress }}</p>
-                </div>
+                </a>
                 <div class="min-w-0 rounded-lg border border-white/18 bg-white/12 p-3 backdrop-blur-xl">
                   <p class="text-[0.62rem] font-black uppercase leading-4 tracking-[0.14em] text-gold">Support</p>
                   <p class="mt-2 text-xs font-semibold leading-5 text-white/78 sm:text-[0.8rem]">{{ siteContent.contactSupport }}</p>
@@ -3955,7 +4034,7 @@ onUnmounted(() => {
             <div class="mb-5 flex flex-col gap-3 border-b border-night/10 pb-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p class="text-sm font-black uppercase tracking-[0.18em] text-lake">Send message</p>
-                <h3 class="mt-1 text-2xl font-black text-night">Tell us what you need</h3>
+                <h3 class="mt-1 text-2xl font-black text-night">Tell us what you need—we’ll confirm every detail</h3>
               </div>
               <span class="rounded-lg bg-gold px-4 py-2 text-xs font-black text-night">Fast response</span>
             </div>
@@ -3981,12 +4060,24 @@ onUnmounted(() => {
               <div class="rounded-lg bg-frost p-3 text-center text-xs font-black text-night/62">Cabs</div>
               <div class="rounded-lg bg-frost p-3 text-center text-xs font-black text-night/62">Activities</div>
             </div>
+            <p class="mt-4 text-center text-xs font-bold leading-5 text-night/50">Submitting an enquiry does not create a payment obligation. Our team will contact you to confirm availability, inclusions, and the final quotation.</p>
           </form>
         </div>
       </section>
 
       <section v-if="currentPage === 'contact'" class="bg-white py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="mb-8 max-w-4xl">
+            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Clear enquiry & confirmation</p>
+            <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Know exactly what happens after you contact us.</h2>
+          </div>
+          <div class="mb-12 grid gap-4 md:grid-cols-3">
+            <article v-for="[number, title, text] in inquiryAssurances" :key="title" class="premium-card rounded-lg p-6 hover-lift">
+              <span class="grid h-11 w-11 place-items-center rounded-full bg-gold text-lg font-black text-night">{{ number }}</span>
+              <h3 class="mt-5 text-2xl font-black text-night">{{ title }}</h3>
+              <p class="mt-3 text-sm font-semibold leading-7 text-night/[0.62]">{{ text }}</p>
+            </article>
+          </div>
           <div class="mb-8 max-w-4xl">
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Guest support</p>
             <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Help before booking, during travel, and after arrival.</h2>
