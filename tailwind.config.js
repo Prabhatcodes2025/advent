@@ -4,19 +4,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        night: "#071827",
-        alpine: "#0e3a5b",
-        lake: "#0ea5c6",
-        frost: "#f4fbff",
-        gold: "#d8a94f",
+        night: "#12304a",
+        alpine: "#075985",
+        lake: "#06b6d4",
+        frost: "#ecfeff",
+        gold: "#f59e0b",
       },
       fontFamily: {
         display: ["Playfair Display", "Georgia", "serif"],
         sans: ["Inter", "ui-sans-serif", "system-ui"],
       },
       boxShadow: {
-        premium: "0 8px 20px rgba(7, 24, 39, .08)",
-        lift: "0 4px 12px rgba(7, 24, 39, .06)",
+        premium: "0 18px 45px rgba(8, 145, 178, .18)",
+        lift: "0 10px 28px rgba(14, 116, 144, .14)",
       },
     },
   },

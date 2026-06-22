@@ -24,13 +24,12 @@ function imageStyle(item) {
 const brandName = "Snow Feather Adventures";
 const brandTagline = "Tours & Travels Kashmir";
 const logoSrc = "/snow-feather-adventures-logo-v2.png";
-const mainBackgroundVideoSrc = "/snow-feather-main-bg.mp4";
 
 const kashmirWebImages = {
-  gulmarg: image("image15"),
+  gulmarg: "/kashmir-gulmarg-vibrant-v2.png",
   sonmarg: image("image11"),
-  pahalgam: image("image19"),
-  dalLake: image("image22"),
+  pahalgam: "/kashmir-pahalgam-vibrant-v2.png",
+  dalLake: "/kashmir-dal-lake-vibrant-v2.png",
   gurez: image("image06"),
   yusmarg: image("image03"),
   doodhpathri: image("image05"),
@@ -920,12 +919,12 @@ const publicGalleryImages = [
 ];
 
 const destinationSpotlights = [
-  { name: "Gulmarg", image: "/images/image16.jpeg", note: "Gondola rides, ski slopes, snow adventures, and summer meadows." },
-  { name: "Pahalgam", image: "/images/image10.jpeg", note: "Lidder River, pine forests, family stays, and valley walks." },
+  { name: "Gulmarg", image: "/kashmir-gulmarg-vibrant-v2.png", note: "Gondola rides, ski slopes, snow adventures, and summer meadows." },
+  { name: "Pahalgam", image: "/kashmir-pahalgam-vibrant-v2.png", note: "Lidder River, pine forests, family stays, and valley walks." },
   { name: "Sonmarg", image: "/images/image18.jpeg", note: "Glacier routes, mountain roads, pony trails, and alpine views." },
   { name: "Doodhpathri", image: "/images/image29.jpeg", note: "Rolling meadows, streams, picnic spaces, and peaceful countryside." },
   { name: "Yousmarg", image: "/images/image32.jpeg", note: "Quiet green hills, pine trails, horse rides, and offbeat scenery." },
-  { name: "Dal Lake", image: "/images/image3.jpeg", note: "Shikara rides, houseboats, floating markets, and calm lake evenings." },
+  { name: "Dal Lake", image: "/kashmir-dal-lake-vibrant-v2.png", note: "Shikara rides, houseboats, floating markets, and calm lake evenings." },
   { name: "Srinagar", image: "/images/image35.jpeg", note: "Gardens, heritage, local markets, food, and panoramic city views." },
   { name: "Aru Valley", image: "/images/image38.jpeg", note: "Open valley roads, trekking routes, camps, and mountain backdrops." },
   { name: "Chandanwari", image: "/images/image30.jpeg", note: "Highland snow, clear streams, dramatic terrain, and scenic drives." },
@@ -1042,7 +1041,7 @@ const defaultBlogChecklist = [
 const blogChecklist = ref(loadStoredValue("kashmir-blog-checklist", defaultBlogChecklist));
 
 const heroStyle = computed(() => ({
-  backgroundImage: `linear-gradient(90deg, rgba(7, 24, 39, 0.9), rgba(7, 24, 39, 0.56), rgba(7, 24, 39, 0.16)), linear-gradient(0deg, rgba(7, 24, 39, 0.72), transparent 48%), url('${kashmirWebImages.sonmarg}')`,
+  backgroundImage: `linear-gradient(90deg, rgba(6, 32, 55, 0.88), rgba(6, 32, 55, 0.5), rgba(6, 32, 55, 0.04)), linear-gradient(0deg, rgba(4, 41, 58, 0.48), transparent 48%), url('/kashmir-hero-vibrant-v2.png')`,
 }));
 
 const defaultActivities = [
@@ -2722,24 +2721,24 @@ onUnmounted(() => {
 
     <main>
       <section v-if="currentPage === 'home'" class="hero-media relative flex min-h-[44rem] overflow-hidden pt-28 text-white sm:min-h-[48rem] lg:min-h-[50rem]" :style="heroStyle">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_78%_22%,rgba(216,169,79,0.22),transparent_28%)]"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_78%_18%,rgba(255,214,10,0.25),transparent_24%),radial-gradient(circle_at_88%_76%,rgba(236,72,153,0.2),transparent_24%)]"></div>
         <div class="relative mx-auto grid w-full max-w-7xl items-end gap-10 px-4 pb-14 pt-8 sm:px-6 lg:grid-cols-[1fr_0.42fr] lg:pb-14 lg:pt-4">
           <div class="max-w-4xl">
-            <p class="mb-5 inline-flex rounded-full border border-gold/35 bg-night/40 px-5 py-2.5 text-xs font-black uppercase tracking-[0.18em] text-gold backdrop-blur">{{ siteContent.heroBadge }}</p>
+            <p class="mb-5 inline-flex rounded-full border border-white/45 bg-gradient-to-r from-[#f97316] to-[#f59e0b] px-5 py-2.5 text-xs font-black uppercase tracking-[0.18em] text-white shadow-premium">{{ siteContent.heroBadge }}</p>
             <p class="mb-3 text-sm font-black uppercase tracking-[0.24em] text-white/70">Snow Feather Adventures • Tours & Travels Kashmir</p>
-            <h1 class="font-display text-4xl font-extrabold leading-[1.02] sm:text-5xl lg:text-6xl xl:text-7xl">{{ siteContent.heroTitle }}</h1>
+            <h1 class="hero-title font-display text-4xl font-extrabold leading-[1.02] sm:text-5xl lg:text-6xl xl:text-7xl">{{ siteContent.heroTitle }}</h1>
             <p class="mt-5 max-w-2xl text-base font-semibold leading-8 text-white/[0.82] sm:text-lg">{{ siteContent.heroSubtitle }}</p>
             <p class="mt-4 border-l-2 border-gold pl-4 text-sm font-black uppercase tracking-[0.13em] text-gold">{{ siteContent.experienceLine }}</p>
 
             <div class="mt-8 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
-              <a href="/booking" class="rounded-lg bg-gold px-6 py-3.5 text-center text-sm font-black text-night shadow-premium hover:bg-white" @click.prevent="navigateTo('/booking')">Enquire Now</a>
+              <a href="/booking" class="rounded-lg bg-gradient-to-r from-[#f97316] to-[#facc15] px-6 py-3.5 text-center text-sm font-black text-night shadow-premium hover:brightness-110" @click.prevent="navigateTo('/booking')">Enquire Now</a>
               <a href="https://wa.me/919055020408?text=I%20want%20to%20plan%20a%20Kashmir%20tour" class="rounded-lg bg-[#25D366] px-6 py-3.5 text-center text-sm font-black text-white shadow-premium hover:bg-white hover:text-night">WhatsApp Us</a>
               <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="rounded-lg border border-white/25 bg-white/12 px-6 py-3.5 text-center text-sm font-black text-white backdrop-blur hover:bg-white hover:text-night">Call Now</a>
               <a href="/packages" class="rounded-lg border border-white/25 bg-night/30 px-6 py-3.5 text-center text-sm font-black text-white backdrop-blur hover:bg-white hover:text-night" @click.prevent="navigateTo('/packages')">View Packages</a>
             </div>
           </div>
 
-          <aside class="hidden rounded-lg border border-white/16 bg-night/48 p-5 shadow-premium backdrop-blur-xl lg:block">
+          <aside class="hidden rounded-2xl border border-white/35 bg-gradient-to-br from-[#06b6d4]/85 via-[#0284c7]/82 to-[#7c3aed]/80 p-6 shadow-premium backdrop-blur-xl lg:block">
             <p class="text-xs font-black uppercase tracking-[0.2em] text-gold">Our promise</p>
             <p class="mt-3 font-display text-2xl font-extrabold leading-tight">Travel Kashmir with complete confidence.</p>
             <div class="mt-5 grid gap-3 text-sm font-bold text-white/78">
@@ -2754,11 +2753,11 @@ onUnmounted(() => {
       </section>
 
       <section v-if="currentPage === 'home'" class="relative z-10 -mt-7 px-4 sm:px-6">
-        <div class="mx-auto grid max-w-7xl overflow-hidden rounded-lg border border-white/70 bg-white shadow-premium sm:grid-cols-3 lg:grid-cols-6">
-          <button v-for="[name, img] in destinations.slice(0, 6)" :key="`home-shortcut-${name}`" type="button" class="group relative min-h-28 overflow-hidden border-b border-night/[0.08] text-left sm:border-r" @click="navigateTo('/destinations')">
+        <div class="mx-auto grid max-w-7xl overflow-hidden rounded-2xl border-4 border-white bg-white shadow-premium sm:grid-cols-3 lg:grid-cols-6">
+          <button v-for="[name, img] in destinations.slice(0, 6)" :key="`home-shortcut-${name}`" type="button" class="group relative min-h-36 overflow-hidden border-b border-white text-left sm:border-r" @click="navigateTo('/destinations')">
             <div class="image-cover absolute inset-0" :style="imageStyle(img)"></div>
-            <div class="absolute inset-0 bg-gradient-to-t from-night/90 via-night/25 to-transparent"></div>
-            <span class="absolute inset-x-0 bottom-0 p-3 text-sm font-black text-white">{{ name }}</span>
+            <div class="absolute inset-0 bg-gradient-to-t from-night/80 via-transparent to-transparent"></div>
+            <span class="absolute inset-x-0 bottom-0 p-4 text-sm font-black text-white drop-shadow-lg">{{ name }}</span>
           </button>
         </div>
       </section>
@@ -2928,20 +2927,10 @@ onUnmounted(() => {
       >
         <div
           class="absolute inset-0 image-cover"
-          :style="{ backgroundImage: `url('${image('image20')}')` }"
+          :style="{ backgroundImage: `url('/kashmir-pahalgam-vibrant-v2.png')` }"
         ></div>
-        <video
-          class="absolute inset-0 h-full w-full object-cover"
-          :src="mainBackgroundVideoSrc"
-          autoplay
-          muted
-          loop
-          playsinline
-          preload="metadata"
-          aria-hidden="true"
-        ></video>
-        <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,11,18,0.88),rgba(3,20,31,0.64),rgba(3,22,34,0.28)),linear-gradient(0deg,rgba(3,11,18,0.78),rgba(3,11,18,0.08))]"></div>
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_76%_28%,rgba(9,165,213,0.24),transparent_34%)]"></div>
+        <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(4,35,52,0.8),rgba(3,70,83,0.36),rgba(3,22,34,0.06)),linear-gradient(0deg,rgba(3,44,52,0.45),transparent)]"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_76%_28%,rgba(250,204,21,0.2),transparent_34%)]"></div>
 
       </section>
 
@@ -4000,7 +3989,7 @@ onUnmounted(() => {
       <section v-if="currentPage === 'contact'" id="contact" class="section-band min-h-screen pb-16 pt-32">
         <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
           <div class="relative min-h-[37rem] overflow-hidden rounded-lg shadow-premium">
-            <div class="image-cover absolute inset-0" :style="imageStyle('image22')"></div>
+            <div class="image-cover absolute inset-0" :style="imageStyle('/kashmir-dal-lake-vibrant-v2.png')"></div>
             <div class="absolute inset-0 bg-gradient-to-br from-night/92 via-night/64 to-lake/28"></div>
             <div class="relative flex min-h-[37rem] flex-col justify-between p-5 text-white sm:p-7">
               <div>
