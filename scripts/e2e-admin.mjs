@@ -121,7 +121,7 @@ try {
   await waitFor(`localStorage.getItem('kashmir-destinations')?.includes(${JSON.stringify(testDestination)})`);
   await waitFor(`localStorage.getItem('kashmir-packages-premium-v3')?.includes(${JSON.stringify(testPackageName)})`);
 
-  await navigate("/home");
+  await navigate("/");
   await waitFor(`document.body.textContent.includes(${JSON.stringify(testHero)})`);
   assert(await evaluate("document.querySelectorAll('img').length > 0"), "Home page images were not rendered.");
   assert(await evaluate("document.body.textContent.includes('Popular Kashmir packages')"), "Home package section missing.");

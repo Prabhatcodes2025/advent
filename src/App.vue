@@ -47,7 +47,7 @@ function loadStoredValue(key, fallback) {
 }
 
 const navItems = [
-  ["Home", "/home"],
+  ["Home", "/"],
   ["About Us", "/about"],
   ["Packages", "/packages"],
   ["Honeymoon", "/honeymoon-packages"],
@@ -61,8 +61,7 @@ const moreMenuItems = [
 ];
 
 const publicRoutes = {
-  "/": "about",
-  "/home": "home",
+  "/": "home",
   "/about": "about",
   "/packages": "packages",
   "/honeymoon-packages": "packages",
@@ -77,6 +76,7 @@ const publicRoutes = {
 
 function normalizePath(path) {
   const cleanPath = path.endsWith("/") && path.length > 1 ? path.slice(0, -1) : path;
+  if (cleanPath === "/home") return "/";
   if (cleanPath === "/admin/login") return cleanPath;
   if (cleanPath.startsWith("/packages/") && cleanPath.split("/").length === 3) return cleanPath;
   return publicRoutes[cleanPath] ? cleanPath : "/";
@@ -1919,6 +1919,9 @@ function deleteBlogChecklistItem(index) {
 }
 
 onMounted(() => {
+  if (window.location.pathname === "/home" || window.location.pathname === "/home/") {
+    window.history.replaceState({}, "", "/");
+  }
   if (currentPath.value === "/honeymoon-packages") {
     activeFilter.value = "honeymoon";
   }
@@ -2766,7 +2769,7 @@ onUnmounted(() => {
   <template v-else>
     <header class="site-header fixed inset-x-0 top-0 z-50 px-3 py-3 sm:px-5">
       <nav class="glass-nav mx-auto flex max-w-7xl items-center justify-between rounded-2xl px-3 py-2.5 sm:px-4">
-        <a href="/home" class="flex items-center gap-3" :aria-label="`${brandName} home`" @click.prevent="navigateTo('/home')">
+        <a href="/" class="flex items-center gap-3" :aria-label="`${brandName} home`" @click.prevent="navigateTo('/')">
           <span class="grid h-12 w-12 place-items-center overflow-hidden rounded-lg bg-white p-1.5 shadow-lift">
             <img :src="logoSrc" :alt="`${brandName} logo`" class="h-full w-full object-contain" />
           </span>
@@ -4489,7 +4492,7 @@ onUnmounted(() => {
       <div class="mx-auto max-w-7xl">
         <div class="grid gap-10 border-b border-white/10 pb-10 md:grid-cols-2 xl:grid-cols-[1.25fr_0.8fr_0.85fr_1fr] xl:gap-12">
           <div>
-            <button type="button" class="inline-flex items-center gap-3 text-left" @click="navigateTo('/home')">
+            <button type="button" class="inline-flex items-center gap-3 text-left" @click="navigateTo('/')">
               <span class="grid h-16 w-16 place-items-center overflow-hidden rounded-full border border-lake/30 bg-white p-2">
                 <img :src="logoSrc" :alt="`${brandName} logo`" class="h-full w-full object-contain" />
               </span>
