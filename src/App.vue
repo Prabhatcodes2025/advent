@@ -1036,7 +1036,6 @@ function showMoreBlogPosts() {
 
 let blogSyncChannel = null;
 let blogSyncTimeout = null;
-let revealObserver = null;
 
 function loadLatestBlogPosts() {
   const latestPosts = loadStoredValue("kashmir-blog-posts", defaultBlogPosts);
@@ -1935,20 +1934,6 @@ onMounted(() => {
   initialLoadingTimeout = window.setTimeout(() => {
     isInitialLoading.value = false;
     initialLoadingTimeout = null;
-    window.setTimeout(() => {
-      revealObserver = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add("is-visible");
-              revealObserver?.unobserve(entry.target);
-            }
-          });
-        },
-        { threshold: 0.12 },
-      );
-      document.querySelectorAll("[data-reveal]").forEach((element) => revealObserver.observe(element));
-    }, 80);
   }, 1200);
 });
 
@@ -1966,7 +1951,6 @@ onUnmounted(() => {
   if (initialLoadingTimeout) {
     window.clearTimeout(initialLoadingTimeout);
   }
-  revealObserver?.disconnect();
 });
 </script>
 
@@ -2898,7 +2882,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="destination-discovery overflow-hidden bg-[#f3efe7] py-24 sm:py-32">
+      <section v-if="currentPage === 'home'" class="destination-discovery overflow-hidden bg-[#f3efe7] py-16 sm:py-20">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-end" data-reveal>
             <div>
@@ -2911,7 +2895,7 @@ onUnmounted(() => {
           </div>
 
           <div class="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            <article v-for="(place, index) in destinationStories" :key="place.name" class="destination-story group" :class="{ 'lg:translate-y-12': index === 1 || index === 4 }" data-reveal>
+            <article v-for="place in destinationStories" :key="place.name" class="destination-story group" data-reveal>
               <div class="destination-story-image" :style="imageStyle(place.image)"></div>
               <div class="absolute inset-0 bg-gradient-to-t from-[#061c24]/95 via-[#061c24]/12 to-transparent"></div>
               <div class="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
@@ -2926,13 +2910,13 @@ onUnmounted(() => {
             </article>
           </div>
 
-          <div class="mt-24 text-center">
+          <div class="mt-12 text-center">
             <button type="button" class="text-link" @click="navigateTo('/destinations')">Explore all 50+ destinations <span>→</span></button>
           </div>
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="bg-[#071d24] py-24 text-white sm:py-32">
+      <section v-if="currentPage === 'home'" class="bg-[#071d24] py-16 text-white sm:py-20">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="max-w-4xl" data-reveal>
             <p class="editorial-eyebrow text-gold">Experience Kashmir</p>
@@ -2955,7 +2939,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="journey-story bg-white py-24 sm:py-32">
+      <section v-if="currentPage === 'home'" class="journey-story bg-white py-16 sm:py-20">
         <div class="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
           <div data-reveal>
             <p class="editorial-eyebrow">Why Kashmir?</p>
@@ -2984,7 +2968,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="bg-white py-20">
+      <section v-if="currentPage === 'home'" class="bg-white py-14 sm:py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <div>
@@ -3005,7 +2989,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="bg-white py-20">
+      <section v-if="currentPage === 'home'" class="bg-white py-14 sm:py-16">
         <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.72fr_1.28fr] lg:items-center">
           <div>
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Kashmir in motion</p>
@@ -3029,7 +3013,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="section-band py-20">
+      <section v-if="currentPage === 'home'" class="section-band py-14 sm:py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-9 max-w-4xl">
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Accommodation categories</p>
@@ -3060,7 +3044,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="relative overflow-hidden bg-night py-20 text-white">
+      <section v-if="currentPage === 'home'" class="relative overflow-hidden bg-night py-14 text-white sm:py-16">
         <div class="absolute inset-0 opacity-15 image-cover" :style="imageStyle('image20')"></div>
         <div class="relative mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-10 max-w-4xl">
@@ -3080,7 +3064,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="bg-white py-20">
+      <section v-if="currentPage === 'home'" class="bg-white py-14 sm:py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-9 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div class="max-w-3xl">
@@ -3132,7 +3116,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="bg-white py-16">
+      <section v-if="currentPage === 'home'" class="bg-white py-12 sm:py-14">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="grid gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
             <div>
@@ -3154,7 +3138,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="section-band py-16">
+      <section v-if="currentPage === 'home'" class="section-band py-12 sm:py-14">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-8">
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">{{ siteContent.homeActivitiesEyebrow }}</p>
@@ -3952,7 +3936,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="bg-white py-20">
+      <section v-if="currentPage === 'home'" class="bg-white py-14 sm:py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
             <div class="lg:sticky lg:top-28">
@@ -3971,7 +3955,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="bg-white py-20">
+      <section v-if="currentPage === 'home'" class="bg-white py-14 sm:py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-9 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div class="max-w-4xl">
@@ -3999,7 +3983,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="section-band py-20">
+      <section v-if="currentPage === 'home'" class="section-band py-14 sm:py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-9 text-center">
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Guest reviews & testimonials</p>
@@ -4022,7 +4006,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" id="gallery" class="section-band py-16">
+      <section v-if="currentPage === 'home'" id="gallery" class="section-band py-12 sm:py-14">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-8 max-w-4xl">
             <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">{{ siteContent.homeGalleryEyebrow }}</p>
@@ -4043,7 +4027,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="relative overflow-hidden bg-night py-20 text-white">
+      <section v-if="currentPage === 'home'" class="relative overflow-hidden bg-night py-14 text-white sm:py-16">
         <div class="image-cover absolute inset-0 opacity-25" :style="imageStyle('image22')"></div>
         <div class="absolute inset-0 bg-gradient-to-r from-night via-night/90 to-alpine/70"></div>
         <div class="relative mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_0.82fr] lg:items-center">
@@ -4060,7 +4044,7 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="bg-white py-20">
+      <section v-if="currentPage === 'home'" class="bg-white py-14 sm:py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-9 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div class="max-w-4xl">
