@@ -117,7 +117,7 @@ try {
       [...document.querySelectorAll('button')].find((button) => button.textContent.trim() === 'Save Changes').click();
     })()
   `);
-  await waitFor(`localStorage.getItem('kashmir-site-content-v3')?.includes(${JSON.stringify(testHero)})`);
+  await waitFor(`localStorage.getItem('kashmir-site-content-v4')?.includes(${JSON.stringify(testHero)})`);
   await waitFor(`localStorage.getItem('kashmir-destinations')?.includes(${JSON.stringify(testDestination)})`);
   await waitFor(`localStorage.getItem('kashmir-packages-premium-v3')?.includes(${JSON.stringify(testPackageName)})`);
 
@@ -169,7 +169,7 @@ try {
       [...document.querySelectorAll('button')].find((button) => button.textContent.trim() === 'Save Changes').click();
     })()
   `);
-  await waitFor(`localStorage.getItem('kashmir-site-content-v3')?.includes(${JSON.stringify(restoreHero)})`);
+  await waitFor(`localStorage.getItem('kashmir-site-content-v4')?.includes(${JSON.stringify(restoreHero)})`);
   await waitFor(`localStorage.getItem('kashmir-destinations')?.includes(${JSON.stringify(restoreDestination)})`);
   await waitFor(`localStorage.getItem('kashmir-packages-premium-v3')?.includes(${JSON.stringify(restorePackageName)})`);
 

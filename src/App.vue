@@ -87,6 +87,9 @@ const isAdminRoute = computed(() => currentPath.value === "/admin/login");
 const isMenuOpen = ref(false);
 const isMoreMenuOpen = ref(false);
 const isInitialLoading = ref(true);
+const isTripPlannerOpen = ref(false);
+const activeExperience = ref("All");
+const activeJourneyMoment = ref(0);
 const activeFilter = ref("all");
 const activePriceRange = ref("all");
 const activeAdminTab = ref("packages");
@@ -95,10 +98,10 @@ const currentPage = computed(() => (currentPath.value.startsWith("/packages/") ?
 let initialLoadingTimeout = null;
 
 const defaultSiteContent = {
-  heroBadge: "25+ Years of Excellence in Tourism, Adventure, Skiing & Hospitality",
-  heroTitle: "Kashmir, Crafted With Experience",
+  heroBadge: "Born in Kashmir · Guided by locals",
+  heroTitle: "Discover the soul of Kashmir",
   heroSubtitle:
-    "Adventure, luxury, and genuine Kashmiri hospitality—all under one roof. Discover transparent packages, trusted local planning, memorable stays, and expert support from arrival to departure.",
+    "Snow adventures, hidden valleys, luxury stays, and unforgettable memories—crafted around the way you want to feel.",
   homeActivitiesEyebrow: "Featured activities",
   homeActivitiesTitle: "Kashmir adventure, snow, lake, and mountain experiences.",
   homeGalleryEyebrow: "Media gallery",
@@ -157,7 +160,7 @@ const defaultSiteContent = {
   googleRecaptchaSiteKey: "",
 };
 
-const storedSiteContent = loadStoredValue("kashmir-site-content-v3", defaultSiteContent);
+const storedSiteContent = loadStoredValue("kashmir-site-content-v4", defaultSiteContent);
 const siteContent = ref({
   ...defaultSiteContent,
   ...storedSiteContent,
@@ -1023,8 +1026,17 @@ const defaultBlogPosts = [
   },
 ];
 const blogPosts = ref(loadStoredValue("kashmir-blog-posts", defaultBlogPosts));
+const visibleBlogCount = ref(6);
+const visibleBlogPosts = computed(() => blogPosts.value.slice(0, visibleBlogCount.value));
+const hasMoreBlogPosts = computed(() => visibleBlogCount.value < blogPosts.value.length);
+
+function showMoreBlogPosts() {
+  visibleBlogCount.value += 6;
+}
+
 let blogSyncChannel = null;
 let blogSyncTimeout = null;
+let revealObserver = null;
 
 function loadLatestBlogPosts() {
   const latestPosts = loadStoredValue("kashmir-blog-posts", defaultBlogPosts);
@@ -1074,8 +1086,49 @@ const defaultBlogChecklist = [
 const blogChecklist = ref(loadStoredValue("kashmir-blog-checklist", defaultBlogChecklist));
 
 const heroStyle = computed(() => ({
-  backgroundImage: `linear-gradient(90deg, rgba(6, 32, 55, 0.88), rgba(6, 32, 55, 0.5), rgba(6, 32, 55, 0.04)), linear-gradient(0deg, rgba(4, 41, 58, 0.48), transparent 48%), url('/kashmir-hero-vibrant-v2.png')`,
+  backgroundImage: `linear-gradient(90deg, rgba(4, 20, 31, 0.9), rgba(4, 32, 43, 0.48), rgba(4, 20, 31, 0.12)), linear-gradient(0deg, rgba(3, 22, 29, 0.76), transparent 58%), url('/kashmir-hero-vibrant-v2.png')`,
 }));
+
+const heroStats = [
+  ["5,000+", "Happy travelers"],
+  ["50+", "Destinations"],
+  ["100%", "Local expertise"],
+  ["24/7", "Travel support"],
+];
+
+const destinationStories = [
+  { name: "Gulmarg", image: "/kashmir-gulmarg-vibrant-v2.png", season: "Dec – Mar · May – Sep", activities: "Skiing · Gondola · Meadows", text: "Rise above pine forests into a world of powder snow, open meadows, and Himalayan silence." },
+  { name: "Dal Lake", image: "/kashmir-dal-lake-vibrant-v2.png", season: "Mar – Nov", activities: "Shikara · Houseboats · Sunrise", text: "Wake on the water, drift past floating gardens, and watch Srinagar glow in the first light." },
+  { name: "Pahalgam", image: "/kashmir-pahalgam-vibrant-v2.png", season: "Apr – Oct", activities: "Valleys · River walks · Horses", text: "Follow the Lidder through pine country where every bend opens into another cinematic valley." },
+  { name: "Sonmarg", image: "/images/image18.jpeg", season: "Apr – Oct", activities: "Glaciers · Pony trails · Picnics", text: "Travel the road to the meadow of gold, framed by glaciers, wild rivers, and high mountain passes." },
+  { name: "Gurez Valley", image: "/images/image23.jpeg", season: "May – Oct", activities: "Culture · Villages · Photography", text: "Go beyond the familiar into wooden villages, dramatic peaks, and one of Kashmir’s last quiet frontiers." },
+  { name: "Aru Valley", image: "/images/image38.jpeg", season: "Apr – Oct", activities: "Trekking · Camping · Slow travel", text: "Trade crowds for alpine air, camp beneath the stars, and begin trails that disappear into the mountains." },
+];
+
+const experienceStories = [
+  { category: "Snow", title: "Ski the Himalayas", eyebrow: "Gulmarg", image: "/images/image40.jpeg", text: "From first turns to powder days with local instructors and mountain experts." },
+  { category: "Slow", title: "Wake up on Dal Lake", eyebrow: "Srinagar", image: "/images/image3.jpeg", text: "Houseboat mornings, kahwa on deck, and a private Shikara through floating gardens." },
+  { category: "Adventure", title: "Walk into the wild", eyebrow: "Aru & Pahalgam", image: "/images/image37.jpeg", text: "High-altitude lakes, pine trails, campfire evenings, and routes shaped to your pace." },
+  { category: "Romance", title: "A honeymoon with space", eyebrow: "Across Kashmir", image: "/images/image14.jpeg", text: "Private drives, quiet viewpoints, thoughtful stays, and time that never feels rushed." },
+  { category: "Family", title: "Wonder for every age", eyebrow: "Kashmir circuit", image: "/images/image29.jpeg", text: "Comfortable days, playful snow, meadow picnics, and local care for the whole family." },
+  { category: "Adventure", title: "Camp under Himalayan stars", eyebrow: "Gurez & Sonmarg", image: "/images/image39.jpeg", text: "Remote valleys, riverside camps, warm fires, and nights far from ordinary life." },
+  { category: "Luxury", title: "Kashmir, privately curated", eyebrow: "Signature journey", image: "/images/image35.jpeg", text: "Beautiful stays, a dedicated vehicle, flexible days, and experiences arranged around you." },
+  { category: "Slow", title: "Taste the real Srinagar", eyebrow: "Old city", image: "/images/image25.jpeg", text: "Heritage lanes, gardens, artisan workshops, bakeries, saffron, and stories shared by locals." },
+];
+
+const experienceFilters = ["All", "Snow", "Slow", "Adventure", "Romance", "Family", "Luxury"];
+const filteredExperienceStories = computed(() =>
+  activeExperience.value === "All"
+    ? experienceStories
+    : experienceStories.filter((item) => item.category === activeExperience.value),
+);
+
+const journeyMoments = [
+  { number: "01", label: "Arrive", title: "The mountains appear", text: "Your driver meets you in Srinagar. The air changes, the ridgelines arrive, and the journey begins without friction.", image: "/images/image35.jpeg" },
+  { number: "02", label: "Feel", title: "Kashmir slows time", text: "A quiet Shikara, warm kahwa, cedar-scented roads, and unhurried conversations make the place feel personal.", image: "/images/image3.jpeg" },
+  { number: "03", label: "Explore", title: "Choose your wild", text: "Snow slopes, river trails, hidden valleys, houseboats, gardens, and village roads—each day reveals a different Kashmir.", image: "/images/image37.jpeg" },
+  { number: "04", label: "Remember", title: "Leave with a story", text: "Not a checklist of sights, but moments that stay vivid long after the flight home.", image: "/images/image39.jpeg" },
+];
 
 const defaultActivities = [
   ["SKI", "Skiing", "Gulmarg slopes, instructors, equipment, and peak-season support.", "image15"],
@@ -1529,7 +1582,7 @@ function logoutAdmin() {
 }
 
 function saveAdminChanges() {
-  localStorage.setItem("kashmir-site-content-v3", JSON.stringify(siteContent.value));
+  localStorage.setItem("kashmir-site-content-v4", JSON.stringify(siteContent.value));
   localStorage.setItem("kashmir-packages-premium-v3", JSON.stringify(packages.value));
   localStorage.setItem("kashmir-gallery-images-v2", JSON.stringify(galleryImages.value));
   localStorage.setItem("kashmir-gallery-collections", JSON.stringify(galleryCollections.value));
@@ -1594,6 +1647,7 @@ function resetAdminChanges() {
   localStorage.removeItem("kashmir-site-content");
   localStorage.removeItem("kashmir-site-content-v2");
   localStorage.removeItem("kashmir-site-content-v3");
+  localStorage.removeItem("kashmir-site-content-v4");
   localStorage.removeItem("kashmir-packages");
   localStorage.removeItem("kashmir-packages-premium-v2");
   localStorage.removeItem("kashmir-packages-premium-v3");
@@ -1881,6 +1935,20 @@ onMounted(() => {
   initialLoadingTimeout = window.setTimeout(() => {
     isInitialLoading.value = false;
     initialLoadingTimeout = null;
+    window.setTimeout(() => {
+      revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              revealObserver?.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.12 },
+      );
+      document.querySelectorAll("[data-reveal]").forEach((element) => revealObserver.observe(element));
+    }, 80);
   }, 1200);
 });
 
@@ -1898,6 +1966,7 @@ onUnmounted(() => {
   if (initialLoadingTimeout) {
     window.clearTimeout(initialLoadingTimeout);
   }
+  revealObserver?.disconnect();
 });
 </script>
 
@@ -2788,65 +2857,130 @@ onUnmounted(() => {
     </header>
 
     <main>
-      <section v-if="currentPage === 'home'" class="hero-media relative flex min-h-[44rem] overflow-hidden pt-28 text-white sm:min-h-[48rem] lg:min-h-[50rem]" :style="heroStyle">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_78%_18%,rgba(255,214,10,0.25),transparent_24%),radial-gradient(circle_at_88%_76%,rgba(236,72,153,0.2),transparent_24%)]"></div>
-        <div class="relative mx-auto grid w-full max-w-7xl items-end gap-10 px-4 pb-14 pt-8 sm:px-6 lg:grid-cols-[1fr_0.42fr] lg:pb-14 lg:pt-4">
-          <div class="max-w-4xl">
-            <p class="mb-5 inline-flex rounded-full border border-white/45 bg-gradient-to-r from-[#f97316] to-[#f59e0b] px-5 py-2.5 text-xs font-black uppercase tracking-[0.18em] text-white shadow-premium">{{ siteContent.heroBadge }}</p>
-            <p class="mb-3 text-sm font-black uppercase tracking-[0.24em] text-white/70">Snow Feather Adventures • Tours & Travels Kashmir</p>
-            <h1 class="hero-title font-display text-4xl font-extrabold leading-[1.02] sm:text-5xl lg:text-6xl xl:text-7xl">{{ siteContent.heroTitle }}</h1>
-            <p class="mt-5 max-w-2xl text-base font-semibold leading-8 text-white/[0.82] sm:text-lg">{{ siteContent.heroSubtitle }}</p>
-            <p class="mt-4 border-l-2 border-gold pl-4 text-sm font-black uppercase tracking-[0.13em] text-gold">{{ siteContent.experienceLine }}</p>
+      <section v-if="currentPage === 'home'" class="cinematic-hero relative flex min-h-screen overflow-hidden text-white" :style="heroStyle">
+        <video class="absolute inset-0 h-full w-full object-cover" src="/snow-feather-main-bg.mp4" autoplay muted loop playsinline poster="/kashmir-hero-vibrant-v2.png"></video>
+        <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,18,25,.9)_0%,rgba(3,31,39,.58)_48%,rgba(3,18,25,.18)_100%),linear-gradient(0deg,rgba(3,17,23,.92)_0%,transparent_58%)]"></div>
+        <div class="hero-grain absolute inset-0"></div>
 
-            <div class="mt-8 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
-              <a href="/booking" class="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#f97316] to-[#facc15] px-6 py-3.5 text-center text-sm font-black text-night shadow-premium hover:brightness-110" @click.prevent="navigateTo('/booking')">
-                <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M5 5.75h14a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-8l-4.5 3v-3H5a2 2 0 0 1-2-2v-8.5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                  <path d="M7.5 10h9M7.5 13.5h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                </svg>
-                <span>Enquire Now</span>
-              </a>
-              <a href="https://wa.me/919055020408?text=I%20want%20to%20plan%20a%20Kashmir%20tour" class="cta-whatsapp inline-flex items-center justify-center gap-2 rounded-lg bg-[#25D366] px-6 py-3.5 text-center text-sm font-black text-white shadow-premium hover:bg-white hover:text-night">
-                <img src="/social/whatsapp.svg" alt="" class="h-6 w-6 shrink-0" />
-                <span>WhatsApp Us</span>
-              </a>
-              <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="inline-flex items-center justify-center gap-2 rounded-lg border border-white/25 bg-white/12 px-6 py-3.5 text-center text-sm font-black text-white backdrop-blur hover:bg-white hover:text-night">
-                <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M7.4 3.8 10 8.2 8.2 10c1.1 2.5 3.3 4.7 5.8 5.8l1.8-1.8 4.4 2.6-.9 3.2c-.2.7-.9 1.2-1.7 1.2C9.5 20.5 3.5 14.5 3 6.4c0-.8.5-1.5 1.2-1.7l3.2-.9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                </svg>
-                <span>Call Now</span>
-              </a>
-              <a href="/packages" class="inline-flex items-center justify-center gap-2 rounded-lg border border-white/25 bg-night/30 px-6 py-3.5 text-center text-sm font-black text-white backdrop-blur hover:bg-white hover:text-night" @click.prevent="navigateTo('/packages')">
-                <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M4 7.5h16v11H4v-11Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                  <path d="M8.5 7.5V5.8A1.8 1.8 0 0 1 10.3 4h3.4a1.8 1.8 0 0 1 1.8 1.8v1.7M4 12h16M10 12v2h4v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>View Packages</span>
-              </a>
+        <div class="relative mx-auto flex w-full max-w-7xl flex-col justify-end px-4 pb-8 pt-36 sm:px-6 sm:pb-12 lg:pb-14">
+          <div class="max-w-4xl" data-reveal>
+            <p class="mb-5 flex items-center gap-3 text-xs font-black uppercase tracking-[0.3em] text-white/75">
+              <span class="h-px w-10 bg-gold"></span>
+              {{ siteContent.heroBadge }}
+            </p>
+            <h1 class="hero-title max-w-4xl font-display text-5xl font-extrabold leading-[0.96] sm:text-7xl lg:text-[6.5rem]">
+              {{ siteContent.heroTitle }}
+            </h1>
+            <p class="mt-6 max-w-2xl text-base font-medium leading-8 text-white/78 sm:text-xl">
+              {{ siteContent.heroSubtitle }}
+            </p>
+            <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+              <button type="button" class="luxury-button luxury-button-primary" @click="navigateTo('/destinations')">
+                Explore Kashmir <span aria-hidden="true">↗</span>
+              </button>
+              <button type="button" class="luxury-button luxury-button-ghost" @click="isTripPlannerOpen = true">
+                Plan my trip <span aria-hidden="true">→</span>
+              </button>
             </div>
           </div>
 
-          <aside class="hidden rounded-2xl border border-white/35 bg-gradient-to-br from-[#06b6d4]/85 via-[#0284c7]/82 to-[#7c3aed]/80 p-6 shadow-premium backdrop-blur-xl lg:block">
-            <p class="text-xs font-black uppercase tracking-[0.2em] text-gold">Our promise</p>
-            <p class="mt-3 font-display text-2xl font-extrabold leading-tight">Travel Kashmir with complete confidence.</p>
-            <div class="mt-5 grid gap-3 text-sm font-bold text-white/78">
-              <p>✓ Transparent pricing</p>
-              <p>✓ No hidden charges</p>
-              <p>✓ No false promises</p>
-              <p>✓ Genuine local expertise</p>
-              <p>✓ Professional trip support</p>
+          <div class="mt-12 grid grid-cols-2 border-t border-white/20 pt-6 sm:grid-cols-4 lg:max-w-4xl" data-reveal>
+            <div v-for="[value, label] in heroStats" :key="label" class="border-white/15 py-2 pr-4 sm:border-r sm:pl-5 first:pl-0 last:border-r-0">
+              <p class="font-display text-2xl font-extrabold text-white sm:text-3xl">{{ value }}</p>
+              <p class="mt-1 text-[0.65rem] font-black uppercase tracking-[0.16em] text-white/50">{{ label }}</p>
             </div>
-          </aside>
+          </div>
+        </div>
+
+        <div class="absolute bottom-10 right-8 hidden items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-white/55 xl:flex">
+          <span>Scroll to wander</span>
+          <span class="scroll-line h-14 w-px bg-white/30"></span>
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="relative z-10 -mt-7 px-4 sm:px-6">
-        <div class="mx-auto grid max-w-7xl overflow-hidden rounded-2xl border-4 border-white bg-white shadow-premium sm:grid-cols-3 lg:grid-cols-6">
-          <button v-for="[name, img] in destinations.slice(0, 6)" :key="`home-shortcut-${name}`" type="button" class="group relative min-h-36 overflow-hidden border-b border-white text-left sm:border-r" @click="navigateTo('/destinations')">
-            <div class="image-cover absolute inset-0" :style="imageStyle(img)"></div>
-            <div class="absolute inset-0 bg-gradient-to-t from-night/80 via-transparent to-transparent"></div>
-            <span class="absolute inset-x-0 bottom-0 p-4 text-sm font-black text-white drop-shadow-lg">{{ name }}</span>
-          </button>
+      <section v-if="currentPage === 'home'" class="destination-discovery overflow-hidden bg-[#f3efe7] py-24 sm:py-32">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-end" data-reveal>
+            <div>
+              <p class="editorial-eyebrow">Where will Kashmir take you?</p>
+              <h2 class="editorial-title mt-4">Choose a feeling.<br />Find your place.</h2>
+            </div>
+            <p class="max-w-2xl text-base leading-8 text-night/60 lg:justify-self-end lg:text-lg">
+              Beyond the postcard is a Kashmir of quiet mornings, wild roads, generous people, and landscapes that change your sense of scale.
+            </p>
+          </div>
+
+          <div class="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            <article v-for="(place, index) in destinationStories" :key="place.name" class="destination-story group" :class="{ 'lg:translate-y-12': index === 1 || index === 4 }" data-reveal>
+              <div class="destination-story-image" :style="imageStyle(place.image)"></div>
+              <div class="absolute inset-0 bg-gradient-to-t from-[#061c24]/95 via-[#061c24]/12 to-transparent"></div>
+              <div class="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
+                <p class="text-[0.65rem] font-black uppercase tracking-[0.2em] text-gold">{{ place.season }}</p>
+                <h3 class="mt-2 font-display text-4xl font-extrabold">{{ place.name }}</h3>
+                <p class="mt-3 max-w-sm text-sm leading-6 text-white/70">{{ place.text }}</p>
+                <div class="destination-story-footer">
+                  <span>{{ place.activities }}</span>
+                  <button type="button" aria-label="Explore destination" @click="navigateTo('/destinations')">↗</button>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="mt-24 text-center">
+            <button type="button" class="text-link" @click="navigateTo('/destinations')">Explore all 50+ destinations <span>→</span></button>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'home'" class="bg-[#071d24] py-24 text-white sm:py-32">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="max-w-4xl" data-reveal>
+            <p class="editorial-eyebrow text-gold">Experience Kashmir</p>
+            <h2 class="editorial-title mt-4 text-white">Don’t just visit.<br />Live the story.</h2>
+          </div>
+          <div class="mt-10 flex gap-2 overflow-x-auto pb-3" data-reveal>
+            <button v-for="filter in experienceFilters" :key="filter" type="button" class="experience-filter" :class="{ active: activeExperience === filter }" @click="activeExperience = filter">{{ filter }}</button>
+          </div>
+          <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <article v-for="story in filteredExperienceStories" :key="story.title" class="experience-card group" data-reveal>
+              <div class="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-110" :style="imageStyle(story.image)"></div>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/15 to-transparent"></div>
+              <div class="absolute inset-x-0 bottom-0 p-6">
+                <p class="text-[0.65rem] font-black uppercase tracking-[0.2em] text-gold">{{ story.eyebrow }}</p>
+                <h3 class="mt-2 font-display text-2xl font-extrabold">{{ story.title }}</h3>
+                <p class="mt-3 translate-y-3 text-sm leading-6 text-white/70 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">{{ story.text }}</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentPage === 'home'" class="journey-story bg-white py-24 sm:py-32">
+        <div class="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+          <div data-reveal>
+            <p class="editorial-eyebrow">Why Kashmir?</p>
+            <h2 class="editorial-title mt-4">Some places are seen.<br />Kashmir is felt.</h2>
+            <div class="mt-10 grid gap-1">
+              <button v-for="(moment, index) in journeyMoments" :key="moment.number" type="button" class="journey-step" :class="{ active: activeJourneyMoment === index }" @click="activeJourneyMoment = index">
+                <span>{{ moment.number }}</span>
+                <span>
+                  <small>{{ moment.label }}</small>
+                  <strong>{{ moment.title }}</strong>
+                </span>
+              </button>
+            </div>
+            <p class="mt-7 max-w-xl text-base leading-8 text-night/60">{{ journeyMoments[activeJourneyMoment].text }}</p>
+          </div>
+          <div class="journey-image-wrap" data-reveal>
+            <img :src="journeyMoments[activeJourneyMoment].image" :alt="journeyMoments[activeJourneyMoment].title" class="h-full w-full object-cover transition duration-700" />
+            <div class="absolute bottom-6 left-6 right-6 flex items-end justify-between text-white">
+              <div>
+                <p class="text-xs font-black uppercase tracking-[0.2em] text-gold">A Kashmir journey</p>
+                <p class="mt-2 font-display text-3xl font-extrabold">{{ journeyMoments[activeJourneyMoment].title }}</p>
+              </div>
+              <span class="font-display text-5xl font-extrabold text-white/35">{{ journeyMoments[activeJourneyMoment].number }}</span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -4078,7 +4212,7 @@ onUnmounted(() => {
             <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">{{ siteContent.blogPostsTitle }}</h2>
           </div>
           <div class="grid gap-5 lg:grid-cols-3">
-            <article v-for="post in blogPosts" :key="post.title" class="premium-card overflow-hidden rounded-lg hover-lift">
+            <article v-for="(post, index) in visibleBlogPosts" :key="`${post.title}-${index}`" class="premium-card overflow-hidden rounded-lg hover-lift">
               <div class="image-cover h-64 relative overflow-hidden" :style="imageStyle(post.image)">
                 <div class="absolute inset-0 bg-gradient-to-t from-alpine/80 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
               </div>
@@ -4088,6 +4222,13 @@ onUnmounted(() => {
                 <p class="mt-3 text-sm leading-6 text-night/[0.62]">{{ post.excerpt }}</p>
               </div>
             </article>
+          </div>
+          <div v-if="hasMoreBlogPosts" class="mt-10 text-center">
+            <button type="button" class="inline-flex items-center justify-center gap-2 rounded-xl bg-night px-7 py-4 text-sm font-black text-white shadow-lift hover:bg-lake" @click="showMoreBlogPosts">
+              <span>Show More Articles</span>
+              <span aria-hidden="true">↓</span>
+            </button>
+            <p class="mt-3 text-xs font-bold text-night/45">Showing {{ visibleBlogPosts.length }} of {{ blogPosts.length }} articles</p>
           </div>
         </div>
       </section>
@@ -4336,6 +4477,29 @@ onUnmounted(() => {
         </div>
       </section>
     </main>
+
+    <div v-if="isTripPlannerOpen" class="fixed inset-0 z-[90] grid place-items-center bg-[#031218]/80 p-4 backdrop-blur-md" role="dialog" aria-modal="true" aria-label="Plan your Kashmir trip" @click.self="isTripPlannerOpen = false">
+      <div class="planner-modal relative w-full max-w-2xl overflow-hidden rounded-[2rem] bg-[#f5f0e8] shadow-2xl">
+        <button type="button" class="absolute right-5 top-5 z-10 grid h-10 w-10 place-items-center rounded-full bg-white text-xl text-night shadow-lg" aria-label="Close trip planner" @click="isTripPlannerOpen = false">×</button>
+        <div class="grid md:grid-cols-[0.72fr_1.28fr]">
+          <div class="relative hidden min-h-[34rem] md:block">
+            <img src="/images/image39.jpeg" alt="Kashmir mountain valley" class="absolute inset-0 h-full w-full object-cover" />
+            <div class="absolute inset-0 bg-gradient-to-t from-night/90 via-night/15 to-transparent"></div>
+            <p class="absolute bottom-7 left-7 right-7 font-display text-3xl font-extrabold text-white">Your Kashmir story starts with one conversation.</p>
+          </div>
+          <div class="p-7 sm:p-10">
+            <p class="editorial-eyebrow">Private trip planner</p>
+            <h2 class="mt-3 font-display text-4xl font-extrabold leading-tight text-night">What are you dreaming of?</h2>
+            <p class="mt-3 text-sm leading-6 text-night/55">Tell us the mood. We’ll shape the route, stays, and experiences around you.</p>
+            <div class="mt-7 grid gap-3">
+              <button v-for="mood in ['Snow & adventure', 'Honeymoon & slow travel', 'Family discovery', 'Luxury private journey']" :key="mood" type="button" class="planner-choice" @click="bookingInquiry.notes = mood">{{ mood }} <span>→</span></button>
+            </div>
+            <button type="button" class="luxury-button luxury-button-dark mt-7 w-full" @click="isTripPlannerOpen = false; navigateTo('/booking')">Build my journey</button>
+            <a href="https://wa.me/919055020408?text=Help%20me%20plan%20my%20dream%20Kashmir%20trip" class="mt-3 block text-center text-xs font-black uppercase tracking-[0.14em] text-night/50">Or plan instantly on WhatsApp</a>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <footer class="site-footer bg-night px-4 py-12 text-white sm:px-6 lg:py-16">
       <div class="mx-auto max-w-7xl">
