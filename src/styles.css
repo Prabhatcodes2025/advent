@@ -500,6 +500,26 @@ h1, h2, h3 {
   background: #e9ba64;
 }
 
+.gallery-filter {
+  flex: 0 0 auto;
+  border: 1px solid rgba(7, 29, 53, 0.13);
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+  color: rgba(7, 29, 53, 0.62);
+  background: rgba(255, 255, 255, 0.72);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gallery-filter.active,
+.gallery-filter:hover {
+  border-color: #071d35;
+  color: #ffffff;
+  background: #071d35;
+}
+
 .experience-card {
   position: relative;
   min-height: 24rem;

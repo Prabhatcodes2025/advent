@@ -91,6 +91,8 @@ const isTripPlannerOpen = ref(false);
 const activeExperience = ref("All");
 const activeJourneyMoment = ref(0);
 const activeFilter = ref("all");
+const activeGalleryFilter = ref("All");
+const galleryLightboxImage = ref(null);
 const activePriceRange = ref("all");
 const activeAdminTab = ref("packages");
 const openFaqs = ref([0]);
@@ -939,6 +941,7 @@ const destinationSpotlights = [
 const legacyGalleryImages = ["image03", "image04", "image05", "image06", "image09", "image10", "image11", "image13", "image15", "image16", "image17", "image18"];
 const defaultGalleryImages = [...publicGalleryImages, ...legacyGalleryImages];
 const galleryImages = ref(loadStoredValue("kashmir-gallery-images-v2", defaultGalleryImages));
+const galleryFilters = ["All", "Snow", "Lakes", "Mountains", "Houseboats", "Camping", "Trekking", "Adventure", "Culture", "Couples", "Family"];
 
 const galleryImageDetails = {
   image03: ["Gulmarg Meadows", "Open valley views with alpine slopes and quiet picnic routes."],
@@ -980,6 +983,28 @@ function galleryImageTitle(item, index) {
 function galleryImageText(item, index) {
   return galleryImageDetail(item, index)[1];
 }
+
+function galleryImageTags(item, index) {
+  const title = galleryImageTitle(item, index).toLowerCase();
+  const text = galleryImageText(item, index).toLowerCase();
+  const haystack = `${title} ${text}`;
+  const tags = [];
+  if (/snow|winter|ski|gondola/.test(haystack)) tags.push("Snow");
+  if (/lake|dal|shikara|water/.test(haystack)) tags.push("Lakes");
+  if (/mountain|peak|high|himalayan|valley|alpine/.test(haystack)) tags.push("Mountains");
+  if (/houseboat/.test(haystack)) tags.push("Houseboats");
+  if (/camp|bonfire/.test(haystack)) tags.push("Camping");
+  if (/trek|trail|walk/.test(haystack)) tags.push("Trekking");
+  if (/rafting|adventure|gondola|horse|pony|ski|snowmobile/.test(haystack)) tags.push("Adventure");
+  if (/village|market|heritage|garden|saffron|hazratbal|craft/.test(haystack)) tags.push("Culture");
+  if (/couple|honeymoon|romantic|sunset|sunrise/.test(haystack)) tags.push("Couples");
+  if (/family|picnic|garden|meadow/.test(haystack)) tags.push("Family");
+  return tags.length ? tags : ["Mountains"];
+}
+
+const filteredGalleryImages = computed(() =>
+  galleryImages.value.filter((item, index) => activeGalleryFilter.value === "All" || galleryImageTags(item, index).includes(activeGalleryFilter.value)),
+);
 
 function updateGalleryImageField(index, field, value) {
   const existing = galleryImages.value[index];
@@ -1099,19 +1124,37 @@ const destinationStories = [
   { name: "Gulmarg", image: "/kashmir-gulmarg-vibrant-v2.png", season: "Dec – Mar · May – Sep", activities: "Skiing · Gondola · Meadows", text: "Rise above pine forests into a world of powder snow, open meadows, and Himalayan silence." },
   { name: "Dal Lake", image: "/kashmir-dal-lake-vibrant-v2.png", season: "Mar – Nov", activities: "Shikara · Houseboats · Sunrise", text: "Wake on the water, drift past floating gardens, and watch Srinagar glow in the first light." },
   { name: "Pahalgam", image: "/kashmir-pahalgam-vibrant-v2.png", season: "Apr – Oct", activities: "Valleys · River walks · Horses", text: "Follow the Lidder through pine country where every bend opens into another cinematic valley." },
+  { name: "Aru Valley", image: "/images/image38.jpeg", season: "Apr – Oct", activities: "Trekking · Camping · Pine trails", text: "A quiet alpine doorway where campfires, meadow walks, and mountain trails feel beautifully unhurried." },
+  { name: "Betaab Valley", image: "/images/image29.jpeg", season: "Apr – Oct", activities: "Family · Couples · Photography", text: "A soft green valley made for slow walks, river photographs, and easy family memories." },
+  { name: "Doodhpathri", image: "/images/image32.jpeg", season: "May – Oct", activities: "Meadows · Streams · Picnics", text: "Cold streams, rolling grasslands, and a quieter Kashmir for travelers who want space." },
+  { name: "Yusmarg", image: "/images/image34.jpeg", season: "Apr – Oct", activities: "Horse riding · Forests · Fishing", text: "Pine forests and meadow trails where Kashmir still feels hidden, gentle, and personal." },
+  { name: "Gurez Valley", image: "/images/image23.jpeg", season: "May – Oct", activities: "Villages · Culture · Photography", text: "Go beyond the familiar into wooden villages, dramatic peaks, and one of Kashmir’s last quiet frontiers." },
+  { name: "Srinagar", image: "/images/image35.jpeg", season: "All year", activities: "Gardens · Markets · Heritage", text: "The living heart of Kashmir, with gardens, old-city flavors, lake views, and warm hospitality." },
   { name: "Sonmarg", image: "/images/image18.jpeg", season: "Apr – Oct", activities: "Glaciers · Pony trails · Picnics", text: "Travel the road to the meadow of gold, framed by glaciers, wild rivers, and high mountain passes." },
-  { name: "Gurez Valley", image: "/images/image23.jpeg", season: "May – Oct", activities: "Culture · Villages · Photography", text: "Go beyond the familiar into wooden villages, dramatic peaks, and one of Kashmir’s last quiet frontiers." },
-  { name: "Aru Valley", image: "/images/image38.jpeg", season: "Apr – Oct", activities: "Trekking · Camping · Slow travel", text: "Trade crowds for alpine air, camp beneath the stars, and begin trails that disappear into the mountains." },
+  { name: "Tulip Garden", image: "/images/image5.jpeg", season: "Mar – Apr", activities: "Spring · Gardens · Couples", text: "Spring opens in color here, with flowers, mountain air, and Srinagar at its most romantic." },
+  { name: "Mughal Gardens", image: "/images/image27.jpeg", season: "Mar – Nov", activities: "Heritage · Family · Photos", text: "Terraces, fountains, chinar shade, and garden routes that make Srinagar feel royal." },
+  { name: "Houseboats", image: "/images/image3.jpeg", season: "All year", activities: "Lake stay · Kahwa · Shikara", text: "Sleep on Dal Lake, wake to water and mountain light, and let the day begin softly." },
+  { name: "Leh", image: "/images/image8.jpeg", season: "Jun – Sep", activities: "Road trip · Monasteries · High passes", text: "A high-altitude extension for travelers who want Kashmir to become a larger Himalayan expedition." },
+  { name: "Ladakh", image: "/images/image28.jpeg", season: "Jun – Sep", activities: "Biking · Lakes · Culture", text: "Open roads, moonlike landscapes, monasteries, and the silence of the trans-Himalaya." },
+  { name: "Kargil", image: "/images/image22.jpeg", season: "May – Oct", activities: "Transit · History · Mountains", text: "A powerful stop between Kashmir and Ladakh, framed by rugged valleys and road-trip drama." },
 ];
 
 const experienceStories = [
   { category: "Snow", title: "Ski the Himalayas", eyebrow: "Gulmarg", image: "/images/image40.jpeg", text: "From first turns to powder days with local instructors and mountain experts." },
+  { category: "Snow", title: "Snowboarding days", eyebrow: "Apharwat slopes", image: "/images/image22.jpeg", text: "Board-ready snow days, equipment guidance, instructor support, and weather-aware timing." },
   { category: "Slow", title: "Wake up on Dal Lake", eyebrow: "Srinagar", image: "/images/image3.jpeg", text: "Houseboat mornings, kahwa on deck, and a private Shikara through floating gardens." },
+  { category: "Slow", title: "Float through sunrise", eyebrow: "Shikara ride", image: "/kashmir-dal-lake-vibrant-v2.png", text: "A calm lake morning with soft light, floating gardens, local stories, and quiet photographs." },
   { category: "Adventure", title: "Walk into the wild", eyebrow: "Aru & Pahalgam", image: "/images/image37.jpeg", text: "High-altitude lakes, pine trails, campfire evenings, and routes shaped to your pace." },
+  { category: "Adventure", title: "Ride mountain rivers", eyebrow: "River rafting", image: "/images/image6.jpeg", text: "Summer rafting with local coordination, safety-first operators, and group-friendly adventure." },
+  { category: "Adventure", title: "Bike the high roads", eyebrow: "Mountain biking", image: "/images/image38.jpeg", text: "Valley lanes, forest tracks, and road-trip routes for active travelers who want movement." },
+  { category: "Adventure", title: "Fly above the valley", eyebrow: "Paragliding", image: "/images/image26.jpeg", text: "Seasonal flying windows, dramatic valley views, and operators selected with safety in mind." },
+  { category: "Adventure", title: "Fish quiet waters", eyebrow: "Rivers & lakes", image: "/images/image10.jpeg", text: "Slow river mornings, permit guidance, local knowledge, and peaceful time away from crowds." },
   { category: "Romance", title: "A honeymoon with space", eyebrow: "Across Kashmir", image: "/images/image14.jpeg", text: "Private drives, quiet viewpoints, thoughtful stays, and time that never feels rushed." },
   { category: "Family", title: "Wonder for every age", eyebrow: "Kashmir circuit", image: "/images/image29.jpeg", text: "Comfortable days, playful snow, meadow picnics, and local care for the whole family." },
+  { category: "Family", title: "Group adventures", eyebrow: "Friends & teams", image: "/images/image17.jpeg", text: "Coordinated transport, shared rooms, snow days, bonfires, and activities planned for everyone." },
   { category: "Adventure", title: "Camp under Himalayan stars", eyebrow: "Gurez & Sonmarg", image: "/images/image39.jpeg", text: "Remote valleys, riverside camps, warm fires, and nights far from ordinary life." },
   { category: "Luxury", title: "Kashmir, privately curated", eyebrow: "Signature journey", image: "/images/image35.jpeg", text: "Beautiful stays, a dedicated vehicle, flexible days, and experiences arranged around you." },
+  { category: "Luxury", title: "Photography route", eyebrow: "Golden hours", image: "/images/image31.jpeg", text: "Sunrise lakes, snow lines, gardens, village roads, and scenic stops timed for better frames." },
   { category: "Slow", title: "Taste the real Srinagar", eyebrow: "Old city", image: "/images/image25.jpeg", text: "Heritage lanes, gardens, artisan workshops, bakeries, saffron, and stories shared by locals." },
 ];
 
@@ -1127,6 +1170,39 @@ const journeyMoments = [
   { number: "02", label: "Feel", title: "Kashmir slows time", text: "A quiet Shikara, warm kahwa, cedar-scented roads, and unhurried conversations make the place feel personal.", image: "/images/image3.jpeg" },
   { number: "03", label: "Explore", title: "Choose your wild", text: "Snow slopes, river trails, hidden valleys, houseboats, gardens, and village roads—each day reveals a different Kashmir.", image: "/images/image37.jpeg" },
   { number: "04", label: "Remember", title: "Leave with a story", text: "Not a checklist of sights, but moments that stay vivid long after the flight home.", image: "/images/image39.jpeg" },
+];
+
+const adventureSeasons = [
+  {
+    label: "Winter adventure",
+    months: "December to February",
+    image: "/images/image40.jpeg",
+    title: "Snow, slopes, Gondola views, and winter villages.",
+    activities: ["Skiing", "Snowboarding", "Snowmobile", "Sledging", "Ice moments"],
+  },
+  {
+    label: "Summer adventure",
+    months: "June to September",
+    image: "/images/image37.jpeg",
+    title: "Trekking, camping, rafting, biking, and outdoor routes.",
+    activities: ["Trekking", "Camping", "River rafting", "Mountain biking", "Paragliding"],
+  },
+  {
+    label: "All-season Kashmir",
+    months: "March to November",
+    image: "/images/image3.jpeg",
+    title: "Lakes, culture, food, photography, and houseboat living.",
+    activities: ["Photography", "Houseboats", "Shikara ride", "Local culture", "Kashmiri food"],
+  },
+];
+
+const reimaginedJourneys = [
+  { name: "Romantic Kashmir Escape", duration: "5D / 4N", places: "Srinagar, Dal Lake, Gulmarg, Pahalgam", bestFor: "Honeymoon couples", image: "/images/image14.jpeg", highlights: ["Private Shikara", "Premium stays", "Slow photo stops"] },
+  { name: "Snow Adventure Journey", duration: "4D / 3N", places: "Gulmarg, Apharwat, Srinagar", bestFor: "Snow lovers", image: "/images/image40.jpeg", highlights: ["Ski lesson", "Gondola support", "Snow activities"] },
+  { name: "Family Kashmir Memories", duration: "6D / 5N", places: "Srinagar, Pahalgam, Sonmarg, Gulmarg", bestFor: "Families", image: "/images/image29.jpeg", highlights: ["Easy pacing", "Private cab", "Kid-friendly stops"] },
+  { name: "Offbeat Valley Explorer", duration: "7D / 6N", places: "Doodhpathri, Yusmarg, Gurez, Tulail", bestFor: "Explorers", image: "/images/image39.jpeg", highlights: ["Hidden valleys", "Village culture", "Photography roads"] },
+  { name: "Luxury Houseboat & Valley Experience", duration: "5D / 4N", places: "Dal Lake, Mughal Gardens, Pahalgam", bestFor: "Private luxury", image: "/images/image3.jpeg", highlights: ["Houseboat stay", "Boutique hotels", "Concierge routing"] },
+  { name: "Leh-Ladakh Expedition", duration: "8D / 7N", places: "Srinagar, Sonmarg, Kargil, Leh, Ladakh", bestFor: "Road-trip seekers", image: "/images/image8.jpeg", highlights: ["High passes", "Acclimatized pace", "Permit guidance"] },
 ];
 
 const defaultActivities = [
@@ -2844,12 +2920,12 @@ onUnmounted(() => {
     </header>
 
     <main>
-      <section v-if="currentPage === 'home'" class="cinematic-hero relative flex min-h-screen overflow-hidden text-white" :style="heroStyle">
+      <section v-if="currentPage === 'home'" class="cinematic-hero relative flex min-h-[88vh] overflow-hidden text-white lg:min-h-[92vh]" :style="heroStyle">
         <video class="absolute inset-0 h-full w-full object-cover" src="/snow-feather-main-bg.mp4" autoplay muted loop playsinline poster="/kashmir-hero-vibrant-v2.png"></video>
         <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,18,25,.9)_0%,rgba(3,31,39,.58)_48%,rgba(3,18,25,.18)_100%),linear-gradient(0deg,rgba(3,17,23,.92)_0%,transparent_58%)]"></div>
         <div class="hero-grain absolute inset-0"></div>
 
-        <div class="relative mx-auto flex w-full max-w-7xl flex-col justify-end px-4 pb-8 pt-36 sm:px-6 sm:pb-12 lg:pb-14">
+        <div class="relative mx-auto flex w-full max-w-7xl flex-col justify-end px-4 pb-6 pt-32 sm:px-6 sm:pb-8 lg:pb-10">
           <div class="max-w-4xl" data-reveal>
             <p class="mb-5 flex items-center gap-3 text-xs font-black uppercase tracking-[0.3em] text-white/75">
               <span class="h-px w-10 bg-gold"></span>
@@ -2871,7 +2947,7 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <div class="mt-12 grid grid-cols-2 border-t border-white/20 pt-6 sm:grid-cols-4 lg:max-w-4xl" data-reveal>
+          <div class="mt-8 grid grid-cols-2 border-t border-white/20 pt-5 sm:grid-cols-4 lg:max-w-4xl" data-reveal>
             <div v-for="[value, label] in heroStats" :key="label" class="border-white/15 py-2 pr-4 sm:border-r sm:pl-5 first:pl-0 last:border-r-0">
               <p class="font-display text-2xl font-extrabold text-white sm:text-3xl">{{ value }}</p>
               <p class="mt-1 text-[0.65rem] font-black uppercase tracking-[0.16em] text-white/50">{{ label }}</p>
@@ -2885,19 +2961,19 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <section v-if="currentPage === 'home'" class="destination-discovery overflow-hidden bg-[#f3efe7] py-16 sm:py-20">
+      <section v-if="currentPage === 'home'" class="destination-discovery overflow-hidden bg-[#f3efe7] py-10 sm:py-12">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
-          <div class="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-end" data-reveal>
+          <div class="grid gap-6 lg:grid-cols-[0.7fr_1.3fr] lg:items-start" data-reveal>
             <div>
               <p class="editorial-eyebrow">Where will Kashmir take you?</p>
               <h2 class="editorial-title mt-4">Choose a feeling.<br />Find your place.</h2>
             </div>
-            <p class="max-w-2xl text-base leading-8 text-night/60 lg:justify-self-end lg:text-lg">
+            <p class="max-w-2xl pt-2 text-base leading-8 text-night/60 lg:justify-self-end lg:pt-10 lg:text-lg">
               Beyond the postcard is a Kashmir of quiet mornings, wild roads, generous people, and landscapes that change your sense of scale.
             </p>
           </div>
 
-          <div class="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div class="mt-8 grid gap-5 md:grid-cols-2 lg:mt-10 lg:grid-cols-3">
             <article v-for="place in destinationStories" :key="place.name" class="destination-story group" data-reveal>
               <div class="destination-story-image" :style="imageStyle(place.image)"></div>
               <div class="absolute inset-0 bg-gradient-to-t from-[#061c24]/95 via-[#061c24]/12 to-transparent"></div>
@@ -3016,6 +3092,35 @@ onUnmounted(() => {
         </div>
       </section>
 
+      <section v-if="currentPage === 'home'" class="adventure-showcase relative overflow-hidden bg-[#061b23] py-16 text-white sm:py-20">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(233,186,100,.18),transparent_22rem),radial-gradient(circle_at_90%_15%,rgba(11,131,165,.2),transparent_26rem)]"></div>
+        <div class="relative mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="mb-10 grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+            <div>
+              <p class="editorial-eyebrow text-gold">Adventure tourism showcase</p>
+              <h2 class="editorial-title mt-4 text-white">Every season opens a different Kashmir.</h2>
+            </div>
+            <p class="max-w-2xl text-base font-semibold leading-8 text-white/68 lg:justify-self-end">
+              Winter brings skiing, snowboarding, and ice moments from December to February. Summer opens trekking, camping, rafting, biking, and paragliding from June to September. All year, Kashmir gives lakes, culture, food, photography, and houseboat life.
+            </p>
+          </div>
+          <div class="grid gap-5 lg:grid-cols-3">
+            <article v-for="season in adventureSeasons" :key="season.label" class="group relative min-h-[30rem] overflow-hidden rounded-lg border border-white/10 bg-white/8 shadow-premium">
+              <div class="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" :style="imageStyle(season.image)"></div>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/92 via-black/28 to-transparent"></div>
+              <div class="absolute inset-x-0 bottom-0 p-6">
+                <p class="text-[0.68rem] font-black uppercase tracking-[0.22em] text-gold">{{ season.months }}</p>
+                <h3 class="mt-3 font-display text-3xl font-extrabold">{{ season.label }}</h3>
+                <p class="mt-3 text-sm font-semibold leading-7 text-white/72">{{ season.title }}</p>
+                <div class="mt-5 flex flex-wrap gap-2">
+                  <span v-for="activity in season.activities" :key="`${season.label}-${activity}`" class="rounded-full border border-white/18 bg-white/10 px-3 py-2 text-xs font-black text-white/86">{{ activity }}</span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section v-if="currentPage === 'home'" class="section-band py-14 sm:py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-9 max-w-4xl">
@@ -3071,48 +3176,31 @@ onUnmounted(() => {
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mb-9 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div class="max-w-3xl">
-              <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Popular Kashmir packages</p>
-              <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Routes, prices, and inclusions you can understand at a glance.</h2>
-              <p class="mt-4 text-base leading-7 text-night/[0.62]">Every package shows its destination route, duration, starting price, important inclusions, and full day-wise itinerary.</p>
+              <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">Packages reimagined</p>
+              <h2 class="mt-2 font-display text-4xl font-extrabold text-night sm:text-5xl">Journeys first. Prices after the dream feels clear.</h2>
+              <p class="mt-4 text-base leading-7 text-night/[0.62]">Browse by emotion, pace, places covered, and who the trip is best for. Then ask for a custom itinerary with Standard, Premium, Luxurious, or VIP options.</p>
             </div>
             <button type="button" class="self-start rounded-lg bg-night px-6 py-3 text-sm font-black text-white shadow-lift hover:bg-lake lg:self-auto" @click="navigateTo('/packages')">Compare All Packages</button>
           </div>
 
-          <div class="grid gap-6 lg:grid-cols-3">
-            <article v-for="item in packages.slice(0, 3)" :key="`home-package-${item.name}`" class="group flex h-full flex-col overflow-hidden rounded-lg border border-night/[0.08] bg-white shadow-premium">
-              <div class="relative h-64 overflow-hidden">
-                <div class="image-cover h-full transition duration-500 group-hover:scale-105" :style="{ backgroundImage: `url('${packageVisual(item)}')` }"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-night/82 via-night/8 to-transparent"></div>
-                <span class="absolute left-4 top-4 rounded-full bg-gold px-3 py-2 text-xs font-black text-night">{{ item.tag }}</span>
-                <span class="absolute right-4 top-4 rounded-full bg-white/95 px-3 py-2 text-xs font-black text-night">{{ displayDuration(item.duration) }}</span>
-                <div class="absolute inset-x-0 bottom-0 p-5 text-white">
-                  <p class="text-xs font-black uppercase tracking-[0.14em] text-gold">{{ packageRoute(item)[0] }}</p>
-                  <h3 class="mt-1 text-2xl font-black">{{ item.name }}</h3>
+          <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <article v-for="journey in reimaginedJourneys" :key="journey.name" class="group overflow-hidden rounded-lg border border-night/[0.08] bg-white shadow-premium">
+              <div class="relative min-h-72 overflow-hidden">
+                <div class="image-cover absolute inset-0 transition duration-700 group-hover:scale-105" :style="imageStyle(journey.image)"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-night/92 via-night/18 to-transparent"></div>
+                <span class="absolute left-4 top-4 rounded-full bg-white/92 px-3 py-2 text-xs font-black text-night">{{ journey.duration }}</span>
+                <div class="absolute inset-x-0 bottom-0 p-6 text-white">
+                  <p class="text-xs font-black uppercase tracking-[0.16em] text-gold">{{ journey.bestFor }}</p>
+                  <h3 class="mt-2 font-display text-3xl font-extrabold leading-tight">{{ journey.name }}</h3>
                 </div>
               </div>
-              <div class="flex flex-1 flex-col p-5">
-                <p class="line-clamp-2 min-h-12 text-sm font-semibold leading-6 text-night/[0.58]">{{ packageRoute(item)[1] }}</p>
-                <div class="mt-4 flex min-h-14 flex-wrap content-start gap-2 overflow-hidden">
-                  <span v-for="chip in packageChips(item)" :key="`home-${item.name}-${chip}`" class="rounded-full bg-frost px-3 py-1.5 text-xs font-bold text-night/[0.68]">✓ {{ chip }}</span>
+              <div class="p-6">
+                <p class="text-xs font-black uppercase tracking-[0.16em] text-lake">Places covered</p>
+                <p class="mt-2 text-sm font-semibold leading-6 text-night/62">{{ journey.places }}</p>
+                <div class="mt-5 flex flex-wrap gap-2">
+                  <span v-for="highlight in journey.highlights" :key="`${journey.name}-${highlight}`" class="rounded-full bg-frost px-3 py-2 text-xs font-bold text-night/68">{{ highlight }}</span>
                 </div>
-                <div class="mt-auto border-t border-night/[0.08] pt-5">
-                  <div>
-                    <p class="text-xs font-bold uppercase tracking-wide text-night/[0.42]">Starting from</p>
-                    <div class="mt-1 flex flex-wrap items-end gap-2">
-                      <p class="font-display text-3xl font-extrabold text-lake">INR {{ item.price.toLocaleString("en-IN") }}</p>
-                      <p class="pb-1 text-sm font-bold text-night/35 line-through">INR {{ packageOriginalPrice(item).toLocaleString("en-IN") }}</p>
-                    </div>
-                  </div>
-                  <div class="mt-4 grid grid-cols-2 gap-2">
-                    <button type="button" class="package-action package-action-primary" @click="viewPackageDetails(item)">View Details</button>
-                    <button type="button" class="package-action package-action-secondary" @click="selectPackageAndBook(item)">Enquire</button>
-                    <a :href="packageWhatsappLink(item)" class="package-action package-action-whatsapp">
-                      <img src="/social/whatsapp.svg" alt="" class="h-5 w-5" />
-                      <span>WhatsApp</span>
-                    </a>
-                    <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="package-action package-action-secondary">Call Now</a>
-                  </div>
-                </div>
+                <button type="button" class="mt-6 w-full rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake" @click="isTripPlannerOpen = true; bookingInquiry.notes = journey.name">Get Custom Itinerary</button>
               </div>
             </article>
           </div>
@@ -4011,20 +4099,43 @@ onUnmounted(() => {
 
       <section v-if="currentPage === 'home'" id="gallery" class="section-band py-12 sm:py-14">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
-          <div class="mb-8 max-w-4xl">
-            <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">{{ siteContent.homeGalleryEyebrow }}</p>
-            <h2 class="mt-2 font-display text-3xl font-extrabold leading-tight text-night sm:text-4xl lg:text-5xl">{{ siteContent.homeGalleryTitle }}</h2>
+          <div class="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div class="max-w-4xl">
+              <p class="text-sm font-black uppercase tracking-[0.2em] text-lake">{{ siteContent.homeGalleryEyebrow }}</p>
+              <h2 class="mt-2 font-display text-3xl font-extrabold leading-tight text-night sm:text-4xl lg:text-5xl">A world of snow, lakes, mountains, culture, and story-worthy frames.</h2>
+            </div>
+            <button type="button" class="self-start rounded-lg bg-night px-6 py-3 text-sm font-black text-white hover:bg-lake lg:self-auto" @click="navigateTo('/gallery')">Open Full Gallery</button>
+          </div>
+          <div class="mb-6 flex gap-2 overflow-x-auto pb-2">
+            <button
+              v-for="filter in galleryFilters"
+              :key="filter"
+              type="button"
+              class="gallery-filter"
+              :class="{ active: activeGalleryFilter === filter }"
+              @click="activeGalleryFilter = filter"
+            >
+              {{ filter }}
+            </button>
           </div>
           <div class="grid gap-4 md:grid-cols-4">
-            <div v-for="(galleryImage, index) in galleryImages" :key="`${mediaSource(galleryImage)}-${index}`" class="group relative h-72 overflow-hidden rounded-lg shadow-lift" :class="index % 5 === 0 ? 'md:col-span-2' : ''">
+            <button
+              v-for="(galleryImage, index) in filteredGalleryImages.slice(0, 16)"
+              :key="`${mediaSource(galleryImage)}-${index}-${activeGalleryFilter}`"
+              type="button"
+              class="group relative h-72 overflow-hidden rounded-lg text-left shadow-lift"
+              :class="index % 5 === 0 ? 'md:col-span-2' : ''"
+              @click="galleryLightboxImage = { image: galleryImage, index }"
+            >
               <div class="image-cover absolute inset-0 transition duration-500 group-hover:scale-105 group-hover:opacity-70" :style="imageStyle(galleryImage)"></div>
               <div class="absolute inset-0 flex items-end bg-gradient-to-t from-night/86 via-night/28 to-transparent p-5 opacity-0 transition duration-300 group-hover:opacity-100">
                 <div>
+                  <p class="mb-2 text-[0.62rem] font-black uppercase tracking-[0.18em] text-gold">{{ galleryImageTags(galleryImage, index).slice(0, 3).join(" · ") }}</p>
                   <p class="text-xl font-black text-white">{{ galleryImageDetail(galleryImage, index)[0] }}</p>
                   <p class="mt-2 max-w-sm text-sm font-semibold leading-6 text-white/78">{{ galleryImageDetail(galleryImage, index)[1] }}</p>
                 </div>
               </div>
-            </div>
+            </button>
             <!-- <div class="dark-panel grid h-72 place-items-center rounded-lg p-6 text-center text-white"><div><p class="text-sm font-black uppercase tracking-[0.2em] text-gold">Video Gallery</p><p class="mt-3 text-3xl font-black">Play reels, drone shots, and customer clips here.</p></div></div> -->
           </div>
         </div>
@@ -4465,8 +4576,23 @@ onUnmounted(() => {
       </section>
     </main>
 
+    <div v-if="galleryLightboxImage" class="fixed inset-0 z-[88] grid place-items-center bg-[#031218]/90 p-4 backdrop-blur-md" role="dialog" aria-modal="true" aria-label="Kashmir gallery image" @click.self="galleryLightboxImage = null">
+      <div class="relative w-full max-w-5xl overflow-hidden rounded-lg bg-night shadow-2xl">
+        <button type="button" class="absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-white text-xl font-black text-night shadow-lg" aria-label="Close gallery image" @click="galleryLightboxImage = null">×</button>
+        <div class="grid lg:grid-cols-[1.35fr_0.65fr]">
+          <div class="min-h-[22rem] bg-cover bg-center sm:min-h-[34rem]" :style="imageStyle(galleryLightboxImage.image)"></div>
+          <div class="bg-white p-6 text-night sm:p-8">
+            <p class="text-xs font-black uppercase tracking-[0.18em] text-lake">{{ galleryImageTags(galleryLightboxImage.image, galleryLightboxImage.index).join(" · ") }}</p>
+            <h2 class="mt-4 font-display text-4xl font-extrabold">{{ galleryImageTitle(galleryLightboxImage.image, galleryLightboxImage.index) }}</h2>
+            <p class="mt-4 text-sm font-semibold leading-7 text-night/62">{{ galleryImageText(galleryLightboxImage.image, galleryLightboxImage.index) }}</p>
+            <button type="button" class="mt-7 w-full rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake" @click="galleryLightboxImage = null; isTripPlannerOpen = true">Plan A Trip Like This</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div v-if="isTripPlannerOpen" class="fixed inset-0 z-[90] grid place-items-center bg-[#031218]/80 p-4 backdrop-blur-md" role="dialog" aria-modal="true" aria-label="Plan your Kashmir trip" @click.self="isTripPlannerOpen = false">
-      <div class="planner-modal relative w-full max-w-2xl overflow-hidden rounded-[2rem] bg-[#f5f0e8] shadow-2xl">
+      <div class="planner-modal relative max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-[2rem] bg-[#f5f0e8] shadow-2xl">
         <button type="button" class="absolute right-5 top-5 z-10 grid h-10 w-10 place-items-center rounded-full bg-white text-xl text-night shadow-lg" aria-label="Close trip planner" @click="isTripPlannerOpen = false">×</button>
         <div class="grid md:grid-cols-[0.72fr_1.28fr]">
           <div class="relative hidden min-h-[34rem] md:block">
@@ -4481,8 +4607,28 @@ onUnmounted(() => {
             <div class="mt-7 grid gap-3">
               <button v-for="mood in ['Snow & adventure', 'Honeymoon & slow travel', 'Family discovery', 'Luxury private journey']" :key="mood" type="button" class="planner-choice" @click="bookingInquiry.notes = mood">{{ mood }} <span>→</span></button>
             </div>
+            <div class="mt-6 grid gap-3 sm:grid-cols-2">
+              <input v-model="bookingInquiry.name" type="text" placeholder="Name" class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold" />
+              <input v-model="bookingInquiry.phone" type="tel" placeholder="Phone / WhatsApp" class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold" />
+              <input v-model="bookingInquiry.travelDate" type="month" aria-label="Travel month" class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold" />
+              <select class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold" @change="bookingInquiry.notes = `${bookingInquiry.notes ? bookingInquiry.notes + ' | ' : ''}People: ${$event.target.value}`">
+                <option value="">Number of people</option>
+                <option>1-2 travelers</option>
+                <option>3-5 travelers</option>
+                <option>6-10 travelers</option>
+                <option>10+ travelers</option>
+              </select>
+              <select class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold" @change="bookingInquiry.notes = `${bookingInquiry.notes ? bookingInquiry.notes + ' | ' : ''}Budget: ${$event.target.value}`">
+                <option value="">Budget range</option>
+                <option>Standard</option>
+                <option>Premium</option>
+                <option>Luxurious</option>
+                <option>VIP custom</option>
+              </select>
+              <textarea v-model="bookingInquiry.notes" placeholder="Message, trip type, destinations, hotel preference, or special request" class="min-h-28 rounded-lg border border-night/10 px-4 py-3 text-sm font-bold sm:col-span-2"></textarea>
+            </div>
             <button type="button" class="luxury-button luxury-button-dark mt-7 w-full" @click="isTripPlannerOpen = false; navigateTo('/booking')">Build my journey</button>
-            <a href="https://wa.me/919055020408?text=Help%20me%20plan%20my%20dream%20Kashmir%20trip" class="mt-3 block text-center text-xs font-black uppercase tracking-[0.14em] text-night/50">Or plan instantly on WhatsApp</a>
+            <a :href="`https://wa.me/919055020408?text=${encodeURIComponent(`Help me plan my dream Kashmir trip. Name: ${bookingInquiry.name || ''}. Phone: ${bookingInquiry.phone || ''}. Travel month: ${bookingInquiry.travelDate || ''}. Notes: ${bookingInquiry.notes || ''}`)}`" class="mt-3 block text-center text-xs font-black uppercase tracking-[0.14em] text-night/50">Or plan instantly on WhatsApp</a>
           </div>
         </div>
       </div>
