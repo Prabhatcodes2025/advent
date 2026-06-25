@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 
 const imageAssets = import.meta.glob("./assets/kashmir/*.jpeg", {
   eager: true,
@@ -24,6 +24,13 @@ function imageStyle(item) {
 const brandName = "Snow Feather Adventures";
 const brandTagline = "Tours & Travels Kashmir";
 const logoSrc = "/snow-feather-adventures-logo-v2.png";
+const phoneDisplay = "+91 90550 20408";
+const phoneTel = "tel:+919055020408";
+const whatsappBase = "https://wa.me/919055020408";
+
+function whatsappLink(message = "") {
+  return message ? `${whatsappBase}?text=${encodeURIComponent(message)}` : whatsappBase;
+}
 
 const kashmirWebImages = {
   gulmarg: "/kashmir-gulmarg-vibrant-v2.png",
@@ -88,6 +95,8 @@ const isMenuOpen = ref(false);
 const isMoreMenuOpen = ref(false);
 const isInitialLoading = ref(true);
 const isTripPlannerOpen = ref(false);
+const tripPlannerMode = ref("plan");
+const isCallbackOpen = ref(false);
 const activeExperience = ref("All");
 const activeJourneyMoment = ref(0);
 const activeFilter = ref("all");
@@ -152,7 +161,7 @@ const defaultSiteContent = {
   blogChecklistTitle: "A clear checklist beats last-minute rush.",
   contactHeroEyebrow: "Contact",
   contactHeroTitle: "Instant inquiry, emergency support, and WhatsApp booking.",
-  contactPhone: "+91 919055020408",
+  contactPhone: phoneDisplay,
   contactEmail: "snowfeatheradventures@gmail.com",
   contactAddress: "Karra Building, Court Road, Lal chowk, Srinagar, 190001, Jammu and Kashmir",
   contactSupport: "24/7 during active trips",
@@ -182,6 +191,7 @@ const siteContent = ref({
     storedSiteContent.experienceLine === "Creating Unforgettable Kashmir Experiences Since 30 Years"
       ? defaultSiteContent.experienceLine
       : storedSiteContent.experienceLine,
+  contactPhone: phoneDisplay,
 });
 
 const premiumStructureDate = "June 2026";
@@ -367,16 +377,21 @@ const reviewForm = ref({ name: "", location: "", rating: "5.0", trip: "", text: 
 const reviewFormStatus = ref("");
 
 const reservationInfoCards = [
-  ["Calendar", "Reserve early", "Guests are advised to reserve standard packages at least one month in advance."],
+  ["Calendar", "Reserve 1 month ahead", "For standard and regular Kashmir packages, guests should reserve at least one month in advance."],
   ["Hotel", "Better stays", "Early confirmation helps secure better hotels, houseboats, room views, and service quality."],
   ["Car", "Smoother transport", "Cab category, route timing, activity access, and transfers can be planned more reliably."],
   ["Guide", "Local support", "Guide assistance, food coordination, and on-trip support improve with earlier planning."],
 ];
 
 const winterReservationInfoCards = [
-  ["Snowflake", "Winter demand", "Winter packages should be reserved at least two months in advance due to high demand."],
+  ["Snowflake", "Reserve 2 months ahead", "Winter packages should be reserved at least two months in advance due to high seasonal demand."],
   ["Calendar", "Seasonal access", "Snowfall, Gondola demand, road conditions, and hotel inventory change quickly in peak winter."],
   ["Hotel", "Priority quality", "Early reservation helps secure better hotels, transport arrangements, guides, snow activities, and services."],
+];
+
+const summerReservationInfoCards = [
+  ["Sun", "Summer planning", "Summer packages should be reserved early because May to September brings high demand for Pahalgam, Sonmarg, Gurez, camping, trekking, and meadow routes."],
+  ["Route", "Route access", "Early planning helps confirm road access, local stays, cab timing, activity slots, and realistic travel pacing."],
 ];
 
 const detailSectionNav = [
@@ -428,7 +443,7 @@ const packageExclusions = [
 const packageFaqs = [
   ["Can the package be customized?", "Yes. Hotel category, cab type, route, meal plan, activities, and pace can be adjusted after we understand your travel month, group size, and comfort preference."],
   ["Are prices final?", "Prices shown are starting estimates. Final pricing depends on season, hotel availability, transportation, activity tickets, customization, and number of travelers."],
-  ["How early should we reserve?", "Standard packages should ideally be reserved at least one month in advance. Winter packages should ideally be reserved at least two months in advance."],
+  ["How early should we reserve?", "Standard and regular packages should be reserved at least one month in advance. Winter packages should be reserved at least two months in advance due to high seasonal demand. Summer routes should also be planned early for better hotel, cab, and activity availability."],
   ["Can I ask questions before reserving?", "Yes. Use Ask a Question or WhatsApp to confirm route details, inclusions, exclusions, and availability before making a booking decision."],
 ];
 
@@ -695,15 +710,15 @@ const defaultPackages = [
     originalPrice: 31999,
     duration: "5D/4N",
     rating: "4.9",
-    types: ["offbeat", "camping", "group"],
-    routeTitle: "Yusmarg -> Doodhpathri -> Gurez Valley",
-    routeDetails: "Meadows, rivers, camping, mountain roads, village stays, photography routes",
+    types: ["offbeat", "camping", "group", "summer"],
+    routeTitle: "Yusmarg - Doodhpathri - Gurez Valley",
+    routeDetails: "Meadows, rivers, mountain roads, village stays, camping options, and photography routes",
     cities: ["Yusmarg", "Doodhpathri", "Gurez Valley", "Srinagar"],
     highlights: ["Offbeat routes", "Camping option", "Photography stops", "Local guide"],
     image: image("image03"),
     description:
-      "An offbeat Kashmir route for travelers who want less-crowded meadows, riverside stops, village scenes, camping options, Yusmarg, Doodhpathri, and Gurez Valley.",
-    itinerary: ["Srinagar arrival and local evening", "Yusmarg day", "Doodhpathri day", "Gurez Valley route with local stay", "Return to Srinagar"],
+      "An offbeat Kashmir route for travelers who want quieter meadows, riverside stops, village scenes, camping options, Yusmarg, Doodhpathri, and Gurez Valley with realistic mountain-road pacing.",
+    itinerary: ["Srinagar arrival and local evening", "Yusmarg meadow and riverside day", "Doodhpathri day with photography stops", "Gurez Valley route with local stay", "Return to Srinagar"],
     tiers: [
       ["Standard", "From ₹24,999 pp", "Basic stays, cab route, local assistance"],
       ["Premium", "From ₹39,999 pp", "Better stays, private cab, guided stops"],
@@ -945,7 +960,7 @@ function packageDiscount(item) {
 
 function packageWhatsappLink(item) {
   const message = `I want to talk to an expert about the ${item?.name || "Kashmir tour"} package.`;
-  return `https://wa.me/919055020408?text=${encodeURIComponent(message)}`;
+  return whatsappLink(message);
 }
 
 function displayDuration(duration) {
@@ -959,6 +974,12 @@ function displayCurrencyText(value) {
 function packageIsWinter(item) {
   const text = `${item?.name || ""} ${item?.tag || ""} ${item?.types?.join(" ") || ""} ${item?.routeDetails || ""}`.toLowerCase();
   return /winter|ski|snow|gulmarg|gondola/.test(text);
+}
+
+function packageIsSummer(item) {
+  if (packageIsWinter(item)) return false;
+  const text = `${item?.name || ""} ${item?.tag || ""} ${item?.types?.join(" ") || ""} ${item?.routeTitle || ""} ${item?.routeDetails || ""}`.toLowerCase();
+  return /summer|camping|trek|rafting|biking|pahalgam|sonmarg|gurez|yusmarg|doodhpathri|offbeat|leh/.test(text);
 }
 
 function submitReview() {
@@ -996,7 +1017,7 @@ function updateReviewPhoto(event) {
 
 const detailWhatsappLink = computed(() => {
   const message = `I want details for ${detailPackage.value?.name || "a Kashmir package"}`;
-  return `https://wa.me/919055020408?text=${encodeURIComponent(message)}`;
+  return whatsappLink(message);
 });
 
 const publicGalleryImages = [
@@ -1437,8 +1458,45 @@ const bookingInquiry = ref({
 });
 const bookingInquiryStatus = ref("");
 const isBookingSubmitting = ref(false);
+const callbackForm = ref({ name: "", phone: "", time: "Today, 6 PM - 9 PM" });
+const callbackStatus = ref("");
 let bookingInquiryStatusTimeout = null;
 const web3FormsAccessKey = "3401ac69-832e-416d-b7e2-499ceed01137";
+let revealObserver = null;
+
+function observeRevealElements() {
+  if (!revealObserver) return;
+  document.querySelectorAll("[data-reveal]:not(.is-visible)").forEach((element, index) => {
+    element.style.setProperty("--reveal-delay", `${Math.min(index % 6, 5) * 70}ms`);
+    revealObserver.observe(element);
+  });
+}
+
+const travelTypes = ["Honeymoon", "Family", "Group", "Adventure", "Luxury"];
+const trustBadges = ["Local Kashmir experts", "Verified stays", "Custom itineraries", "Transparent pricing", "24/7 trip support"];
+const callbackTimes = ["Today, 6 PM - 9 PM", "Tomorrow morning", "Tomorrow evening"];
+
+const detailQuickFacts = computed(() => [
+  ["Duration", displayDuration(detailPackage.value?.duration || "Custom")],
+  ["Best For", packageIsWinter(detailPackage.value) ? "Winter & adventure" : detailPackage.value?.tag || "Kashmir holiday"],
+  ["Stay Type", packageIsWinter(detailPackage.value) ? "Heated stays / resorts" : "Hotel / houseboat"],
+  ["Transport", "Private cab options"],
+  ["Season", packageIsWinter(detailPackage.value) ? "Snow season" : "All-season route"],
+  ["Support", "Local trip coordinator"],
+]);
+
+const relatedPackages = computed(() => {
+  const current = detailPackage.value?.name;
+  const types = detailPackage.value?.types || [];
+  return packages.value
+    .filter((item) => item.name !== current)
+    .sort((a, b) => {
+      const aScore = (a.types || []).filter((type) => types.includes(type)).length;
+      const bScore = (b.types || []).filter((type) => types.includes(type)).length;
+      return bScore - aScore;
+    })
+    .slice(0, 3);
+});
 
 watch(detailPackage, (item) => {
   if (currentPage.value === "packageDetail" && item?.price) {
@@ -1492,6 +1550,7 @@ function navigateTo(path) {
   if (currentPath.value !== nextPath) {
     window.history.pushState({}, "", nextPath);
     currentPath.value = nextPath;
+    nextTick(observeRevealElements);
   }
 
   isMenuOpen.value = false;
@@ -1505,18 +1564,43 @@ function viewPackageDetails(item) {
 
 function bookDetailPackage() {
   selectedPackage.value = detailPackage.value?.price || packages.value[0]?.price || 0;
-  if (currentPage.value === "packageDetail") {
-    window.setTimeout(() => {
-      document.getElementById("package-book")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 0);
-    return;
-  }
-  navigateTo("/booking");
+  openTripPlanner("reserve", detailPackage.value);
 }
 
 function selectPackageAndBook(item) {
   selectedPackage.value = item?.price || packages.value[0]?.price || 0;
-  navigateTo("/booking");
+  openTripPlanner("reserve", item);
+}
+
+function openTripPlanner(mode = "plan", item = null) {
+  tripPlannerMode.value = mode;
+  if (item?.price) selectedPackage.value = item.price;
+  const packageNote = item?.name ? `${mode === "reserve" ? "Reserve package" : "Question about"}: ${item.name}` : "";
+  bookingInquiry.value = {
+    ...bookingInquiry.value,
+    notes: packageNote || bookingInquiry.value.notes,
+  };
+  isTripPlannerOpen.value = true;
+}
+
+function pickPlannerChoice(label) {
+  bookingInquiry.value.notes = `${bookingInquiry.value.notes ? `${bookingInquiry.value.notes} | ` : ""}Travel type: ${label}`;
+}
+
+function appendPlannerNote(label, value) {
+  bookingInquiry.value.notes = `${bookingInquiry.value.notes ? `${bookingInquiry.value.notes} | ` : ""}${label}: ${value}`;
+}
+
+function requestCallback() {
+  if (!callbackForm.value.name.trim() || !validatePhone(callbackForm.value.phone)) {
+    callbackStatus.value = "Please add your name and a valid 10-digit phone number.";
+    window.setTimeout(() => { callbackStatus.value = ""; }, 3000);
+    return;
+  }
+  const text = `Please call me back. Name: ${callbackForm.value.name}. Phone: ${callbackForm.value.phone}. Preferred time: ${callbackForm.value.time}.`;
+  window.open(whatsappLink(text), "_blank", "noopener");
+  callbackStatus.value = "Callback request ready on WhatsApp. Our team will follow up.";
+  callbackForm.value = { name: "", phone: "", time: "Today, 6 PM - 9 PM" };
 }
 
 function handlePopState() {
@@ -1790,7 +1874,7 @@ function submitContactForm() {
   Details: ${bookingForm.value.details}
   `;
 
-  window.location.href = `https://wa.me/919055020408?text=${encodeURIComponent(message)}`;
+  window.location.href = whatsappLink(message);
   bookingForm.value = { name: "", email: "", phone: "", destination: "", travelDate: "", guests: 2, details: "" };
   resetRecaptchaWidget("contact");
 }
@@ -2167,9 +2251,27 @@ onMounted(() => {
     });
   }
   updateSeoMeta();
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) {
+    revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          revealObserver?.unobserve(entry.target);
+        });
+      },
+      { rootMargin: "0px 0px -12% 0px", threshold: 0.14 },
+    );
+    requestAnimationFrame(observeRevealElements);
+  } else {
+    requestAnimationFrame(() => {
+      document.querySelectorAll("[data-reveal]").forEach((element) => element.classList.add("is-visible"));
+    });
+  }
   initialLoadingTimeout = window.setTimeout(() => {
     isInitialLoading.value = false;
     initialLoadingTimeout = null;
+    nextTick(observeRevealElements);
   }, 1200);
 });
 
@@ -2187,6 +2289,8 @@ onUnmounted(() => {
   if (initialLoadingTimeout) {
     window.clearTimeout(initialLoadingTimeout);
   }
+  revealObserver?.disconnect();
+  revealObserver = null;
 });
 </script>
 
@@ -2402,7 +2506,7 @@ onUnmounted(() => {
             </div>
 
             <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72]">Contact phone
-              <input v-model="siteContent.contactPhone" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
+              <input :value="phoneDisplay" readonly class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
             </label>
             <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72]">Contact label
               <input v-model="siteContent.contactHeroEyebrow" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
@@ -3050,8 +3154,8 @@ onUnmounted(() => {
         </div>
 
         <div class="hidden items-center gap-2 sm:flex">
-          <a href="https://wa.me/919055020408?text=I%20want%20to%20book%20a%20Kashmir%20tour" class="rounded-lg border border-night/10 px-4 py-2 text-sm font-extrabold text-night hover:border-lake hover:text-lake">WhatsApp</a>
-          <a href="/booking" class="rounded-lg bg-gold px-4 py-2 text-sm font-extrabold text-night shadow-lift hover:bg-white" @click.prevent="navigateTo('/booking')">Book Now</a>
+          <button type="button" class="rounded-lg border border-night/10 px-4 py-2 text-sm font-extrabold text-night hover:border-lake hover:text-lake" @click="isCallbackOpen = true">Callback</button>
+          <button type="button" class="rounded-lg bg-gold px-4 py-2 text-sm font-extrabold text-night shadow-lift hover:bg-white" @click="openTripPlanner('plan')">Plan Trip</button>
         </div>
 
         <button class="grid h-10 w-10 place-items-center rounded-xl border border-night/10 bg-white/70 text-night lg:hidden" aria-label="Open menu" @click="isMenuOpen = !isMenuOpen">
@@ -3078,8 +3182,9 @@ onUnmounted(() => {
 
     <main>
       <section v-if="currentPage === 'home'" class="cinematic-hero relative flex min-h-[88vh] overflow-hidden text-white lg:min-h-[92vh]" :style="heroStyle">
-        <video class="hero-video absolute inset-0 h-full w-full object-cover" src="/snow-feather-main-bg.mp4" autoplay muted loop playsinline poster="/kashmir-hero-vibrant-v2.png"></video>
-        <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,18,25,.9)_0%,rgba(3,31,39,.58)_48%,rgba(3,18,25,.18)_100%),linear-gradient(0deg,rgba(3,17,23,.92)_0%,transparent_58%)]"></div>
+        <video class="hero-video absolute inset-0 h-full w-full object-cover" src="/snow-feather-main-bg.mp4" autoplay muted loop playsinline preload="metadata" poster="/kashmir-hero-vibrant-v2.png"></video>
+        <div class="hero-vignette absolute inset-0"></div>
+        <div class="hero-light-sweep absolute inset-0"></div>
         <div class="hero-grain absolute inset-0"></div>
         <div class="snow-particles absolute inset-0" aria-hidden="true"></div>
 
@@ -3099,9 +3204,12 @@ onUnmounted(() => {
               <button type="button" class="luxury-button luxury-button-primary" @click="navigateTo('/packages')">
                 Explore Packages <span aria-hidden="true">-></span>
               </button>
-              <button type="button" class="luxury-button luxury-button-ghost" @click="isTripPlannerOpen = true">
+              <button type="button" class="luxury-button luxury-button-ghost" @click="openTripPlanner('plan')">
                 Plan my trip <span aria-hidden="true">-></span>
               </button>
+            </div>
+            <div class="mt-6 flex flex-wrap gap-2" data-reveal>
+              <span v-for="badge in trustBadges" :key="`hero-${badge}`" class="rounded-full border border-white/18 bg-white/10 px-3 py-2 text-[0.65rem] font-black uppercase tracking-[0.12em] text-white/74 backdrop-blur-xl">{{ badge }}</span>
             </div>
           </div>
 
@@ -3358,7 +3466,7 @@ onUnmounted(() => {
                 <div class="mt-5 flex flex-wrap gap-2">
                   <span v-for="highlight in journey.highlights" :key="`${journey.name}-${highlight}`" class="rounded-full bg-frost px-3 py-2 text-xs font-bold text-night/68">{{ highlight }}</span>
                 </div>
-                <button type="button" class="mt-6 w-full rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake" @click="isTripPlannerOpen = true; bookingInquiry.notes = journey.name">Get Custom Itinerary</button>
+                <button type="button" class="mt-6 w-full rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake" @click="openTripPlanner('plan'); bookingInquiry.notes = journey.name">Get Custom Itinerary</button>
               </div>
             </article>
           </div>
@@ -3561,7 +3669,7 @@ onUnmounted(() => {
                         <img src="/social/whatsapp.svg" alt="" class="h-5 w-5" />
                         <span>WhatsApp</span>
                       </a>
-                      <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="package-action package-action-secondary">Call Now</a>
+                      <a :href="phoneTel" class="package-action package-action-secondary">Call Now</a>
                     </div>
                   </div>
                 </article>
@@ -3668,7 +3776,7 @@ onUnmounted(() => {
             <div class="mt-8 flex flex-col gap-3 sm:flex-row">
               <button type="button" class="luxury-button luxury-button-primary" @click="bookDetailPackage">Reserve This Package</button>
               <a :href="detailWhatsappLink" class="luxury-button luxury-button-ghost">Chat on WhatsApp</a>
-              <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="luxury-button luxury-button-ghost">Call Now</a>
+              <a :href="phoneTel" class="luxury-button luxury-button-ghost">Call Now</a>
             </div>
           </div>
         </div>
@@ -3676,7 +3784,7 @@ onUnmounted(() => {
 
       <section v-if="currentPage === 'packageDetail' && detailPackage" class="bg-white py-16">
         <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_0.48fr]">
-          <div>
+          <div class="min-w-0">
             <nav class="detail-sticky-nav mb-8 hidden gap-2 overflow-x-auto rounded-lg border border-night/10 bg-white/90 p-2 shadow-lift backdrop-blur lg:sticky lg:top-24 lg:z-20 lg:flex">
               <a v-for="[label, sectionId] in detailSectionNav" :key="sectionId" :href="`#${sectionId}`" class="rounded-lg px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-night/58 hover:bg-night hover:text-white">{{ label }}</a>
             </nav>
@@ -3685,6 +3793,13 @@ onUnmounted(() => {
             <h2 class="font-display text-3xl font-extrabold text-night sm:text-4xl">Overview</h2>
             <p class="mt-3 text-sm font-black uppercase tracking-[0.16em] text-lake">Package date: {{ detailPackage.packageDate }}</p>
             <p class="mt-5 max-w-4xl text-base leading-8 text-night/65 sm:text-lg">{{ detailPackage.description }} The route can be adjusted for arrival time, guest comfort, weather, and travel style.</p>
+
+            <div class="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <article v-for="[label, value] in detailQuickFacts" :key="`fact-${label}`" class="quick-fact-card">
+                <p>{{ label }}</p>
+                <h3>{{ value }}</h3>
+              </article>
+            </div>
 
             <div class="mt-8 grid gap-3 sm:grid-cols-2">
               <div v-for="[icon, title, text] in reservationInfoCards" :key="title" class="premium-info-box">
@@ -3703,12 +3818,24 @@ onUnmounted(() => {
                   </div>
                 </div>
               </template>
+              <template v-else-if="packageIsSummer(detailPackage)">
+                <div v-for="[icon, title, text] in summerReservationInfoCards" :key="`summer-${title}`" class="premium-info-box">
+                  <span>{{ icon }}</span>
+                  <div>
+                    <h3>{{ title }}</h3>
+                    <p>{{ text }}</p>
+                  </div>
+                </div>
+              </template>
             </div>
             <p class="mt-5 rounded-lg border border-gold/25 bg-gold/10 p-4 text-sm font-bold leading-7 text-night/70">
-              Package prices may vary depending on hotel category, transportation, activities, travel season, and customization preferences. To ensure the best accommodation, food, transportation, guide support, and service quality, guests are advised to reserve their packages at least one month in advance.
+              Package prices may vary depending on hotel category, transportation, activities, travel season, and customization preferences. For standard and regular Kashmir packages, guests should reserve at least one month in advance to secure better accommodation, transport, guide support, food coordination, and service quality.
             </p>
             <p v-if="packageIsWinter(detailPackage)" class="mt-3 rounded-lg border border-lake/20 bg-lake/10 p-4 text-sm font-bold leading-7 text-night/70">
-              Due to high demand during the winter season, guests are advised to reserve their winter packages at least two months in advance. Early reservation helps secure better hotels, transport arrangements, guides, snow activities, and overall travel services.
+              Due to high seasonal demand, guests should reserve winter packages at least two months in advance. Early reservation helps secure better hotels, transport arrangements, guides, snow activities, Gondola planning, and overall travel services.
+            </p>
+            <p v-else-if="packageIsSummer(detailPackage)" class="mt-3 rounded-lg border border-lake/20 bg-lake/10 p-4 text-sm font-bold leading-7 text-night/70">
+              Summer routes are best planned early, especially for Pahalgam, Sonmarg, Gurez, camping, trekking, and meadow experiences. Early booking improves hotel availability, cab scheduling, local access planning, and activity coordination.
             </p>
 
             <div class="mt-9">
@@ -3731,11 +3858,15 @@ onUnmounted(() => {
 
             <div id="package-itinerary" class="mt-9">
               <h3 class="font-display text-3xl font-extrabold text-night">Route & Itinerary</h3>
-              <div class="mt-5 grid gap-3">
-                <div v-for="(step, index) in packageItinerary(detailPackage)" :key="`${detailPackage.name}-day-${index}`" class="rounded-lg border border-night/10 bg-frost p-4">
+              <div class="itinerary-timeline mt-5 grid gap-3">
+                <div v-for="(step, index) in packageItinerary(detailPackage)" :key="`${detailPackage.name}-day-${index}`" class="itinerary-step rounded-lg border border-night/10 bg-frost p-4">
                   <p class="text-xs font-black uppercase tracking-[0.16em] text-lake">Day {{ index + 1 }}</p>
                   <p class="mt-2 text-sm font-semibold leading-6 text-night/70">{{ step }}</p>
                 </div>
+              </div>
+              <div class="mt-6 rounded-lg border border-gold/25 bg-gold/10 p-5">
+                <p class="text-sm font-black uppercase tracking-[0.16em] text-night">Want this itinerary customized?</p>
+                <p class="mt-2 text-sm font-semibold leading-7 text-night/62">Share your arrival time, stay preference, and must-see places. We will adjust the pace before you reserve.</p>
               </div>
               <div class="mt-6 flex flex-col gap-3 sm:flex-row">
                 <button type="button" class="package-action package-action-primary px-5" @click="bookDetailPackage">Reserve Package</button>
@@ -3832,6 +3963,29 @@ onUnmounted(() => {
               </div>
             </div>
 
+            <div class="mt-12">
+              <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p class="text-sm font-black uppercase tracking-[0.18em] text-lake">Related journeys</p>
+                  <h3 class="mt-2 font-display text-3xl font-extrabold text-night">Other Kashmir routes guests compare.</h3>
+                </div>
+                <button type="button" class="self-start rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake" @click="navigateTo('/packages')">View All</button>
+              </div>
+              <div class="grid gap-4 md:grid-cols-3">
+                <article v-for="item in relatedPackages" :key="`related-${item.name}`" class="group overflow-hidden rounded-lg border border-night/10 bg-white shadow-lift">
+                  <div class="relative h-40 overflow-hidden">
+                    <div class="image-cover h-full transition duration-500 group-hover:scale-105" :style="{ backgroundImage: `url('${packageVisual(item)}')` }"></div>
+                    <span class="absolute left-3 top-3 rounded-full bg-white/92 px-3 py-1.5 text-xs font-black text-night">{{ item.tag }}</span>
+                  </div>
+                  <div class="p-4">
+                    <h4 class="line-clamp-2 min-h-12 font-black leading-6 text-night">{{ item.name }}</h4>
+                    <p class="mt-2 text-xs font-bold uppercase tracking-[0.12em] text-lake">{{ displayDuration(item.duration) }} · From INR {{ item.price.toLocaleString("en-IN") }}</p>
+                    <button type="button" class="mt-4 w-full rounded-lg bg-frost px-4 py-3 text-sm font-black text-night hover:bg-night hover:text-white" @click="viewPackageDetails(item)">Compare Route</button>
+                  </div>
+                </article>
+              </div>
+            </div>
+
             <form id="package-book" class="booking-form premium-card mt-12 rounded-lg p-5 shadow-premium sm:p-6" @submit.prevent="submitBookingInquiry">
               <p class="text-sm font-black uppercase tracking-[0.18em] text-lake">Booking form</p>
               <h3 class="mt-2 font-display text-3xl font-extrabold text-night">Request Reservation</h3>
@@ -3855,7 +4009,7 @@ onUnmounted(() => {
             </form>
           </div>
 
-          <aside class="premium-card rounded-lg p-6 lg:sticky lg:top-28 lg:self-start">
+          <aside class="premium-card min-w-0 rounded-lg p-6 lg:sticky lg:top-28 lg:self-start">
             <p class="text-sm font-bold text-night/55">Starting From</p>
             <div class="mt-2 flex flex-wrap items-end gap-3">
               <p class="font-display text-4xl font-extrabold text-lake">INR {{ detailPackage.price.toLocaleString("en-IN") }}</p>
@@ -3866,13 +4020,13 @@ onUnmounted(() => {
             <button type="button" class="mt-5 w-full rounded-lg bg-lake px-5 py-4 text-base font-black text-white shadow-lift hover:bg-night" @click="bookDetailPackage">
               Reserve This Package
             </button>
-            <button type="button" class="mt-3 w-full rounded-lg bg-night px-5 py-4 text-base font-black text-white hover:bg-lake" @click="isTripPlannerOpen = true; bookingInquiry.notes = `Question about ${detailPackage.name}`">
+            <button type="button" class="mt-3 w-full rounded-lg bg-night px-5 py-4 text-base font-black text-white hover:bg-lake" @click="openTripPlanner('plan', detailPackage); bookingInquiry.notes = `Question about ${detailPackage.name}`">
               Ask a Question
             </button>
             <a :href="detailWhatsappLink" class="mt-3 block rounded-lg bg-frost px-5 py-4 text-center text-base font-black text-night hover:text-lake">
               Chat on WhatsApp
             </a>
-            <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="mt-3 block rounded-lg border border-night/10 bg-white px-5 py-4 text-center text-base font-black text-night hover:text-lake">
+            <a :href="phoneTel" class="mt-3 block rounded-lg border border-night/10 bg-white px-5 py-4 text-center text-base font-black text-night hover:text-lake">
               Call Now
             </a>
             <p class="mt-4 text-center text-xs font-semibold text-night/45">Secure payment ready layout</p>
@@ -4028,7 +4182,7 @@ onUnmounted(() => {
                       <img src="/social/whatsapp.svg" alt="" class="h-5 w-5" />
                       <span>WhatsApp</span>
                     </a>
-                    <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="package-action package-action-secondary">Call Now</a>
+                    <a :href="phoneTel" class="package-action package-action-secondary">Call Now</a>
                   </div>
                 </div>
               </div>
@@ -4226,15 +4380,17 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <form class="booking-form premium-card rounded-lg p-5 shadow-premium sm:p-6" @submit.prevent="submitBookingInquiry">
+          <form class="booking-form planner-form premium-card rounded-lg p-5 shadow-premium sm:p-6" @submit.prevent="submitBookingInquiry">
             <div class="mb-5 flex flex-col gap-3 border-b border-night/10 pb-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p class="text-sm font-black uppercase tracking-[0.18em] text-lake">Trip request</p>
                 <h3 class="mt-1 text-2xl font-black text-night">Build your Kashmir booking</h3>
+                <p class="mt-2 text-sm font-semibold leading-6 text-night/58">Our Kashmir travel specialist will get back with the best available plan.</p>
               </div>
               <span class="rounded-lg bg-night px-4 py-2 text-xs font-black text-white">Secure inquiry</span>
             </div>
 
+            <div class="form-step-label"><span>01</span><p>Route and dates</p></div>
             <div class="grid gap-4 md:grid-cols-2">
               <label class="grid min-w-0 gap-2 text-sm font-bold"><span>Package <span class="text-red-600">*</span></span>
                 <select v-model="selectedPackage" required class="w-full min-w-0 truncate rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20">
@@ -4255,14 +4411,34 @@ onUnmounted(() => {
                   <option :value="2.1">VIP</option>
                 </select>
               </label>
+            </div>
+
+            <div class="form-step-label mt-6"><span>02</span><p>Guest details</p></div>
+            <div class="grid gap-4 md:grid-cols-2">
               <label class="grid gap-2 text-sm font-bold md:col-span-2"><span>Name <span class="text-red-600">*</span></span>
                 <input v-model="bookingInquiry.name" type="text" placeholder="Name" required class="rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
               </label>
-              <label class="grid gap-2 text-sm font-bold md:col-span-2"><span>Email <span class="text-red-600">*</span></span>
+              <label class="grid gap-2 text-sm font-bold"><span>Email <span class="text-red-600">*</span></span>
                 <input v-model="bookingInquiry.email" type="email" placeholder="email" required class="rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
               </label>
-              <label class="grid gap-2 text-sm font-bold md:col-span-2"><span>Phone <span class="text-red-600">*</span></span>
+              <label class="grid gap-2 text-sm font-bold"><span>Phone <span class="text-red-600">*</span></span>
                 <input v-model="bookingInquiry.phone" type="tel" placeholder="phone" required class="rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
+              </label>
+            </div>
+
+            <div class="form-step-label mt-6"><span>03</span><p>Preferences</p></div>
+            <div class="grid gap-4 md:grid-cols-2">
+              <label class="grid gap-2 text-sm font-bold"><span>Hotel preference</span>
+                <select v-model="bookingInquiry.hotelPreference"><option value="">Select hotel preference</option><option>Standard</option><option>Premium</option><option>Luxurious</option><option>VIP</option></select>
+              </label>
+              <label class="grid gap-2 text-sm font-bold"><span>Budget range</span>
+                <select v-model="bookingInquiry.budgetRange"><option value="">Select budget</option><option>Standard</option><option>Premium</option><option>Luxurious</option><option>VIP custom</option></select>
+              </label>
+              <label class="grid gap-2 text-sm font-bold"><span>Travel type</span>
+                <select @change="appendPlannerNote('Travel type', $event.target.value)"><option value="">Select travel type</option><option v-for="type in travelTypes" :key="`booking-type-${type}`">{{ type }}</option></select>
+              </label>
+              <label class="grid gap-2 text-sm font-bold"><span>Preferred contact</span>
+                <select v-model="bookingInquiry.contactMethod"><option>WhatsApp</option><option>Call</option><option>Email</option></select>
               </label>
               <label class="grid gap-2 text-sm font-bold md:col-span-2"><span>Trip notes</span>
                 <textarea v-model="bookingInquiry.notes" placeholder="Tell us preferred hotels, pickup point, must-see places, or special requests" class="min-h-28 rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20"></textarea>
@@ -4314,7 +4490,7 @@ onUnmounted(() => {
                 <p class="text-sm font-black uppercase tracking-[0.18em] text-lake">UPI payment</p>
                 <h3 class="mt-2 text-2xl font-black text-night">Scan QR to pay</h3>
                 <p class="mt-3 text-sm leading-6 text-night/[0.62]">Use any UPI app to scan the code. Mention your name, package, and travel date when sending the payment screenshot.</p>
-                <a href="https://wa.me/919055020408?text=I%20have%20completed%20the%20UPI%20payment%20for%20my%20Snow%20Feather%20booking" class="mt-5 inline-flex rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake">Send Screenshot</a>
+            <a :href="whatsappLink('I have completed the UPI payment for my Snow Feather booking')" class="mt-5 inline-flex rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake">Send Screenshot</a>
               </div>
             </div>
 
@@ -4384,7 +4560,7 @@ onUnmounted(() => {
             <p class="mx-auto mt-4 max-w-3xl text-base font-semibold leading-8 text-night/[0.62]">See why families, couples, groups, and adventure travelers trust our local team to plan and support their Kashmir journeys.</p>
           </div>
           <div class="grid gap-5 lg:grid-cols-3">
-            <article v-for="review in testimonials" :key="review.name" class="rounded-lg border border-night/[0.08] bg-white p-6 shadow-premium">
+            <article v-for="review in testimonials" :key="review.name" class="testimonial-card rounded-lg border border-night/[0.08] bg-white p-6 shadow-premium" data-reveal>
               <div class="flex items-center gap-4">
                 <div class="image-cover h-14 w-14 rounded-full" :style="imageStyle(review.image)"></div>
                 <div>
@@ -4392,6 +4568,10 @@ onUnmounted(() => {
                   <p class="text-xs font-bold uppercase tracking-[0.12em] text-lake">{{ review.location || "Guest" }} · {{ review.trip }}</p>
                 </div>
                 <span class="ml-auto rounded-full bg-gold/15 px-3 py-2 text-sm font-black text-gold">★ {{ review.rating }}</span>
+              </div>
+              <div class="mt-5 flex items-center gap-1 text-gold" aria-label="Five star review">
+                <span v-for="star in 5" :key="`${review.name}-star-${star}`">★</span>
+                <span class="ml-2 text-xs font-black uppercase tracking-[0.12em] text-night/42">Verified guest</span>
               </div>
               <p class="mt-5 text-sm font-semibold leading-7 text-night/[0.62]">“{{ review.text }}”</p>
             </article>
@@ -4478,8 +4658,8 @@ onUnmounted(() => {
             <p class="mt-5 max-w-2xl text-base font-semibold leading-8 text-white/70">Share your destination, dates, group size, and preferred comfort. Our local team will suggest the right route, stay, transport, activities, and transparent price range.</p>
           </div>
           <div class="grid gap-3 rounded-lg border border-white/14 bg-white/10 p-5 backdrop-blur">
-            <a href="https://wa.me/919055020408?text=I%20want%20a%20Kashmir%20tour%20quotation" class="rounded-lg bg-[#25D366] px-6 py-4 text-center text-base font-black text-white">WhatsApp For A Quote</a>
-            <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="rounded-lg bg-white px-6 py-4 text-center text-base font-black text-night">Call {{ siteContent.contactPhone }}</a>
+            <a :href="whatsappLink('I want a Kashmir tour quotation')" class="rounded-lg bg-[#25D366] px-6 py-4 text-center text-base font-black text-white">WhatsApp For A Quote</a>
+            <a :href="phoneTel" class="rounded-lg bg-white px-6 py-4 text-center text-base font-black text-night">Call {{ phoneDisplay }}</a>
             <button type="button" class="rounded-lg border border-white/18 px-6 py-4 text-base font-black text-white" @click="navigateTo('/booking')">Send Enquiry Form</button>
           </div>
         </div>
@@ -4703,9 +4883,9 @@ onUnmounted(() => {
               </div>
 
               <div class="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="min-w-0 rounded-lg border border-white/18 bg-white/12 p-3 backdrop-blur-xl transition hover:bg-white/20">
+                <a :href="phoneTel" class="min-w-0 rounded-lg border border-white/18 bg-white/12 p-3 backdrop-blur-xl transition hover:bg-white/20">
                   <p class="text-[0.62rem] font-black uppercase leading-4 tracking-[0.14em] text-gold">Call / WhatsApp</p>
-                  <p class="mt-2 break-words text-xs font-black leading-5 text-white sm:text-[0.8rem]">{{ siteContent.contactPhone }}</p>
+                  <p class="mt-2 break-words text-xs font-black leading-5 text-white sm:text-[0.8rem]">{{ phoneDisplay }}</p>
                 </a>
                 <a :href="`mailto:${siteContent.contactEmail}`" class="min-w-0 rounded-lg border border-white/18 bg-white/12 p-3 backdrop-blur-xl transition hover:bg-white/20">
                   <p class="text-[0.62rem] font-black uppercase leading-4 tracking-[0.14em] text-gold">Email</p>
@@ -4746,7 +4926,7 @@ onUnmounted(() => {
             <p v-if="bookingFormStatus" :class="bookingFormStatus.includes('valid') ? 'text-red-600 bg-red-50' : 'text-green-600 bg-green-50'" class="mt-4 rounded-lg p-3 text-sm font-semibold">{{ bookingFormStatus }}</p>
             <div class="mt-5 grid gap-3 sm:grid-cols-2">
               <button type="submit" class="rounded-lg bg-gold px-5 py-4 text-base font-black uppercase tracking-[0.12em] text-night transition hover:bg-night hover:text-white">Send Enquiry</button>
-              <a href="https://wa.me/919055020408?text=I%20want%20to%20book%20a%20Kashmir%20tour" class="rounded-lg border border-night/[0.12] px-5 py-3 text-center text-sm font-black text-night transition hover:border-lake hover:text-lake hover:bg-frost">WhatsApp Live Chat</a>
+              <a :href="whatsappLink('I want to book a Kashmir tour')" class="rounded-lg border border-night/[0.12] px-5 py-3 text-center text-sm font-black text-night transition hover:border-lake hover:text-lake hover:bg-frost">WhatsApp Live Chat</a>
             </div>
             <div class="mt-5 grid gap-3 sm:grid-cols-3">
               <div class="rounded-lg bg-frost p-3 text-center text-xs font-black text-night/62">Hotels</div>
@@ -4844,7 +5024,7 @@ onUnmounted(() => {
             </article>
             <article class="rounded-lg bg-white p-6 shadow-lift">
               <h2 class="text-2xl font-black text-night">Contact</h2>
-              <p class="mt-3 text-sm leading-7 text-night/[0.64]">For privacy questions or correction requests, contact us at snowfeatheradventures@gmail.com or +91 919055020408.</p>
+              <p class="mt-3 text-sm leading-7 text-night/[0.64]">For privacy questions or correction requests, contact us at snowfeatheradventures@gmail.com or {{ phoneDisplay }}.</p>
             </article>
           </div>
         </div>
@@ -4896,7 +5076,7 @@ onUnmounted(() => {
             </article>
             <article class="rounded-lg bg-white p-6 shadow-lift">
               <h2 class="text-2xl font-black text-night">Support And Contact</h2>
-              <p class="mt-3 text-sm leading-7 text-night/[0.64]">For booking support, itinerary changes, or service questions, contact Snow Feather Adventures at snowfeatheradventures@gmail.com or +91 919055020408.</p>
+              <p class="mt-3 text-sm leading-7 text-night/[0.64]">For booking support, itinerary changes, or service questions, contact Snow Feather Adventures at snowfeatheradventures@gmail.com or {{ phoneDisplay }}.</p>
             </article>
           </div>
         </div>
@@ -4912,13 +5092,13 @@ onUnmounted(() => {
             <p class="text-xs font-black uppercase tracking-[0.18em] text-lake">{{ galleryImageTags(galleryLightboxImage.image, galleryLightboxImage.index).join(" · ") }}</p>
             <h2 class="mt-4 font-display text-4xl font-extrabold">{{ galleryImageTitle(galleryLightboxImage.image, galleryLightboxImage.index) }}</h2>
             <p class="mt-4 text-sm font-semibold leading-7 text-night/62">{{ galleryImageText(galleryLightboxImage.image, galleryLightboxImage.index) }}</p>
-            <button type="button" class="mt-7 w-full rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake" @click="galleryLightboxImage = null; isTripPlannerOpen = true">Plan A Trip Like This</button>
+            <button type="button" class="mt-7 w-full rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake" @click="galleryLightboxImage = null; openTripPlanner('plan')">Plan A Trip Like This</button>
           </div>
         </div>
       </div>
     </div>
 
-    <div v-if="isTripPlannerOpen" class="fixed inset-0 z-[90] grid place-items-center bg-[#031218]/80 p-4 backdrop-blur-md" role="dialog" aria-modal="true" aria-label="Plan your Kashmir trip" @click.self="isTripPlannerOpen = false">
+    <div v-if="false && isTripPlannerOpen" class="fixed inset-0 z-[90] grid place-items-center bg-[#031218]/80 p-4 backdrop-blur-md" role="dialog" aria-modal="true" aria-label="Plan your Kashmir trip" @click.self="isTripPlannerOpen = false">
       <div class="planner-modal relative max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-[2rem] bg-[#f5f0e8] shadow-2xl">
         <button type="button" class="absolute right-5 top-5 z-10 grid h-10 w-10 place-items-center rounded-full bg-white text-xl text-night shadow-lg" aria-label="Close trip planner" @click="isTripPlannerOpen = false">×</button>
         <div class="grid md:grid-cols-[0.72fr_1.28fr]">
@@ -4955,10 +5135,79 @@ onUnmounted(() => {
               <textarea v-model="bookingInquiry.notes" placeholder="Message, trip type, destinations, hotel preference, or special request" class="min-h-28 rounded-lg border border-night/10 px-4 py-3 text-sm font-bold sm:col-span-2"></textarea>
             </div>
             <button type="button" class="luxury-button luxury-button-dark mt-7 w-full" @click="isTripPlannerOpen = false; navigateTo('/booking')">Build my journey</button>
-            <a :href="`https://wa.me/919055020408?text=${encodeURIComponent(`Help me plan my dream Kashmir trip. Name: ${bookingInquiry.name || ''}. Phone: ${bookingInquiry.phone || ''}. Travel month: ${bookingInquiry.travelDate || ''}. Notes: ${bookingInquiry.notes || ''}`)}`" class="mt-3 block text-center text-xs font-black uppercase tracking-[0.14em] text-night/50">Or plan instantly on WhatsApp</a>
+            <a :href="whatsappLink(`Help me plan my dream Kashmir trip. Name: ${bookingInquiry.name || ''}. Phone: ${bookingInquiry.phone || ''}. Travel month: ${bookingInquiry.travelDate || ''}. Notes: ${bookingInquiry.notes || ''}`)" class="mt-3 block text-center text-xs font-black uppercase tracking-[0.14em] text-night/50">Or plan instantly on WhatsApp</a>
           </div>
         </div>
       </div>
+    </div>
+
+    <div v-if="isTripPlannerOpen" class="modal-backdrop fixed inset-0 z-[90] grid place-items-center bg-[#031218]/80 p-3 backdrop-blur-md sm:p-4" role="dialog" aria-modal="true" aria-label="Plan your Kashmir trip" @click.self="isTripPlannerOpen = false">
+      <div class="planner-modal modal-panel relative max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[1.5rem] bg-[#f7f3ec] shadow-2xl">
+        <button type="button" class="absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-white text-xl text-night shadow-lg" aria-label="Close trip planner" @click="isTripPlannerOpen = false">×</button>
+        <div class="grid lg:grid-cols-[0.88fr_1.12fr]">
+          <div class="relative min-h-[24rem] overflow-hidden rounded-t-[1.5rem] lg:rounded-l-[1.5rem] lg:rounded-r-none lg:rounded-t-none">
+            <div class="image-cover absolute inset-0" :style="{ backgroundImage: `url('${tripPlannerMode === 'reserve' ? packageVisual(detailPackage) : '/images/image39.jpeg'}')` }"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-night/96 via-night/42 to-night/8"></div>
+            <div class="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
+              <p class="text-xs font-black uppercase tracking-[0.22em] text-gold">{{ tripPlannerMode === "reserve" ? "Reserve package" : "Trip planning assistant" }}</p>
+              <h3 class="mt-3 font-display text-4xl font-extrabold leading-tight">{{ tripPlannerMode === "reserve" ? "Hold the right Kashmir plan before it sells out." : "Tell us what Kashmir should feel like." }}</h3>
+              <p class="mt-4 text-sm font-semibold leading-7 text-white/72">Route, stays, cab, budget, and activities are checked by a local Kashmir specialist before confirmation.</p>
+              <div class="mt-5 grid gap-2 text-xs font-black uppercase tracking-[0.12em] text-white/72 sm:grid-cols-2">
+                <span v-for="badge in trustBadges.slice(0, 4)" :key="`modal-${badge}`" class="rounded-full border border-white/16 bg-white/10 px-3 py-2 backdrop-blur">{{ badge }}</span>
+              </div>
+            </div>
+          </div>
+          <form class="planner-form p-5 sm:p-8" @submit.prevent="submitBookingInquiry">
+            <div class="mb-5 pr-10">
+              <p class="text-xs font-black uppercase tracking-[0.18em] text-lake">Quick enquiry</p>
+              <h3 class="mt-2 text-2xl font-black text-night">Get a clear plan from our team.</h3>
+              <p class="mt-2 text-sm font-semibold leading-6 text-night/58">No spam. Just a practical itinerary, availability check, and next steps.</p>
+            </div>
+            <div class="grid gap-2 sm:grid-cols-2">
+              <button v-for="type in travelTypes" :key="`planner-type-${type}`" type="button" class="planner-choice" @click="pickPlannerChoice(type)">{{ type }} <span>-></span></button>
+            </div>
+            <div class="mt-6 grid gap-3 sm:grid-cols-2">
+              <label class="grid gap-2 text-sm font-bold">Full Name<input v-model="bookingInquiry.name" required type="text" placeholder="Full name" /></label>
+              <label class="grid gap-2 text-sm font-bold">Phone / WhatsApp<input v-model="bookingInquiry.phone" required type="tel" placeholder="10-digit phone" /></label>
+              <label class="grid gap-2 text-sm font-bold">Email<input v-model="bookingInquiry.email" required type="email" placeholder="Email address" /></label>
+              <label class="grid gap-2 text-sm font-bold">Travel Month<input v-model="bookingInquiry.travelDate" type="month" /></label>
+              <label class="grid gap-2 text-sm font-bold">Package / Interest<select v-model="selectedPackage"><option v-for="item in packages" :key="`modal-package-${item.name}`" :value="item.price">{{ item.name }}</option></select></label>
+              <label class="grid gap-2 text-sm font-bold">No. of Guests<input v-model.number="travelers" min="1" type="number" /></label>
+              <label class="grid gap-2 text-sm font-bold">Budget Range<select v-model="bookingInquiry.budgetRange"><option value="">Select budget</option><option>Standard</option><option>Premium</option><option>Luxurious</option><option>VIP custom</option></select></label>
+              <label class="grid gap-2 text-sm font-bold">Contact Method<select v-model="bookingInquiry.contactMethod"><option>WhatsApp</option><option>Call</option><option>Email</option></select></label>
+              <label class="grid gap-2 text-sm font-bold sm:col-span-2">Message<textarea v-model="bookingInquiry.notes" placeholder="Destinations, travel type, hotel preference, budget, or special request" class="min-h-28"></textarea></label>
+            </div>
+            <p v-if="bookingInquiryStatus" :class="/thank you|sent/i.test(bookingInquiryStatus) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="mt-4 rounded-lg p-3 text-sm font-semibold">{{ bookingInquiryStatus }}</p>
+            <div class="mt-6 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+              <button type="submit" :disabled="isBookingSubmitting" class="luxury-button luxury-button-dark w-full">{{ isBookingSubmitting ? "Sending..." : tripPlannerMode === "reserve" ? "Request reservation" : "Build my journey" }}</button>
+              <button type="button" class="rounded-full border border-night/10 bg-white px-5 py-3 text-xs font-black uppercase tracking-[0.12em] text-night hover:border-lake hover:text-lake" @click="isCallbackOpen = true">Quick callback</button>
+            </div>
+            <a :href="whatsappLink(`Help me plan my Kashmir trip. Package: ${selectedPackageName}. Name: ${bookingInquiry.name || ''}. Phone: ${bookingInquiry.phone || ''}. Travel month: ${bookingInquiry.travelDate || ''}. Guests: ${travelers}. Budget: ${bookingInquiry.budgetRange || ''}. Notes: ${bookingInquiry.notes || ''}`)" class="mt-4 block text-center text-xs font-black uppercase tracking-[0.14em] text-night/50">Or plan instantly on WhatsApp</a>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="isCallbackOpen" class="modal-backdrop fixed inset-0 z-[91] grid place-items-center bg-[#031218]/74 p-4 backdrop-blur-md" role="dialog" aria-modal="true" aria-label="Request callback" @click.self="isCallbackOpen = false">
+      <form class="modal-panel w-full max-w-md rounded-[1.25rem] bg-white p-6 shadow-2xl" @submit.prevent="requestCallback">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-black uppercase tracking-[0.18em] text-lake">Quick callback</p>
+            <h3 class="mt-2 text-2xl font-black text-night">Need help choosing?</h3>
+            <p class="mt-2 text-sm font-semibold leading-6 text-night/58">Share your number and preferred time. A Kashmir travel specialist will call back.</p>
+          </div>
+          <button type="button" class="grid h-10 w-10 place-items-center rounded-full bg-frost text-xl text-night" aria-label="Close callback popup" @click="isCallbackOpen = false">×</button>
+        </div>
+        <div class="mt-5 grid gap-3">
+          <input v-model="callbackForm.name" required type="text" placeholder="Full name" />
+          <input v-model="callbackForm.phone" required type="tel" placeholder="Phone / WhatsApp" />
+          <select v-model="callbackForm.time">
+            <option v-for="time in callbackTimes" :key="time">{{ time }}</option>
+          </select>
+        </div>
+        <p v-if="callbackStatus" class="mt-4 rounded-lg bg-green-50 p-3 text-sm font-bold text-green-700">{{ callbackStatus }}</p>
+        <button type="submit" class="mt-5 w-full rounded-lg bg-night px-5 py-4 text-sm font-black text-white hover:bg-lake">Request Callback</button>
+      </form>
     </div>
 
     <footer class="site-footer bg-night px-4 py-12 text-white sm:px-6 lg:py-16">
@@ -4984,7 +5233,7 @@ onUnmounted(() => {
               <a href="https://www.facebook.com/" class="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/10 transition hover:-translate-y-1 hover:border-lake/40 hover:bg-white/15" aria-label="Facebook">
                 <img src="/social/facebook.svg" alt="" class="h-5 w-5" />
               </a>
-              <a href="https://wa.me/919055020408?text=I%20want%20to%20book%20a%20Kashmir%20tour" class="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/10 transition hover:-translate-y-1 hover:border-lake/40 hover:bg-white/15" aria-label="WhatsApp">
+              <a :href="whatsappLink('I want to book a Kashmir tour')" class="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/10 transition hover:-translate-y-1 hover:border-lake/40 hover:bg-white/15" aria-label="WhatsApp">
                 <img src="/social/whatsapp.svg" alt="" class="h-5 w-5" />
               </a>
               <a href="https://www.youtube.com/" class="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/10 transition hover:-translate-y-1 hover:border-lake/40 hover:bg-white/15" aria-label="YouTube">
@@ -5060,13 +5309,13 @@ onUnmounted(() => {
         </svg>
         <span>{{ currentPage === 'packageDetail' ? 'Reserve' : 'Enquire' }}</span>
       </button>
-      <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-night shadow-premium">
+      <a :href="phoneTel" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-night shadow-premium">
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M7.4 3.8 10 8.2 8.2 10c1.1 2.5 3.3 4.7 5.8 5.8l1.8-1.8 4.4 2.6-.9 3.2c-.2.7-.9 1.2-1.7 1.2C9.5 20.5 3.5 14.5 3 6.4c0-.8.5-1.5 1.2-1.7l3.2-.9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
         </svg>
         <span>Call</span>
       </a>
-      <a href="https://wa.me/919055020408?text=I%20want%20instant%20Kashmir%20booking%20support" class="cta-whatsapp inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-black text-white shadow-premium">
+      <a :href="whatsappLink('I want instant Kashmir booking support')" class="cta-whatsapp inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-black text-white shadow-premium">
         <img src="/social/whatsapp.svg" alt="" class="h-6 w-6" />
         <span>WhatsApp</span>
       </a>
@@ -5078,13 +5327,13 @@ onUnmounted(() => {
         </svg>
         <span>{{ currentPage === 'packageDetail' ? 'Reserve' : 'Enquire' }}</span>
       </button>
-      <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="flex items-center justify-center gap-1.5 border-x border-white/12 px-3 py-3">
+      <a :href="phoneTel" class="flex items-center justify-center gap-1.5 border-x border-white/12 px-3 py-3">
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M7.4 3.8 10 8.2 8.2 10c1.1 2.5 3.3 4.7 5.8 5.8l1.8-1.8 4.4 2.6-.9 3.2c-.2.7-.9 1.2-1.7 1.2C9.5 20.5 3.5 14.5 3 6.4c0-.8.5-1.5 1.2-1.7l3.2-.9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
         </svg>
         <span>Call</span>
       </a>
-      <a href="https://wa.me/919055020408?text=I%20want%20instant%20Kashmir%20booking%20support" class="cta-whatsapp flex items-center justify-center gap-1.5 bg-[#25D366] px-3 py-3">
+      <a :href="whatsappLink('I want instant Kashmir booking support')" class="cta-whatsapp flex items-center justify-center gap-1.5 bg-[#25D366] px-3 py-3">
         <img src="/social/whatsapp.svg" alt="" class="h-5 w-5" />
         <span>WhatsApp</span>
       </a>

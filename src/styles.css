@@ -337,6 +337,20 @@ h1, h2, h3 {
   animation: heroVideoReveal 1100ms ease-out both;
 }
 
+.hero-vignette {
+  background:
+    linear-gradient(90deg, rgba(3, 18, 25, 0.88) 0%, rgba(3, 31, 39, 0.52) 46%, rgba(3, 18, 25, 0.1) 100%),
+    linear-gradient(0deg, rgba(3, 17, 23, 0.92) 0%, rgba(3, 17, 23, 0.3) 50%, rgba(3, 17, 23, 0.1) 100%);
+}
+
+.hero-light-sweep {
+  opacity: 0.4;
+  background: linear-gradient(110deg, transparent 15%, rgba(255, 255, 255, 0.12) 42%, transparent 58%);
+  transform: translateX(-35%);
+  animation: cinematicSweep 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
 .snow-particles {
   pointer-events: none;
   opacity: 0.34;
@@ -681,9 +695,17 @@ h1, h2, h3 {
 }
 
 [data-reveal] {
+  opacity: 0;
+  transform: translateY(1.35rem);
+  transition:
+    opacity 720ms cubic-bezier(0.2, 0.7, 0, 1),
+    transform 720ms cubic-bezier(0.2, 0.7, 0, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+[data-reveal].is-visible {
   opacity: 1;
   transform: translateY(0);
-  animation: contentReveal 700ms cubic-bezier(0.2, 0.7, 0, 1) both;
 }
 
 @keyframes scrollPulse {
@@ -728,9 +750,149 @@ h1, h2, h3 {
   }
 }
 
+@keyframes cinematicSweep {
+  0%, 45%, 100% {
+    transform: translateX(-45%);
+  }
+  70% {
+    transform: translateX(35%);
+  }
+}
+
+.modal-backdrop {
+  animation: modalBackdropIn 220ms ease-out both;
+}
+
+.modal-panel {
+  animation: modalPanelIn 360ms cubic-bezier(0.2, 0.7, 0, 1) both;
+}
+
+.planner-modal {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.planner-form label {
+  color: #071d35;
+}
+
+.form-step-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.9rem;
+  color: #071d35;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.form-step-label span {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border-radius: 50%;
+  color: white;
+  background: #0b83a5;
+}
+
+.quick-fact-card {
+  border: 1px solid rgba(7, 29, 53, 0.08);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #ffffff, #f4f9fb);
+  box-shadow: 0 14px 32px rgba(7, 29, 53, 0.07);
+}
+
+.quick-fact-card p {
+  color: rgba(7, 29, 53, 0.48);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.quick-fact-card h3 {
+  margin-top: 0.4rem;
+  color: #071d35;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.itinerary-timeline {
+  position: relative;
+}
+
+.itinerary-step {
+  position: relative;
+  padding-left: 1.4rem;
+}
+
+.itinerary-step::before {
+  position: absolute;
+  top: 1.15rem;
+  left: 0.55rem;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  content: "";
+  background: #0b83a5;
+  box-shadow: 0 0 0 0.35rem rgba(11, 131, 165, 0.1);
+}
+
+.testimonial-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 360ms cubic-bezier(0.2, 0.7, 0, 1), box-shadow 360ms ease;
+}
+
+.testimonial-card::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 0.25rem;
+  content: "";
+  background: linear-gradient(90deg, #e9ba64, #0b83a5);
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 24px 52px rgba(7, 29, 53, 0.13);
+}
+
+@keyframes modalBackdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @media (max-width: 767px) {
   .cinematic-hero {
     min-height: 52rem;
+  }
+
+  .hero-video {
+    object-position: 58% center;
+  }
+
+  .hero-vignette {
+    background:
+      linear-gradient(0deg, rgba(3, 17, 23, 0.94) 0%, rgba(3, 17, 23, 0.52) 58%, rgba(3, 17, 23, 0.2) 100%),
+      linear-gradient(90deg, rgba(3, 18, 25, 0.62), rgba(3, 18, 25, 0.08));
   }
 
   .destination-story {
@@ -755,6 +917,16 @@ h1, h2, h3 {
   .journey-image-wrap {
     min-height: 26rem;
   }
+
+  .planner-modal {
+    border-radius: 1rem;
+  }
+
+  .luxury-button {
+    width: 100%;
+    min-height: 3.35rem;
+    padding-inline: 1rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -765,7 +937,9 @@ h1, h2, h3 {
   }
 
   .scroll-line,
-  .cta-whatsapp {
+  .cta-whatsapp,
+  .hero-light-sweep,
+  .snow-particles {
     animation: none;
   }
 }
