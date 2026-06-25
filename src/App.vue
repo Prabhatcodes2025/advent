@@ -101,9 +101,9 @@ let initialLoadingTimeout = null;
 
 const defaultSiteContent = {
   heroBadge: "Born in Kashmir · Guided by locals",
-  heroTitle: "Discover the soul of Kashmir",
+  heroTitle: "Discover The Soul Of Kashmir",
   heroSubtitle:
-    "Snow adventures, hidden valleys, luxury stays, and unforgettable memories—crafted around the way you want to feel.",
+    "Premium adventures, hidden valleys, luxury stays, and unforgettable Kashmir journeys designed by local travel experts.",
   homeActivitiesEyebrow: "Featured activities",
   homeActivitiesTitle: "Kashmir adventure, snow, lake, and mountain experiences.",
   homeGalleryEyebrow: "Media gallery",
@@ -170,6 +170,14 @@ const siteContent = ref({
     storedSiteContent.heroBadge === "30+ Years of Excellence in Tourism, Adventure, Skiing & Hospitality"
       ? defaultSiteContent.heroBadge
       : storedSiteContent.heroBadge,
+  heroTitle:
+    storedSiteContent.heroTitle === "Discover the soul of Kashmir"
+      ? defaultSiteContent.heroTitle
+      : storedSiteContent.heroTitle,
+  heroSubtitle:
+    storedSiteContent.heroSubtitle === "Snow adventures, hidden valleys, luxury stays, and unforgettable memories—crafted around the way you want to feel."
+      ? defaultSiteContent.heroSubtitle
+      : storedSiteContent.heroSubtitle,
   experienceLine:
     storedSiteContent.experienceLine === "Creating Unforgettable Kashmir Experiences Since 30 Years"
       ? defaultSiteContent.experienceLine
@@ -332,6 +340,7 @@ const defaultTestimonials = [
     name: "Aarav & Meera",
     trip: "Kashmir Honeymoon",
     rating: "5.0",
+    location: "Delhi",
     text: "Everything was clearly explained before our arrival. The hotels, private cab, houseboat, and Gulmarg day were beautifully coordinated.",
     image: image("image14"),
   },
@@ -339,6 +348,7 @@ const defaultTestimonials = [
     name: "The Sharma Family",
     trip: "Family Kashmir Circuit",
     rating: "4.9",
+    location: "Mumbai",
     text: "The itinerary never felt rushed. The team stayed in contact throughout and handled weather changes with honesty and professionalism.",
     image: image("image21"),
   },
@@ -346,11 +356,81 @@ const defaultTestimonials = [
     name: "Adventure Group",
     trip: "Gulmarg Ski Experience",
     rating: "5.0",
+    location: "Bengaluru",
     text: "Excellent local instructors, proper equipment guidance, and transparent activity costs. A very dependable adventure team.",
     image: image("image15"),
   },
 ];
 const testimonials = ref(loadStoredValue("kashmir-testimonials", defaultTestimonials));
+
+const reviewForm = ref({ name: "", location: "", rating: "5.0", trip: "", text: "", image: "" });
+const reviewFormStatus = ref("");
+
+const reservationInfoCards = [
+  ["Calendar", "Reserve early", "Guests are advised to reserve standard packages at least one month in advance."],
+  ["Hotel", "Better stays", "Early confirmation helps secure better hotels, houseboats, room views, and service quality."],
+  ["Car", "Smoother transport", "Cab category, route timing, activity access, and transfers can be planned more reliably."],
+  ["Guide", "Local support", "Guide assistance, food coordination, and on-trip support improve with earlier planning."],
+];
+
+const winterReservationInfoCards = [
+  ["Snowflake", "Winter demand", "Winter packages should be reserved at least two months in advance due to high demand."],
+  ["Calendar", "Seasonal access", "Snowfall, Gondola demand, road conditions, and hotel inventory change quickly in peak winter."],
+  ["Hotel", "Priority quality", "Early reservation helps secure better hotels, transport arrangements, guides, snow activities, and services."],
+];
+
+const detailSectionNav = [
+  ["Overview", "package-overview"],
+  ["Itinerary", "package-itinerary"],
+  ["Inclusions", "package-inclusions"],
+  ["Exclusions", "package-exclusions"],
+  ["Accommodation", "package-accommodation"],
+  ["Meals", "package-meals"],
+  ["Transport", "package-transportation"],
+  ["Sightseeing", "package-sightseeing"],
+  ["Activities", "package-activities"],
+  ["Guide", "package-guide-services"],
+  ["Pricing", "package-pricing"],
+  ["Reviews", "package-reviews"],
+  ["FAQ", "package-faq"],
+  ["Book", "package-book"],
+];
+
+const detailServiceSections = [
+  ["package-accommodation", "Accommodation", "Hotel category can be Standard, Premium, Luxurious, or VIP depending on comfort preference."],
+  ["package-meals", "Meal Plan", "Breakfast, dinner, or custom meal plans are confirmed in the final itinerary."],
+  ["package-transportation", "Transportation", "Sedan, Innova, Tempo Traveller, or luxury cab options can be matched to group size."],
+  ["package-sightseeing", "Sightseeing", "Dal Lake, gardens, valleys, snow points, and route stops are planned as applicable."],
+  ["package-activities", "Activities", "Shikara, Gondola, skiing, camping, trekking, photography, and local experiences can be added."],
+  ["package-guide-services", "Guide Services", "Local guide or activity instructor support is arranged where applicable."],
+];
+
+const packageInclusions = [
+  "Accommodation",
+  "Meal plan as mentioned",
+  "Transportation",
+  "Sightseeing tours",
+  "Activities as per itinerary",
+  "Guide services where applicable",
+  "Travel assistance",
+  "Support during trip",
+];
+
+const packageExclusions = [
+  "Flight or train tickets",
+  "Personal expenses",
+  "Entry tickets unless mentioned",
+  "Additional activities",
+  "Travel insurance",
+  "Anything not mentioned in inclusions",
+];
+
+const packageFaqs = [
+  ["Can the package be customized?", "Yes. Hotel category, cab type, route, meal plan, activities, and pace can be adjusted after we understand your travel month, group size, and comfort preference."],
+  ["Are prices final?", "Prices shown are starting estimates. Final pricing depends on season, hotel availability, transportation, activity tickets, customization, and number of travelers."],
+  ["How early should we reserve?", "Standard packages should ideally be reserved at least one month in advance. Winter packages should ideally be reserved at least two months in advance."],
+  ["Can I ask questions before reserving?", "Yes. Use Ask a Question or WhatsApp to confirm route details, inclusions, exclusions, and availability before making a booking decision."],
+];
 
 const defaultMentors = [
   {
@@ -876,6 +956,44 @@ function displayCurrencyText(value) {
   return String(value || "").replace(/₹\s?/g, "INR ");
 }
 
+function packageIsWinter(item) {
+  const text = `${item?.name || ""} ${item?.tag || ""} ${item?.types?.join(" ") || ""} ${item?.routeDetails || ""}`.toLowerCase();
+  return /winter|ski|snow|gulmarg|gondola/.test(text);
+}
+
+function submitReview() {
+  if (!reviewForm.value.name.trim() || !reviewForm.value.trip.trim() || !reviewForm.value.text.trim()) {
+    reviewFormStatus.value = "Please add your name, travel experience, and review.";
+    return;
+  }
+
+  testimonials.value = [
+    {
+      name: reviewForm.value.name.trim(),
+      location: reviewForm.value.location.trim() || "Guest traveler",
+      rating: reviewForm.value.rating || "5.0",
+      trip: reviewForm.value.trip.trim(),
+      text: reviewForm.value.text.trim(),
+      image: reviewForm.value.image || image("image23"),
+    },
+    ...testimonials.value,
+  ].slice(0, 8);
+
+  saveAllContent();
+  reviewForm.value = { name: "", location: "", rating: "5.0", trip: "", text: "", image: "" };
+  reviewFormStatus.value = "Thank you for sharing your Kashmir experience.";
+}
+
+function updateReviewPhoto(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    reviewForm.value.image = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 const detailWhatsappLink = computed(() => {
   const message = `I want details for ${detailPackage.value?.name || "a Kashmir package"}`;
   return `https://wa.me/919055020408?text=${encodeURIComponent(message)}`;
@@ -1229,7 +1347,7 @@ const defaultDestinations = [
   ["Wular & Manasbal Lakes", kashmirWebImages.wular, "Freshwater lake views, birding, fishing culture, quiet drives, village life, and relaxed extensions from Srinagar or Gurez routes."],
   ["Mughal Gardens & Pari Mahal", "image07", "Nishat Bagh, Shalimar Bagh, Chashme Shahi, Pari Mahal, spring flowers, heritage walks, and family photography."],
   ["Houseboats & Shikara Life", "image22", "Lake-view houseboats, sunrise Shikara rides, floating markets, local crafts, honeymoon evenings, and waterfront dining."],
-  ["Kashmir Local Markets", "image12", "Lal Chowk, old Srinagar bazaars, pashmina, papier-mâché, dry fruits, saffron, bakeries, cafés, and local food trails."],
+  ["Kashmir Local Markets", "image12", "Lal Chowk, old Srinagar bazaars, pashmina, papier-mache, dry fruits, saffron, bakeries, cafes, and local food trails."],
 ];
 const destinations = ref(
   loadStoredValue("kashmir-destinations", defaultDestinations).map((item) =>
@@ -1304,11 +1422,29 @@ const supportCards = [
 const selectedPackage = ref(packages.value[0]?.price || 0);
 const travelers = ref(2);
 const priceClass = ref(1);
-const bookingInquiry = ref({ travelDate: "", name: "", email: "", phone: "", notes: "" });
+const bookingInquiry = ref({
+  travelDate: "",
+  name: "",
+  email: "",
+  phone: "",
+  hotelPreference: "",
+  transportPreference: "",
+  mealPreference: "",
+  activities: "",
+  budgetRange: "",
+  contactMethod: "WhatsApp",
+  notes: "",
+});
 const bookingInquiryStatus = ref("");
 const isBookingSubmitting = ref(false);
 let bookingInquiryStatusTimeout = null;
 const web3FormsAccessKey = "3401ac69-832e-416d-b7e2-499ceed01137";
+
+watch(detailPackage, (item) => {
+  if (currentPage.value === "packageDetail" && item?.price) {
+    selectedPackage.value = item.price;
+  }
+}, { immediate: true });
 const googleRecaptchaScriptSrc = "https://www.google.com/recaptcha/api.js?render=explicit";
 const recaptchaTokens = ref({ booking: "", contact: "" });
 const recaptchaWidgetIds = { booking: null, contact: null };
@@ -1369,6 +1505,12 @@ function viewPackageDetails(item) {
 
 function bookDetailPackage() {
   selectedPackage.value = detailPackage.value?.price || packages.value[0]?.price || 0;
+  if (currentPage.value === "packageDetail") {
+    window.setTimeout(() => {
+      document.getElementById("package-book")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+    return;
+  }
   navigateTo("/booking");
 }
 
@@ -1542,12 +1684,7 @@ async function submitBookingInquiry() {
     return;
   }
 
-  if (!isRecaptchaEnabled.value) {
-    setBookingInquiryStatus("Add your Google reCAPTCHA site key in the admin panel before using the booking form.");
-    return;
-  }
-
-  if (!recaptchaTokens.value.booking) {
+  if (isRecaptchaEnabled.value && !recaptchaTokens.value.booking) {
     setBookingInquiryStatus("Please complete the Google reCAPTCHA verification.");
     return;
   }
@@ -1566,8 +1703,16 @@ async function submitBookingInquiry() {
   formData.append("Name", bookingInquiry.value.name);
   formData.append("Email", bookingInquiry.value.email);
   formData.append("Phone", bookingInquiry.value.phone);
+  formData.append("Hotel Preference", bookingInquiry.value.hotelPreference || "Not selected");
+  formData.append("Transportation Preference", bookingInquiry.value.transportPreference || "Not selected");
+  formData.append("Meal Preference", bookingInquiry.value.mealPreference || "Not selected");
+  formData.append("Activities Interested In", bookingInquiry.value.activities || "Not selected");
+  formData.append("Budget Range", bookingInquiry.value.budgetRange || "Not selected");
+  formData.append("Preferred Contact Method", bookingInquiry.value.contactMethod || "WhatsApp");
   formData.append("Notes", bookingInquiry.value.notes || "No extra notes");
-  formData.append("g-recaptcha-response", recaptchaTokens.value.booking);
+  if (isRecaptchaEnabled.value) {
+    formData.append("g-recaptcha-response", recaptchaTokens.value.booking);
+  }
 
   try {
     const response = await fetch("https://api.web3forms.com/submit", {
@@ -1580,8 +1725,20 @@ async function submitBookingInquiry() {
       throw new Error(result.message || "Unable to send booking inquiry.");
     }
 
-    setBookingInquiryStatus("Booking inquiry sent. We will contact you shortly.");
-    bookingInquiry.value = { travelDate: "", name: "", email: "", phone: "", notes: "" };
+    setBookingInquiryStatus("Thank you. Our Kashmir travel expert will contact you shortly with the best available package options.");
+    bookingInquiry.value = {
+      travelDate: "",
+      name: "",
+      email: "",
+      phone: "",
+      hotelPreference: "",
+      transportPreference: "",
+      mealPreference: "",
+      activities: "",
+      budgetRange: "",
+      contactMethod: "WhatsApp",
+      notes: "",
+    };
     resetRecaptchaWidget("booking");
   } catch (error) {
     setBookingInquiryStatus(error?.message || "Something went wrong. Please try again.");
@@ -2921,9 +3078,10 @@ onUnmounted(() => {
 
     <main>
       <section v-if="currentPage === 'home'" class="cinematic-hero relative flex min-h-[88vh] overflow-hidden text-white lg:min-h-[92vh]" :style="heroStyle">
-        <video class="absolute inset-0 h-full w-full object-cover" src="/snow-feather-main-bg.mp4" autoplay muted loop playsinline poster="/kashmir-hero-vibrant-v2.png"></video>
+        <video class="hero-video absolute inset-0 h-full w-full object-cover" src="/snow-feather-main-bg.mp4" autoplay muted loop playsinline poster="/kashmir-hero-vibrant-v2.png"></video>
         <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,18,25,.9)_0%,rgba(3,31,39,.58)_48%,rgba(3,18,25,.18)_100%),linear-gradient(0deg,rgba(3,17,23,.92)_0%,transparent_58%)]"></div>
         <div class="hero-grain absolute inset-0"></div>
+        <div class="snow-particles absolute inset-0" aria-hidden="true"></div>
 
         <div class="relative mx-auto flex w-full max-w-7xl flex-col justify-end px-4 pb-6 pt-32 sm:px-6 sm:pb-8 lg:pb-10">
           <div class="max-w-4xl" data-reveal>
@@ -2938,11 +3096,11 @@ onUnmounted(() => {
               {{ siteContent.heroSubtitle }}
             </p>
             <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-              <button type="button" class="luxury-button luxury-button-primary" @click="navigateTo('/destinations')">
-                Explore Kashmir <span aria-hidden="true">↗</span>
+              <button type="button" class="luxury-button luxury-button-primary" @click="navigateTo('/packages')">
+                Explore Packages <span aria-hidden="true">-></span>
               </button>
               <button type="button" class="luxury-button luxury-button-ghost" @click="isTripPlannerOpen = true">
-                Plan my trip <span aria-hidden="true">→</span>
+                Plan my trip <span aria-hidden="true">-></span>
               </button>
             </div>
           </div>
@@ -2983,14 +3141,14 @@ onUnmounted(() => {
                 <p class="mt-3 max-w-sm text-sm leading-6 text-white/70">{{ place.text }}</p>
                 <div class="destination-story-footer">
                   <span>{{ place.activities }}</span>
-                  <button type="button" aria-label="Explore destination" @click="navigateTo('/destinations')">↗</button>
+                  <button type="button" aria-label="Explore destination" @click="navigateTo('/destinations')">-></button>
                 </div>
               </div>
             </article>
           </div>
 
           <div class="mt-12 text-center">
-            <button type="button" class="text-link" @click="navigateTo('/destinations')">Explore all 50+ destinations <span>→</span></button>
+            <button type="button" class="text-link" @click="navigateTo('/destinations')">Explore all 50+ destinations <span>-></span></button>
           </div>
         </div>
       </section>
@@ -3140,7 +3298,7 @@ onUnmounted(() => {
               </div>
               <div class="flex flex-1 flex-col p-5">
                 <div class="grid gap-2 text-sm font-semibold text-night/65">
-                  <p v-for="feature in stay.features" :key="`${stay.name}-${feature}`">✓ {{ feature }}</p>
+                  <p v-for="feature in stay.features" :key="`${stay.name}-${feature}`">Check {{ feature }}</p>
                 </div>
                 <div class="mt-auto border-t border-night/10 pt-5">
                   <p class="font-display text-xl font-extrabold text-lake">{{ stay.price }}</p>
@@ -3507,6 +3665,11 @@ onUnmounted(() => {
               <span>{{ detailPackage.rating }} guest rating</span>
               <span>Updated {{ detailPackage.packageDate }}</span>
             </div>
+            <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+              <button type="button" class="luxury-button luxury-button-primary" @click="bookDetailPackage">Reserve This Package</button>
+              <a :href="detailWhatsappLink" class="luxury-button luxury-button-ghost">Chat on WhatsApp</a>
+              <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="luxury-button luxury-button-ghost">Call Now</a>
+            </div>
           </div>
         </div>
       </section>
@@ -3514,15 +3677,45 @@ onUnmounted(() => {
       <section v-if="currentPage === 'packageDetail' && detailPackage" class="bg-white py-16">
         <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_0.48fr]">
           <div>
-            <h2 class="font-display text-3xl font-extrabold text-night sm:text-4xl">About This Package</h2>
+            <nav class="detail-sticky-nav mb-8 hidden gap-2 overflow-x-auto rounded-lg border border-night/10 bg-white/90 p-2 shadow-lift backdrop-blur lg:sticky lg:top-24 lg:z-20 lg:flex">
+              <a v-for="[label, sectionId] in detailSectionNav" :key="sectionId" :href="`#${sectionId}`" class="rounded-lg px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-night/58 hover:bg-night hover:text-white">{{ label }}</a>
+            </nav>
+
+            <div id="package-overview">
+            <h2 class="font-display text-3xl font-extrabold text-night sm:text-4xl">Overview</h2>
             <p class="mt-3 text-sm font-black uppercase tracking-[0.16em] text-lake">Package date: {{ detailPackage.packageDate }}</p>
             <p class="mt-5 max-w-4xl text-base leading-8 text-night/65 sm:text-lg">{{ detailPackage.description }} The route can be adjusted for arrival time, guest comfort, weather, and travel style.</p>
+
+            <div class="mt-8 grid gap-3 sm:grid-cols-2">
+              <div v-for="[icon, title, text] in reservationInfoCards" :key="title" class="premium-info-box">
+                <span>{{ icon }}</span>
+                <div>
+                  <h3>{{ title }}</h3>
+                  <p>{{ text }}</p>
+                </div>
+              </div>
+              <template v-if="packageIsWinter(detailPackage)">
+                <div v-for="[icon, title, text] in winterReservationInfoCards" :key="`winter-${title}`" class="premium-info-box premium-info-box-winter">
+                  <span>{{ icon }}</span>
+                  <div>
+                    <h3>{{ title }}</h3>
+                    <p>{{ text }}</p>
+                  </div>
+                </div>
+              </template>
+            </div>
+            <p class="mt-5 rounded-lg border border-gold/25 bg-gold/10 p-4 text-sm font-bold leading-7 text-night/70">
+              Package prices may vary depending on hotel category, transportation, activities, travel season, and customization preferences. To ensure the best accommodation, food, transportation, guide support, and service quality, guests are advised to reserve their packages at least one month in advance.
+            </p>
+            <p v-if="packageIsWinter(detailPackage)" class="mt-3 rounded-lg border border-lake/20 bg-lake/10 p-4 text-sm font-bold leading-7 text-night/70">
+              Due to high demand during the winter season, guests are advised to reserve their winter packages at least two months in advance. Early reservation helps secure better hotels, transport arrangements, guides, snow activities, and overall travel services.
+            </p>
 
             <div class="mt-9">
               <h3 class="font-display text-3xl font-extrabold text-night">Highlights</h3>
               <div class="mt-5 grid gap-4 text-base font-semibold text-night/70 sm:grid-cols-2">
                 <div v-for="highlight in detailHighlights" :key="highlight" class="flex items-center gap-3">
-                  <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 border-lake text-sm font-black text-lake">✓</span>
+                  <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 border-lake text-sm font-black text-lake">Ok</span>
                   <span>{{ highlight }}</span>
                 </div>
               </div>
@@ -3534,8 +3727,9 @@ onUnmounted(() => {
                 <span v-for="city in detailCities" :key="city" class="rounded-full bg-frost px-5 py-3 text-sm font-bold text-night/70">{{ city }}</span>
               </div>
             </div>
+            </div>
 
-            <div class="mt-9">
+            <div id="package-itinerary" class="mt-9">
               <h3 class="font-display text-3xl font-extrabold text-night">Route & Itinerary</h3>
               <div class="mt-5 grid gap-3">
                 <div v-for="(step, index) in packageItinerary(detailPackage)" :key="`${detailPackage.name}-day-${index}`" class="rounded-lg border border-night/10 bg-frost p-4">
@@ -3543,9 +3737,13 @@ onUnmounted(() => {
                   <p class="mt-2 text-sm font-semibold leading-6 text-night/70">{{ step }}</p>
                 </div>
               </div>
+              <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+                <button type="button" class="package-action package-action-primary px-5" @click="bookDetailPackage">Reserve Package</button>
+                <a :href="detailWhatsappLink" class="package-action package-action-whatsapp px-5">Ask a Question</a>
+              </div>
             </div>
 
-            <div class="mt-9">
+            <div id="package-pricing" class="mt-9">
               <h3 class="font-display text-3xl font-extrabold text-night">Price Tiers</h3>
               <div class="mt-5 grid gap-4 md:grid-cols-2">
                 <div v-for="[tier, amount, text] in packageTiers(detailPackage)" :key="`${detailPackage.name}-${tier}`" class="rounded-lg border border-night/10 bg-white p-5 shadow-lift">
@@ -3556,7 +3754,105 @@ onUnmounted(() => {
                   <p class="mt-3 text-sm font-semibold leading-6 text-night/62">{{ text }}</p>
                 </div>
               </div>
+              <div class="mt-6 overflow-x-auto rounded-lg border border-night/10 shadow-lift">
+                <table class="min-w-[780px] w-full bg-white text-left text-sm">
+                  <thead class="bg-night text-white">
+                    <tr>
+                      <th class="px-4 py-4">Package Type</th>
+                      <th class="px-4 py-4">Hotel Category</th>
+                      <th class="px-4 py-4">Transportation</th>
+                      <th class="px-4 py-4">Meal Plan</th>
+                      <th class="px-4 py-4">Activities</th>
+                      <th class="px-4 py-4">Starting Price</th>
+                      <th class="px-4 py-4">Reserve Button</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="[tier, amount, text] in packageTiers(detailPackage)" :key="`${detailPackage.name}-${tier}-table`" class="border-t border-night/10">
+                      <td class="px-4 py-4 font-black text-night">{{ tier }}</td>
+                      <td class="px-4 py-4 text-night/65">{{ tier === 'VIP' ? 'Best available resorts' : tier === 'Luxurious' ? '4-star / boutique' : tier === 'Premium' ? '3-star / better located' : 'Standard hotel / guest house' }}</td>
+                      <td class="px-4 py-4 text-night/65">{{ tier === 'Standard' ? 'Shared or planned cab' : 'Private cab planning' }}</td>
+                      <td class="px-4 py-4 text-night/65">As confirmed</td>
+                      <td class="px-4 py-4 text-night/65">{{ text }}</td>
+                      <td class="px-4 py-4 font-black text-lake">{{ displayCurrencyText(amount) }}</td>
+                      <td class="px-4 py-4"><button type="button" class="package-action package-action-primary" @click="bookDetailPackage">Reserve</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="mt-4 rounded-lg bg-frost p-4 text-sm font-semibold leading-7 text-night/62">Final price may vary depending on customization, season, hotel availability, and number of travelers.</p>
             </div>
+
+            <div class="mt-12 grid gap-5 md:grid-cols-2">
+              <article id="package-inclusions" class="premium-card rounded-lg p-6">
+                <h3 class="font-display text-3xl font-extrabold text-night">Inclusions</h3>
+                <div class="mt-5 grid gap-3">
+                  <p v-for="item in packageInclusions" :key="item" class="flex gap-3 text-sm font-bold text-night/68"><span class="text-lake">Check</span>{{ item }}</p>
+                </div>
+              </article>
+              <article id="package-exclusions" class="premium-card rounded-lg p-6">
+                <h3 class="font-display text-3xl font-extrabold text-night">Exclusions</h3>
+                <div class="mt-5 grid gap-3">
+                  <p v-for="item in packageExclusions" :key="item" class="flex gap-3 text-sm font-bold text-night/68"><span class="text-gold">Plus</span>{{ item }}</p>
+                </div>
+              </article>
+            </div>
+
+            <div class="mt-8 grid gap-4 md:grid-cols-2">
+              <article v-for="[sectionId, title, text] in detailServiceSections" :id="sectionId" :key="sectionId" class="rounded-lg border border-night/10 bg-frost p-5">
+                <h4 class="font-black text-night">{{ title }}</h4>
+                <p class="mt-2 text-sm font-semibold leading-6 text-night/62">{{ text }}</p>
+              </article>
+            </div>
+
+            <div id="package-reviews" class="mt-12">
+              <h3 class="font-display text-3xl font-extrabold text-night">Reviews</h3>
+              <div class="mt-5 grid gap-4 md:grid-cols-2">
+                <article v-for="review in testimonials.slice(0, 2)" :key="`${detailPackage.name}-${review.name}`" class="premium-card rounded-lg p-5">
+                  <div class="flex items-center gap-3">
+                    <div class="image-cover h-12 w-12 rounded-full" :style="imageStyle(review.image)"></div>
+                    <div>
+                      <h4 class="font-black text-night">{{ review.name }}</h4>
+                      <p class="text-xs font-bold uppercase tracking-[0.12em] text-lake">{{ review.trip }}</p>
+                    </div>
+                    <span class="ml-auto text-sm font-black text-gold">Star {{ review.rating }}</span>
+                  </div>
+                  <p class="mt-4 text-sm font-semibold leading-7 text-night/62">{{ review.text }}</p>
+                </article>
+              </div>
+            </div>
+
+            <div id="package-faq" class="mt-12">
+              <h3 class="font-display text-3xl font-extrabold text-night">FAQ</h3>
+              <div class="mt-5 grid gap-3">
+                <details v-for="[question, answer] in packageFaqs" :key="question" class="rounded-lg border border-night/10 bg-white p-5 shadow-lift">
+                  <summary class="cursor-pointer font-black text-night">{{ question }}</summary>
+                  <p class="mt-3 text-sm font-semibold leading-7 text-night/62">{{ answer }}</p>
+                </details>
+              </div>
+            </div>
+
+            <form id="package-book" class="booking-form premium-card mt-12 rounded-lg p-5 shadow-premium sm:p-6" @submit.prevent="submitBookingInquiry">
+              <p class="text-sm font-black uppercase tracking-[0.18em] text-lake">Booking form</p>
+              <h3 class="mt-2 font-display text-3xl font-extrabold text-night">Request Reservation</h3>
+              <div class="mt-6 grid gap-4 md:grid-cols-2">
+                <label class="grid gap-2 text-sm font-bold">Full Name<input v-model="bookingInquiry.name" required type="text" placeholder="Full Name" /></label>
+                <label class="grid gap-2 text-sm font-bold">Phone Number<input v-model="bookingInquiry.phone" required type="tel" placeholder="Phone Number" /></label>
+                <label class="grid gap-2 text-sm font-bold">Email<input v-model="bookingInquiry.email" required type="email" placeholder="Email" /></label>
+                <label class="grid gap-2 text-sm font-bold">Package Name<select v-model="selectedPackage"><option v-for="item in packages" :key="`detail-form-${item.name}`" :value="item.price">{{ item.name }}</option></select></label>
+                <label class="grid gap-2 text-sm font-bold">Travel Month<input v-model="bookingInquiry.travelDate" type="month" /></label>
+                <label class="grid gap-2 text-sm font-bold">Number of Guests<input v-model.number="travelers" min="1" type="number" /></label>
+                <label class="grid gap-2 text-sm font-bold">Hotel Preference<select v-model="bookingInquiry.hotelPreference"><option value="">Select hotel preference</option><option>Standard</option><option>Premium</option><option>Luxurious</option><option>VIP</option></select></label>
+                <label class="grid gap-2 text-sm font-bold">Transportation Preference<select v-model="bookingInquiry.transportPreference"><option value="">Select transportation</option><option>Sedan</option><option>Innova / SUV</option><option>Tempo Traveller</option><option>Luxury vehicle</option></select></label>
+                <label class="grid gap-2 text-sm font-bold">Meal Preference<select v-model="bookingInquiry.mealPreference"><option value="">Select meal plan</option><option>Breakfast only</option><option>Breakfast and dinner</option><option>All meals</option><option>Custom</option></select></label>
+                <label class="grid gap-2 text-sm font-bold">Budget Range<select v-model="bookingInquiry.budgetRange"><option value="">Select budget</option><option>Standard</option><option>Premium</option><option>Luxurious</option><option>VIP custom</option></select></label>
+                <label class="grid gap-2 text-sm font-bold md:col-span-2">Activities Interested In<input v-model="bookingInquiry.activities" type="text" placeholder="Skiing, Shikara, trekking, camping, sightseeing..." /></label>
+                <label class="grid gap-2 text-sm font-bold">Preferred Contact Method<select v-model="bookingInquiry.contactMethod"><option>WhatsApp</option><option>Call</option><option>Email</option></select></label>
+                <label class="grid gap-2 text-sm font-bold md:col-span-2">Message<textarea v-model="bookingInquiry.notes" class="min-h-28" placeholder="Tell us your dates, comfort level, route preference, and any special request."></textarea></label>
+              </div>
+              <p v-if="bookingInquiryStatus" :class="/thank you|sent/i.test(bookingInquiryStatus) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="mt-5 rounded-lg p-3 text-sm font-semibold">{{ bookingInquiryStatus }}</p>
+              <button type="submit" :disabled="isBookingSubmitting" class="mt-6 w-full rounded-lg bg-night px-5 py-4 text-base font-black text-white hover:bg-lake disabled:opacity-60">{{ isBookingSubmitting ? "Submitting..." : "Request Reservation" }}</button>
+            </form>
           </div>
 
           <aside class="premium-card rounded-lg p-6 lg:sticky lg:top-28 lg:self-start">
@@ -3568,10 +3864,16 @@ onUnmounted(() => {
             <p class="mt-2 text-xs font-semibold text-night/55">Indicative starting estimate; final quote is confirmed after availability check.</p>
             <p class="mt-6 rounded-lg bg-lake/10 px-4 py-3 text-center font-display text-lg font-extrabold text-lake">Save INR {{ detailSaveAmount.toLocaleString("en-IN") }}!</p>
             <button type="button" class="mt-5 w-full rounded-lg bg-lake px-5 py-4 text-base font-black text-white shadow-lift hover:bg-night" @click="bookDetailPackage">
-              Book & Pay Now
+              Reserve This Package
+            </button>
+            <button type="button" class="mt-3 w-full rounded-lg bg-night px-5 py-4 text-base font-black text-white hover:bg-lake" @click="isTripPlannerOpen = true; bookingInquiry.notes = `Question about ${detailPackage.name}`">
+              Ask a Question
             </button>
             <a :href="detailWhatsappLink" class="mt-3 block rounded-lg bg-frost px-5 py-4 text-center text-base font-black text-night hover:text-lake">
-              Enquire on WhatsApp
+              Chat on WhatsApp
+            </a>
+            <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="mt-3 block rounded-lg border border-night/10 bg-white px-5 py-4 text-center text-base font-black text-night hover:text-lake">
+              Call Now
             </a>
             <p class="mt-4 text-center text-xs font-semibold text-night/45">Secure payment ready layout</p>
           </aside>
@@ -3651,7 +3953,7 @@ onUnmounted(() => {
 
           <div class="hidden">
             <div v-for="message in trustMessages" :key="message" class="flex min-h-20 items-center gap-3 rounded-lg border border-white/70 bg-white/52 p-4 text-sm font-black leading-6 text-night shadow-lift backdrop-blur-xl">
-              <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-lake text-xs text-white">✓</span>
+              <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-lake text-xs text-white">Ok</span>
               <span>{{ message }}</span>
             </div>
           </div>
@@ -3967,7 +4269,7 @@ onUnmounted(() => {
               </label>
             </div>
 
-            <p v-if="bookingInquiryStatus" :class="bookingInquiryStatus.includes('sent') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="mt-5 rounded-lg p-3 text-sm font-semibold">
+            <p v-if="bookingInquiryStatus" :class="/thank you|sent/i.test(bookingInquiryStatus) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="mt-5 rounded-lg p-3 text-sm font-semibold">
               {{ bookingInquiryStatus }}
             </p>
 
@@ -4038,7 +4340,7 @@ onUnmounted(() => {
             </div>
             <div class="grid gap-3 sm:grid-cols-2">
               <div v-for="item in trustGuarantees" :key="item" class="flex min-h-20 items-center gap-4 rounded-lg border border-night/[0.08] bg-frost p-4 shadow-lift">
-                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-lake text-sm font-black text-white">✓</span>
+                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-lake text-sm font-black text-white">Ok</span>
                 <p class="font-black text-night">{{ item }}</p>
               </div>
             </div>
@@ -4087,13 +4389,38 @@ onUnmounted(() => {
                 <div class="image-cover h-14 w-14 rounded-full" :style="imageStyle(review.image)"></div>
                 <div>
                   <h3 class="font-black text-night">{{ review.name }}</h3>
-                  <p class="text-xs font-bold uppercase tracking-[0.12em] text-lake">{{ review.trip }}</p>
+                  <p class="text-xs font-bold uppercase tracking-[0.12em] text-lake">{{ review.location || "Guest" }} · {{ review.trip }}</p>
                 </div>
                 <span class="ml-auto rounded-full bg-gold/15 px-3 py-2 text-sm font-black text-gold">★ {{ review.rating }}</span>
               </div>
               <p class="mt-5 text-sm font-semibold leading-7 text-night/[0.62]">“{{ review.text }}”</p>
             </article>
           </div>
+          <form class="mt-8 grid gap-4 rounded-lg border border-white/70 bg-white/82 p-5 shadow-premium backdrop-blur md:grid-cols-2" @submit.prevent="submitReview">
+            <div class="flex flex-col gap-3 md:col-span-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p class="text-xs font-black uppercase tracking-[0.18em] text-lake">Share Your Experience</p>
+                <h3 class="mt-1 font-display text-3xl font-extrabold text-night">Help future guests trust their Kashmir journey.</h3>
+              </div>
+              <span class="rounded-lg bg-night px-4 py-2 text-xs font-black text-white">Google-style review</span>
+            </div>
+            <input v-model="reviewForm.name" required type="text" placeholder="Name" />
+            <input v-model="reviewForm.location" type="text" placeholder="Location" />
+            <select v-model="reviewForm.rating" aria-label="Rating">
+              <option>5.0</option>
+              <option>4.9</option>
+              <option>4.8</option>
+              <option>4.7</option>
+            </select>
+            <input v-model="reviewForm.trip" required type="text" placeholder="Travel Experience" />
+            <label class="flex cursor-pointer items-center justify-center rounded-lg border border-night/10 bg-frost px-4 py-3 text-sm font-black text-night/62">
+              Upload Photo optional
+              <input type="file" accept="image/*" class="hidden" @change="updateReviewPhoto" />
+            </label>
+            <textarea v-model="reviewForm.text" required placeholder="Short review" class="min-h-28 md:col-span-2"></textarea>
+            <p v-if="reviewFormStatus" class="rounded-lg bg-green-50 p-3 text-sm font-bold text-green-700 md:col-span-2">{{ reviewFormStatus }}</p>
+            <button type="submit" class="rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake md:col-span-2">Submit Review</button>
+          </form>
         </div>
       </section>
 
@@ -4605,7 +4932,7 @@ onUnmounted(() => {
             <h2 class="mt-3 font-display text-4xl font-extrabold leading-tight text-night">What are you dreaming of?</h2>
             <p class="mt-3 text-sm leading-6 text-night/55">Tell us the mood. We’ll shape the route, stays, and experiences around you.</p>
             <div class="mt-7 grid gap-3">
-              <button v-for="mood in ['Snow & adventure', 'Honeymoon & slow travel', 'Family discovery', 'Luxury private journey']" :key="mood" type="button" class="planner-choice" @click="bookingInquiry.notes = mood">{{ mood }} <span>→</span></button>
+              <button v-for="mood in ['Snow & adventure', 'Honeymoon & slow travel', 'Family discovery', 'Luxury private journey']" :key="mood" type="button" class="planner-choice" @click="bookingInquiry.notes = mood">{{ mood }} <span>-></span></button>
             </div>
             <div class="mt-6 grid gap-3 sm:grid-cols-2">
               <input v-model="bookingInquiry.name" type="text" placeholder="Name" class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold" />
@@ -4720,7 +5047,7 @@ onUnmounted(() => {
 
         <div class="flex flex-col gap-6 pt-8 lg:flex-row lg:items-center lg:justify-between">
           <p class="text-sm font-semibold text-white/62">Payments are accepted only through the methods confirmed directly by our team during booking.</p>
-          <p class="text-sm font-semibold text-white/50">© 2026 Snow Feather Adventures. All rights reserved.</p>
+          <p class="text-sm font-semibold text-white/50">(c) 2026 Snow Feather Adventures. All rights reserved.</p>
         </div>
       </div>
     </footer>
@@ -4731,7 +5058,7 @@ onUnmounted(() => {
           <path d="M5 5.75h14a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-8l-4.5 3v-3H5a2 2 0 0 1-2-2v-8.5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
           <path d="M7.5 10h9M7.5 13.5h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
-        <span>Enquire</span>
+        <span>{{ currentPage === 'packageDetail' ? 'Reserve' : 'Enquire' }}</span>
       </button>
       <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-night shadow-premium">
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -4749,7 +5076,7 @@ onUnmounted(() => {
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M5 5.75h14a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-8l-4.5 3v-3H5a2 2 0 0 1-2-2v-8.5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
         </svg>
-        <span>Enquire</span>
+        <span>{{ currentPage === 'packageDetail' ? 'Reserve' : 'Enquire' }}</span>
       </button>
       <a :href="`tel:${siteContent.contactPhone.replace(/\\s+/g, '')}`" class="flex items-center justify-center gap-1.5 border-x border-white/12 px-3 py-3">
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
