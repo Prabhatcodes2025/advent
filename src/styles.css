@@ -112,6 +112,128 @@
   padding-bottom: 7.5rem;
 }
 
+.premium-preloader {
+  background:
+    linear-gradient(180deg, rgba(3, 17, 24, 0.18), rgba(3, 17, 24, 0.72)),
+    radial-gradient(circle at 50% 20%, rgba(233, 186, 100, 0.18), transparent 22rem),
+    #061b24;
+}
+
+.premium-preloader::before {
+  position: absolute;
+  inset: auto -10% 0;
+  height: 38vh;
+  content: "";
+  background:
+    linear-gradient(135deg, transparent 49%, rgba(255, 255, 255, 0.92) 50% 56%, transparent 57%) 12% 100% / 34rem 18rem no-repeat,
+    linear-gradient(135deg, transparent 49%, rgba(202, 226, 234, 0.88) 50% 56%, transparent 57%) 52% 100% / 46rem 23rem no-repeat,
+    linear-gradient(135deg, transparent 49%, rgba(255, 255, 255, 0.82) 50% 56%, transparent 57%) 92% 100% / 36rem 17rem no-repeat;
+  opacity: 0.7;
+}
+
+.preloader-sky {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 28%, rgba(11, 131, 165, 0.34), transparent 20rem),
+    linear-gradient(120deg, rgba(255, 255, 255, 0.08), transparent 46%);
+  animation: preloaderSky 3.2s ease-in-out infinite alternate;
+}
+
+.preloader-snow {
+  position: absolute;
+  inset: 0;
+  opacity: 0.42;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,0.92) 0 1px, transparent 1.5px),
+    radial-gradient(circle, rgba(255,255,255,0.62) 0 1px, transparent 1.4px);
+  background-position: 0 0, 4rem 6rem;
+  background-size: 7rem 7rem, 10rem 10rem;
+  animation: snowDrift 14s linear infinite;
+}
+
+.preloader-logo-wrap {
+  position: relative;
+  display: grid;
+  width: 7.2rem;
+  height: 7.2rem;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  box-shadow: 0 24px 70px rgba(0,0,0,0.24);
+  backdrop-filter: blur(18px);
+}
+
+.preloader-logo-wrap::after {
+  position: absolute;
+  inset: -0.45rem;
+  border: 1px solid rgba(233, 186, 100, 0.42);
+  border-radius: 50%;
+  content: "";
+  animation: preloaderOrbit 2.8s linear infinite;
+}
+
+.preloader-feather {
+  position: absolute;
+  right: -0.45rem;
+  top: 1rem;
+  width: 2.7rem;
+  height: 0.85rem;
+  border-radius: 999px 999px 999px 0;
+  background: linear-gradient(90deg, rgba(255,255,255,0.96), rgba(233,186,100,0.82));
+  transform: rotate(-26deg);
+  animation: featherFloat 2.4s ease-in-out infinite;
+}
+
+.preloader-progress {
+  width: min(18rem, 76vw);
+  height: 0.25rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.16);
+}
+
+.preloader-progress span {
+  display: block;
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #e9ba64, #ffffff);
+  animation: preloaderProgress 1.35s ease-in-out infinite;
+}
+
+.preloader-fade-enter-active,
+.preloader-fade-leave-active {
+  transition: opacity 420ms ease, transform 420ms cubic-bezier(0.2, 0.7, 0, 1);
+}
+
+.preloader-fade-enter-from,
+.preloader-fade-leave-to {
+  opacity: 0;
+  transform: scale(1.015);
+}
+
+@keyframes preloaderSky {
+  from { transform: scale(1); }
+  to { transform: scale(1.035); }
+}
+
+@keyframes preloaderOrbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes featherFloat {
+  0%, 100% { transform: translateY(0) rotate(-26deg); }
+  50% { transform: translateY(-0.45rem) rotate(-18deg); }
+}
+
+@keyframes preloaderProgress {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(250%); }
+}
+
 @media (min-width: 768px) {
   .site-footer {
     padding-bottom: 8.5rem;
@@ -1040,4 +1162,28 @@ textarea:focus {
 .dark-panel:hover {
   border-color: rgba(14, 165, 198, 0.3);
   box-shadow: 0 12px 28px rgba(14, 165, 198, 0.12);
+}
+
+.admin-package-card {
+  overflow-wrap: anywhere;
+}
+
+.admin-package-card textarea {
+  resize: vertical;
+}
+
+.admin-package-card input,
+.admin-package-card select,
+.admin-package-card textarea {
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  .admin-package-card {
+    padding: 1rem;
+  }
+
+  .admin-package-card .image-cover {
+    min-height: 12rem;
+  }
 }

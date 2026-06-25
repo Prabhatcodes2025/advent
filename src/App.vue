@@ -440,6 +440,40 @@ const packageExclusions = [
   "Anything not mentioned in inclusions",
 ];
 
+function defaultPackageInclusionsFor(item = {}) {
+  const winter = packageIsWinter(item);
+  return [
+    "Accommodation as per selected category",
+    "Meal plan as confirmed in final itinerary",
+    "Transportation for planned route",
+    "Sightseeing support",
+    winter ? "Snow activity coordination where applicable" : "Activity coordination where applicable",
+    "Local travel assistance",
+    "On-trip support",
+  ];
+}
+
+function defaultPackageExclusionsFor() {
+  return [
+    "Flight or train tickets",
+    "Personal expenses",
+    "Entry tickets unless mentioned",
+    "Additional activities",
+    "Travel insurance",
+    "Anything not mentioned in inclusions",
+  ];
+}
+
+function defaultPackageServicesFor(item = {}) {
+  return {
+    accommodation: item.accommodation || "Hotel category can be Standard, Premium, Luxurious, or VIP depending on comfort preference.",
+    meals: item.meals || "Breakfast, dinner, or custom meal plans are confirmed in the final itinerary.",
+    transportation: item.transportation || "Sedan, Innova, Tempo Traveller, or luxury cab options can be matched to group size.",
+    activities: item.activities || "Shikara, Gondola, skiing, camping, trekking, photography, and local experiences can be added.",
+    guide: item.guideServices || "Local guide or activity instructor support is arranged where applicable.",
+  };
+}
+
 const packageFaqs = [
   ["Can the package be customized?", "Yes. Hotel category, cab type, route, meal plan, activities, and pace can be adjusted after we understand your travel month, group size, and comfort preference."],
   ["Are prices final?", "Prices shown are starting estimates. Final pricing depends on season, hotel availability, transportation, activity tickets, customization, and number of travelers."],
@@ -814,13 +848,28 @@ function normalizedPackageTiers(item) {
 }
 
 function clonePackage(item) {
+  const packageType = item.packageType || (packageIsWinter(item) ? "winter" : packageIsSummer(item) ? "summer" : "standard");
   return {
     ...item,
     packageDate: item.packageDate || premiumStructureDate,
+    category: item.category || item.tag || "Kashmir Package",
+    status: item.status || "active",
+    featured: Boolean(item.featured ?? /best seller|signature|honeymoon/i.test(item.tag || item.name || "")),
+    priority: Number.isFinite(Number(item.priority)) ? Number(item.priority) : 50,
+    packageType,
     types: Array.isArray(item.types) ? [...item.types] : [],
     cities: Array.isArray(item.cities) ? [...item.cities] : [],
     highlights: Array.isArray(item.highlights) ? [...item.highlights] : [],
     itinerary: Array.isArray(item.itinerary) && item.itinerary.length ? [...item.itinerary] : ["Add day-wise itinerary"],
+    inclusions: Array.isArray(item.inclusions) && item.inclusions.length ? [...item.inclusions] : defaultPackageInclusionsFor(item),
+    exclusions: Array.isArray(item.exclusions) && item.exclusions.length ? [...item.exclusions] : defaultPackageExclusionsFor(),
+    accommodation: item.accommodation || defaultPackageServicesFor(item).accommodation,
+    meals: item.meals || defaultPackageServicesFor(item).meals,
+    transportation: item.transportation || defaultPackageServicesFor(item).transportation,
+    activities: item.activities || defaultPackageServicesFor(item).activities,
+    guideServices: item.guideServices || defaultPackageServicesFor(item).guide,
+    reservationNote: item.reservationNote || "",
+    relatedPackages: Array.isArray(item.relatedPackages) ? [...item.relatedPackages] : [],
     tiers: normalizedPackageTiers(item),
   };
 }
@@ -840,17 +889,30 @@ const priceRanges = [
   { value: "25001-40000", label: "₹25,001 - ₹40,000", min: 25001, max: 40000 },
   { value: "above-40000", label: "₹40,001 and above", min: 40001, max: Infinity },
 ];
+const publicPackages = computed(() =>
+  packages.value
+    .filter((item) => item.status !== "inactive")
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => {
+      const featuredScore = Number(Boolean(b.item.featured)) - Number(Boolean(a.item.featured));
+      if (featuredScore) return featuredScore;
+      const priorityScore = Number(a.item.priority || 50) - Number(b.item.priority || 50);
+      return priorityScore || a.index - b.index;
+    })
+    .map(({ item }) => item),
+);
+
 const filteredPackages = computed(() => {
   const selectedRange = priceRanges.find((range) => range.value === activePriceRange.value) || priceRanges[0];
 
-  return packages.value.filter((item) => {
-    const matchesType =
-      activeFilter.value === "all" ||
-      (Array.isArray(item.types) && item.types.includes(activeFilter.value));
-    const price = Number(item.price || 0);
-    const matchesPrice = price >= selectedRange.min && price <= selectedRange.max;
-    return matchesType && matchesPrice;
-  });
+  return publicPackages.value.filter((item) => {
+      const matchesType =
+        activeFilter.value === "all" ||
+        (Array.isArray(item.types) && item.types.includes(activeFilter.value));
+      const price = Number(item.price || 0);
+      const matchesPrice = price >= selectedRange.min && price <= selectedRange.max;
+      return matchesType && matchesPrice;
+    });
 });
 const aboutPackages = computed(() => filteredPackages.value.slice(0, 6));
 
@@ -869,7 +931,7 @@ function slugifyPackageName(name) {
 
 const detailPackage = computed(() => {
   const slug = currentPath.value.replace("/packages/", "");
-  return packages.value.find((item) => slugifyPackageName(item.name) === slug) || packages.value[0];
+  return publicPackages.value.find((item) => slugifyPackageName(item.name) === slug) || publicPackages.value[0] || packages.value[0];
 });
 
 function textListToArray(value) {
@@ -972,11 +1034,15 @@ function displayCurrencyText(value) {
 }
 
 function packageIsWinter(item) {
+  if (item?.packageType === "winter") return true;
+  if (item?.packageType === "summer" || item?.packageType === "standard") return false;
   const text = `${item?.name || ""} ${item?.tag || ""} ${item?.types?.join(" ") || ""} ${item?.routeDetails || ""}`.toLowerCase();
   return /winter|ski|snow|gulmarg|gondola/.test(text);
 }
 
 function packageIsSummer(item) {
+  if (item?.packageType === "summer") return true;
+  if (item?.packageType === "winter" || item?.packageType === "standard") return false;
   if (packageIsWinter(item)) return false;
   const text = `${item?.name || ""} ${item?.tag || ""} ${item?.types?.join(" ") || ""} ${item?.routeTitle || ""} ${item?.routeDetails || ""}`.toLowerCase();
   return /summer|camping|trek|rafting|biking|pahalgam|sonmarg|gurez|yusmarg|doodhpathri|offbeat|leh/.test(text);
@@ -1485,10 +1551,37 @@ const detailQuickFacts = computed(() => [
   ["Support", "Local trip coordinator"],
 ]);
 
+const detailPackageInclusions = computed(() =>
+  Array.isArray(detailPackage.value?.inclusions) && detailPackage.value.inclusions.length
+    ? detailPackage.value.inclusions
+    : defaultPackageInclusionsFor(detailPackage.value),
+);
+
+const detailPackageExclusions = computed(() =>
+  Array.isArray(detailPackage.value?.exclusions) && detailPackage.value.exclusions.length
+    ? detailPackage.value.exclusions
+    : defaultPackageExclusionsFor(),
+);
+
+const detailDynamicServiceSections = computed(() => [
+  ["package-accommodation", "Accommodation", detailPackage.value?.accommodation || defaultPackageServicesFor(detailPackage.value).accommodation],
+  ["package-meals", "Meal Plan", detailPackage.value?.meals || defaultPackageServicesFor(detailPackage.value).meals],
+  ["package-transportation", "Transportation", detailPackage.value?.transportation || defaultPackageServicesFor(detailPackage.value).transportation],
+  ["package-sightseeing", "Sightseeing", detailPackage.value?.routeDetails || "Dal Lake, gardens, valleys, snow points, and route stops are planned as applicable."],
+  ["package-activities", "Activities", detailPackage.value?.activities || defaultPackageServicesFor(detailPackage.value).activities],
+  ["package-guide-services", "Guide Services", detailPackage.value?.guideServices || defaultPackageServicesFor(detailPackage.value).guide],
+]);
+
 const relatedPackages = computed(() => {
   const current = detailPackage.value?.name;
   const types = detailPackage.value?.types || [];
-  return packages.value
+  const manualNames = Array.isArray(detailPackage.value?.relatedPackages) ? detailPackage.value.relatedPackages : [];
+  const manualMatches = manualNames
+    .map((name) => publicPackages.value.find((item) => item.name === name || slugifyPackageName(item.name) === slugifyPackageName(name)))
+    .filter(Boolean)
+    .filter((item) => item.name !== current);
+  if (manualMatches.length) return manualMatches.slice(0, 3);
+  return publicPackages.value
     .filter((item) => item.name !== current)
     .sort((a, b) => {
       const aScore = (a.types || []).filter((type) => types.includes(type)).length;
@@ -1515,7 +1608,7 @@ const bookingTotal = computed(() =>
     maximumFractionDigits: 0,
   }).format(bookingTotalAmount.value),
 );
-const selectedPackageName = computed(() => packages.value.find((item) => Number(item.price) === Number(selectedPackage.value))?.name || "Custom Kashmir Package");
+const selectedPackageName = computed(() => publicPackages.value.find((item) => Number(item.price) === Number(selectedPackage.value))?.name || "Custom Kashmir Package");
 const selectedPriceClassName = computed(() => {
   if (Number(priceClass.value) === 2.1) return "VIP";
   if (Number(priceClass.value) === 1.65) return "Luxurious";
@@ -2048,6 +2141,25 @@ function updatePackageItinerary(item, value) {
     .filter(Boolean);
 }
 
+function multiLineList(value) {
+  return Array.isArray(value) ? value.join("\n") : "";
+}
+
+function updateMultiLineList(target, field, value) {
+  target[field] = String(value || "")
+    .split("\n")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
+function movePackage(index, direction) {
+  moveManagedItem(packages.value, index, direction);
+  packages.value.forEach((item, itemIndex) => {
+    item.priority = itemIndex + 1;
+  });
+  saveAdminChanges();
+}
+
 function addManagedItem(collection, item) {
   collection.push(item);
 }
@@ -2092,12 +2204,26 @@ function addPackage() {
     duration: "",
     rating: "",
     packageDate: premiumStructureDate,
+    category: "Kashmir Package",
+    status: "active",
+    featured: false,
+    priority: packages.value.length + 1,
+    packageType: "standard",
     types: [],
     routeTitle: "",
     routeDetails: "",
     cities: [],
     highlights: [],
     itinerary: ["Add day-wise itinerary"],
+    inclusions: defaultPackageInclusionsFor(),
+    exclusions: defaultPackageExclusionsFor(),
+    accommodation: "Add accommodation details",
+    meals: "Add meal plan details",
+    transportation: "Add transportation details",
+    activities: "Add included or optional activities",
+    guideServices: "Add guide service details",
+    reservationNote: "Guests should reserve at least one month in advance for better availability.",
+    relatedPackages: [],
     tiers: [
       ["Standard", "On request", "Essential stay, cab, and route support"],
       ["Premium", "On request", "Comfort hotels and private trip planning"],
@@ -2295,15 +2421,24 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <section v-if="isInitialLoading" class="fixed inset-0 z-[100] grid min-h-screen place-items-center bg-white px-4 text-night" role="status" aria-live="polite">
-    <div class="grid justify-items-center text-center">
-      <span class="h-12 w-12 animate-spin rounded-full border-4 border-frost border-t-lake"></span>
-      <p class="mt-5 text-sm font-black uppercase tracking-[0.18em] text-night/58">Loading</p>
-      <p class="mt-1 text-sm font-semibold text-night/48">{{ brandName }}</p>
-    </div>
-  </section>
+  <Transition name="preloader-fade">
+    <section v-if="isInitialLoading" class="premium-preloader fixed inset-0 z-[100] grid min-h-screen place-items-center overflow-hidden px-4 text-white" role="status" aria-live="polite">
+      <div class="preloader-sky" aria-hidden="true"></div>
+      <div class="preloader-snow" aria-hidden="true"></div>
+      <div class="relative grid justify-items-center text-center">
+        <div class="preloader-logo-wrap">
+          <img :src="logoSrc" :alt="`${brandName} logo`" class="h-20 w-20 rounded-full object-contain" />
+          <span class="preloader-feather" aria-hidden="true"></span>
+        </div>
+        <p class="mt-6 text-xs font-black uppercase tracking-[0.28em] text-gold">{{ brandName }}</p>
+        <h1 class="mt-3 font-display text-3xl font-extrabold sm:text-4xl">Crafting your Snow Feather experience...</h1>
+        <p class="mt-3 max-w-md text-sm font-semibold leading-6 text-white/62">Preparing your Kashmir journey with local care, mountain calm, and a little snow in the air.</p>
+        <div class="preloader-progress mt-7" aria-hidden="true"><span></span></div>
+      </div>
+    </section>
+  </Transition>
 
-  <section v-else-if="isAdminRoute" class="min-h-screen bg-night text-white">
+  <section v-if="!isInitialLoading && isAdminRoute" class="min-h-screen bg-night text-white">
     <div v-if="!isAdminLoggedIn" class="grid min-h-screen place-items-center px-4 py-10 sm:px-6">
       <div class="w-full max-w-md rounded-lg border border-white/[0.12] bg-white/[0.08] p-6 shadow-premium backdrop-blur sm:p-8">
         <a href="/" class="mb-7 inline-flex items-center gap-3 rounded-lg border border-white/[0.18] px-4 py-2 text-sm font-black text-white hover:bg-white/[0.12]">
@@ -2835,7 +2970,7 @@ onUnmounted(() => {
             <button type="button" class="rounded-lg bg-white px-5 py-3 text-sm font-black text-night hover:bg-gold" @click="addPackage">Add Package</button>
           </div>
 
-          <article v-for="(item, index) in packages" :key="`${item.name}-${index}`" class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-4">
+          <article v-for="(item, index) in packages" :key="`${item.name}-${index}`" class="admin-package-card rounded-lg border border-white/[0.12] bg-white/[0.08] p-4">
             <div class="grid gap-4 lg:grid-cols-[11rem_1fr]">
               <div>
                 <div class="image-cover h-36 rounded-lg" :style="{ backgroundImage: `url('${item.image}')` }"></div>
@@ -2843,6 +2978,10 @@ onUnmounted(() => {
                   Change image
                   <input type="file" accept="image/*" class="hidden" @change="updatePackageImage($event, index)" />
                 </label>
+                <div class="mt-2 grid grid-cols-2 gap-2">
+                  <button type="button" :disabled="index === 0" class="rounded-lg border border-white/20 px-3 py-2 text-xs font-black disabled:opacity-30" @click="movePackage(index, -1)">Move Up</button>
+                  <button type="button" :disabled="index === packages.length - 1" class="rounded-lg border border-white/20 px-3 py-2 text-xs font-black disabled:opacity-30" @click="movePackage(index, 1)">Move Down</button>
+                </div>
                 <button type="button" class="mt-2 w-full rounded-lg border border-gold/[0.42] px-3 py-2 text-xs font-black text-gold hover:bg-gold hover:text-night" @click="deletePackage(index)">Delete package</button>
               </div>
               <div class="grid gap-3 md:grid-cols-4">
@@ -2867,6 +3006,29 @@ onUnmounted(() => {
                 <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72]">Package date
                   <input v-model="item.packageDate" placeholder="18/05, 2:00 pm" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
                 </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72]">Category
+                  <input v-model="item.category" placeholder="Honeymoon / Family / Adventure" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
+                </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72]">Status
+                  <select v-model="item.status" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72]">Package type
+                  <select v-model="item.packageType" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night">
+                    <option value="standard">Standard</option>
+                    <option value="winter">Winter</option>
+                    <option value="summer">Summer</option>
+                  </select>
+                </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72]">Priority
+                  <input v-model.number="item.priority" type="number" min="1" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
+                </label>
+                <label class="flex items-center gap-3 rounded-lg border border-white/[0.12] bg-white/[0.06] px-3 py-3 text-xs font-black uppercase tracking-wide text-white/[0.72]">
+                  <input v-model="item.featured" type="checkbox" class="h-4 w-4 !p-0 accent-[#e9ba64]" />
+                  Featured package
+                </label>
                 <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Filter types
                   <input :value="packageTypesText(item)" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" @input="updatePackageTypes(item, $event.target.value)" />
                 </label>
@@ -2887,6 +3049,33 @@ onUnmounted(() => {
                 </label>
                 <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-4">Day-wise itinerary — one day per line
                   <textarea :value="packageItineraryText(item)" class="min-h-28 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" @input="updatePackageItinerary(item, $event.target.value)"></textarea>
+                </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Inclusions - one per line
+                  <textarea :value="multiLineList(item.inclusions)" class="min-h-28 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" @input="updateMultiLineList(item, 'inclusions', $event.target.value)"></textarea>
+                </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Exclusions - one per line
+                  <textarea :value="multiLineList(item.exclusions)" class="min-h-28 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" @input="updateMultiLineList(item, 'exclusions', $event.target.value)"></textarea>
+                </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Accommodation details
+                  <textarea v-model="item.accommodation" class="min-h-24 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night"></textarea>
+                </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Meal plan
+                  <textarea v-model="item.meals" class="min-h-24 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night"></textarea>
+                </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Transportation details
+                  <textarea v-model="item.transportation" class="min-h-24 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night"></textarea>
+                </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Activities
+                  <textarea v-model="item.activities" class="min-h-24 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night"></textarea>
+                </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Guide services
+                  <textarea v-model="item.guideServices" class="min-h-24 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night"></textarea>
+                </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-2">Booking / reservation note
+                  <textarea v-model="item.reservationNote" class="min-h-24 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night"></textarea>
+                </label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72] md:col-span-4">Related package names - comma separated
+                  <input :value="commaList(item.relatedPackages)" placeholder="Classic Kashmir Circuit, Kashmir Honeymoon Signature" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" @input="updateCommaList(item, 'relatedPackages', $event.target.value)" />
                 </label>
                 <div class="md:col-span-4">
                   <p class="text-xs font-black uppercase tracking-wide text-white/[0.72]">Four price tiers shown on package cards</p>
@@ -3103,7 +3292,7 @@ onUnmounted(() => {
     </div>
   </section>
 
-  <template v-else>
+  <template v-if="!isInitialLoading && !isAdminRoute">
     <header class="site-header fixed inset-x-0 top-0 z-50 px-3 py-3 sm:px-5">
       <nav class="glass-nav mx-auto flex max-w-7xl items-center justify-between rounded-2xl px-3 py-2.5 sm:px-4">
         <a href="/" class="flex items-center gap-3" :aria-label="`${brandName} home`" @click.prevent="navigateTo('/')">
@@ -3450,23 +3639,23 @@ onUnmounted(() => {
           </div>
 
           <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            <article v-for="journey in reimaginedJourneys" :key="journey.name" class="group overflow-hidden rounded-lg border border-night/[0.08] bg-white shadow-premium">
+            <article v-for="journey in publicPackages.slice(0, 3)" :key="`home-dynamic-${journey.name}`" class="group overflow-hidden rounded-lg border border-night/[0.08] bg-white shadow-premium">
               <div class="relative min-h-72 overflow-hidden">
-                <div class="image-cover absolute inset-0 transition duration-700 group-hover:scale-105" :style="imageStyle(journey.image)"></div>
+                <div class="image-cover absolute inset-0 transition duration-700 group-hover:scale-105" :style="{ backgroundImage: `url('${packageVisual(journey)}')` }"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-night/92 via-night/18 to-transparent"></div>
-                <span class="absolute left-4 top-4 rounded-full bg-white/92 px-3 py-2 text-xs font-black text-night">{{ journey.duration }}</span>
+                <span class="absolute left-4 top-4 rounded-full bg-white/92 px-3 py-2 text-xs font-black text-night">{{ displayDuration(journey.duration) }}</span>
                 <div class="absolute inset-x-0 bottom-0 p-6 text-white">
-                  <p class="text-xs font-black uppercase tracking-[0.16em] text-gold">{{ journey.bestFor }}</p>
+                  <p class="text-xs font-black uppercase tracking-[0.16em] text-gold">{{ journey.category || journey.tag }}</p>
                   <h3 class="mt-2 font-display text-3xl font-extrabold leading-tight">{{ journey.name }}</h3>
                 </div>
               </div>
               <div class="p-6">
                 <p class="text-xs font-black uppercase tracking-[0.16em] text-lake">Places covered</p>
-                <p class="mt-2 text-sm font-semibold leading-6 text-night/62">{{ journey.places }}</p>
+                <p class="mt-2 text-sm font-semibold leading-6 text-night/62">{{ packageRoute(journey)[1] }}</p>
                 <div class="mt-5 flex flex-wrap gap-2">
-                  <span v-for="highlight in journey.highlights" :key="`${journey.name}-${highlight}`" class="rounded-full bg-frost px-3 py-2 text-xs font-bold text-night/68">{{ highlight }}</span>
+                  <span v-for="highlight in packageChips(journey)" :key="`${journey.name}-${highlight}`" class="rounded-full bg-frost px-3 py-2 text-xs font-bold text-night/68">{{ highlight }}</span>
                 </div>
-                <button type="button" class="mt-6 w-full rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake" @click="openTripPlanner('plan'); bookingInquiry.notes = journey.name">Get Custom Itinerary</button>
+                <button type="button" class="mt-6 w-full rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake" @click="openTripPlanner('plan', journey)">Get Custom Itinerary</button>
               </div>
             </article>
           </div>
@@ -3837,6 +4026,9 @@ onUnmounted(() => {
             <p v-else-if="packageIsSummer(detailPackage)" class="mt-3 rounded-lg border border-lake/20 bg-lake/10 p-4 text-sm font-bold leading-7 text-night/70">
               Summer routes are best planned early, especially for Pahalgam, Sonmarg, Gurez, camping, trekking, and meadow experiences. Early booking improves hotel availability, cab scheduling, local access planning, and activity coordination.
             </p>
+            <p v-if="detailPackage.reservationNote" class="mt-3 rounded-lg border border-night/10 bg-white p-4 text-sm font-bold leading-7 text-night/68 shadow-lift">
+              {{ detailPackage.reservationNote }}
+            </p>
 
             <div class="mt-9">
               <h3 class="font-display text-3xl font-extrabold text-night">Highlights</h3>
@@ -3918,19 +4110,19 @@ onUnmounted(() => {
               <article id="package-inclusions" class="premium-card rounded-lg p-6">
                 <h3 class="font-display text-3xl font-extrabold text-night">Inclusions</h3>
                 <div class="mt-5 grid gap-3">
-                  <p v-for="item in packageInclusions" :key="item" class="flex gap-3 text-sm font-bold text-night/68"><span class="text-lake">Check</span>{{ item }}</p>
+                  <p v-for="item in detailPackageInclusions" :key="item" class="flex gap-3 text-sm font-bold text-night/68"><span class="text-lake">Check</span>{{ item }}</p>
                 </div>
               </article>
               <article id="package-exclusions" class="premium-card rounded-lg p-6">
                 <h3 class="font-display text-3xl font-extrabold text-night">Exclusions</h3>
                 <div class="mt-5 grid gap-3">
-                  <p v-for="item in packageExclusions" :key="item" class="flex gap-3 text-sm font-bold text-night/68"><span class="text-gold">Plus</span>{{ item }}</p>
+                  <p v-for="item in detailPackageExclusions" :key="item" class="flex gap-3 text-sm font-bold text-night/68"><span class="text-gold">Plus</span>{{ item }}</p>
                 </div>
               </article>
             </div>
 
             <div class="mt-8 grid gap-4 md:grid-cols-2">
-              <article v-for="[sectionId, title, text] in detailServiceSections" :id="sectionId" :key="sectionId" class="rounded-lg border border-night/10 bg-frost p-5">
+              <article v-for="[sectionId, title, text] in detailDynamicServiceSections" :id="sectionId" :key="sectionId" class="rounded-lg border border-night/10 bg-frost p-5">
                 <h4 class="font-black text-night">{{ title }}</h4>
                 <p class="mt-2 text-sm font-semibold leading-6 text-night/62">{{ text }}</p>
               </article>
@@ -3993,7 +4185,7 @@ onUnmounted(() => {
                 <label class="grid gap-2 text-sm font-bold">Full Name<input v-model="bookingInquiry.name" required type="text" placeholder="Full Name" /></label>
                 <label class="grid gap-2 text-sm font-bold">Phone Number<input v-model="bookingInquiry.phone" required type="tel" placeholder="Phone Number" /></label>
                 <label class="grid gap-2 text-sm font-bold">Email<input v-model="bookingInquiry.email" required type="email" placeholder="Email" /></label>
-                <label class="grid gap-2 text-sm font-bold">Package Name<select v-model="selectedPackage"><option v-for="item in packages" :key="`detail-form-${item.name}`" :value="item.price">{{ item.name }}</option></select></label>
+                <label class="grid gap-2 text-sm font-bold">Package Name<select v-model="selectedPackage"><option v-for="item in publicPackages" :key="`detail-form-${item.name}`" :value="item.price">{{ item.name }}</option></select></label>
                 <label class="grid gap-2 text-sm font-bold">Travel Month<input v-model="bookingInquiry.travelDate" type="month" /></label>
                 <label class="grid gap-2 text-sm font-bold">Number of Guests<input v-model.number="travelers" min="1" type="number" /></label>
                 <label class="grid gap-2 text-sm font-bold">Hotel Preference<select v-model="bookingInquiry.hotelPreference"><option value="">Select hotel preference</option><option>Standard</option><option>Premium</option><option>Luxurious</option><option>VIP</option></select></label>
@@ -4394,7 +4586,7 @@ onUnmounted(() => {
             <div class="grid gap-4 md:grid-cols-2">
               <label class="grid min-w-0 gap-2 text-sm font-bold"><span>Package <span class="text-red-600">*</span></span>
                 <select v-model="selectedPackage" required class="w-full min-w-0 truncate rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20">
-                  <option v-for="item in packages" :key="item.name" :value="item.price">{{ item.name }}</option>
+                  <option v-for="item in publicPackages" :key="item.name" :value="item.price">{{ item.name }}</option>
                 </select>
               </label>
               <label class="grid min-w-0 gap-2 text-sm font-bold"><span>Travel date <span class="text-red-600">*</span></span>
@@ -5171,7 +5363,7 @@ onUnmounted(() => {
               <label class="grid gap-2 text-sm font-bold">Phone / WhatsApp<input v-model="bookingInquiry.phone" required type="tel" placeholder="10-digit phone" /></label>
               <label class="grid gap-2 text-sm font-bold">Email<input v-model="bookingInquiry.email" required type="email" placeholder="Email address" /></label>
               <label class="grid gap-2 text-sm font-bold">Travel Month<input v-model="bookingInquiry.travelDate" type="month" /></label>
-              <label class="grid gap-2 text-sm font-bold">Package / Interest<select v-model="selectedPackage"><option v-for="item in packages" :key="`modal-package-${item.name}`" :value="item.price">{{ item.name }}</option></select></label>
+              <label class="grid gap-2 text-sm font-bold">Package / Interest<select v-model="selectedPackage"><option v-for="item in publicPackages" :key="`modal-package-${item.name}`" :value="item.price">{{ item.name }}</option></select></label>
               <label class="grid gap-2 text-sm font-bold">No. of Guests<input v-model.number="travelers" min="1" type="number" /></label>
               <label class="grid gap-2 text-sm font-bold">Budget Range<select v-model="bookingInquiry.budgetRange"><option value="">Select budget</option><option>Standard</option><option>Premium</option><option>Luxurious</option><option>VIP custom</option></select></label>
               <label class="grid gap-2 text-sm font-bold">Contact Method<select v-model="bookingInquiry.contactMethod"><option>WhatsApp</option><option>Call</option><option>Email</option></select></label>
