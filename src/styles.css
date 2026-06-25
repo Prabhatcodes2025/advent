@@ -313,6 +313,7 @@
   text-align: center;
   font-size: 0.75rem;
   font-weight: 900;
+  line-height: 1.15;
   transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
 }
 
@@ -320,20 +321,38 @@
   transform: translateY(-2px);
 }
 
+.package-action:focus-visible,
+.luxury-button:focus-visible,
+.mobile-sticky-cta a:focus-visible,
+.mobile-sticky-cta button:focus-visible {
+  outline: 3px solid rgba(233, 186, 100, 0.52);
+  outline-offset: 3px;
+}
+
 .package-action-primary {
   color: #ffffff;
   background: #071d35;
+  box-shadow: 0 14px 28px rgba(7, 29, 53, 0.18);
 }
 
 .package-action-secondary {
   color: #071d35;
   border: 1px solid rgba(7, 29, 53, 0.13);
   background: #ffffff;
+  box-shadow: 0 10px 22px rgba(7, 29, 53, 0.06);
 }
 
 .package-action-whatsapp {
   color: #ffffff;
   background: #25d366;
+  box-shadow: 0 14px 28px rgba(37, 211, 102, 0.22);
+}
+
+.form-message {
+  overflow-wrap: anywhere;
+  line-height: 1.55;
+  border: 1px solid rgba(7, 29, 53, 0.08);
+  box-shadow: 0 10px 24px rgba(7, 29, 53, 0.06);
 }
 
 @keyframes fadeInDown {
@@ -552,7 +571,7 @@ h1, h2, h3 {
 .luxury-button-primary {
   color: #071d35;
   background: #e9ba64;
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 16px 34px rgba(233, 186, 100, 0.25);
 }
 
 .luxury-button-primary:hover {
@@ -565,11 +584,13 @@ h1, h2, h3 {
   border: 1px solid rgba(255, 255, 255, 0.38);
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(14px);
+  box-shadow: 0 14px 30px rgba(7, 29, 53, 0.16);
 }
 
 .luxury-button-dark {
   color: white;
   background: #071d35;
+  box-shadow: 0 16px 34px rgba(7, 29, 53, 0.18);
 }
 
 .luxury-button-dark:hover {
@@ -1003,6 +1024,10 @@ h1, h2, h3 {
 }
 
 @media (max-width: 767px) {
+  main {
+    padding-bottom: 4.75rem;
+  }
+
   .cinematic-hero {
     min-height: 52rem;
   }
@@ -1049,6 +1074,24 @@ h1, h2, h3 {
     min-height: 3.35rem;
     padding-inline: 1rem;
   }
+
+  .mobile-sticky-cta {
+    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .mobile-sticky-cta a,
+  .mobile-sticky-cta button {
+    min-width: 0;
+    min-height: 3.15rem;
+    padding-inline: 0.45rem;
+  }
+
+  .mobile-sticky-cta span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1061,7 +1104,12 @@ h1, h2, h3 {
   .scroll-line,
   .cta-whatsapp,
   .hero-light-sweep,
-  .snow-particles {
+  .snow-particles,
+  .preloader-sky,
+  .preloader-snow,
+  .preloader-logo-wrap::after,
+  .preloader-feather,
+  .preloader-progress span {
     animation: none;
   }
 }

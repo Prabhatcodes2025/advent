@@ -2398,7 +2398,7 @@ onMounted(() => {
     isInitialLoading.value = false;
     initialLoadingTimeout = null;
     nextTick(observeRevealElements);
-  }, 1200);
+  }, 850);
 });
 
 watch(pageSeo, updateSeoMeta);
@@ -2457,7 +2457,7 @@ onUnmounted(() => {
             <input v-model="adminPassword" type="password" autocomplete="current-password" placeholder="Enter password" class="h-12 rounded-lg border border-white/[0.18] bg-white px-4 text-sm font-bold text-night" />
           </label>
           <button type="submit" class="mt-2 h-12 rounded-lg bg-gold px-6 text-sm font-black text-night hover:bg-white">Login</button>
-          <p v-if="adminError" class="rounded-lg bg-gold/[0.16] p-3 text-sm font-bold text-gold">{{ adminError }}</p>
+          <p v-if="adminError" role="alert" class="form-message rounded-lg border border-red-300/30 bg-red-500/[0.14] p-3 text-sm font-bold text-red-100">{{ adminError }}</p>
           <p class="text-xs font-semibold leading-5 text-white/[0.52]">Demo credentials: username admin, password admin123.</p>
         </form>
       </div>
@@ -4196,7 +4196,7 @@ onUnmounted(() => {
                 <label class="grid gap-2 text-sm font-bold">Preferred Contact Method<select v-model="bookingInquiry.contactMethod"><option>WhatsApp</option><option>Call</option><option>Email</option></select></label>
                 <label class="grid gap-2 text-sm font-bold md:col-span-2">Message<textarea v-model="bookingInquiry.notes" class="min-h-28" placeholder="Tell us your dates, comfort level, route preference, and any special request."></textarea></label>
               </div>
-              <p v-if="bookingInquiryStatus" :class="/thank you|sent/i.test(bookingInquiryStatus) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="mt-5 rounded-lg p-3 text-sm font-semibold">{{ bookingInquiryStatus }}</p>
+              <p v-if="bookingInquiryStatus" role="status" aria-live="polite" :class="/thank you|sent/i.test(bookingInquiryStatus) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="form-message mt-5 rounded-lg p-3 text-sm font-semibold">{{ bookingInquiryStatus }}</p>
               <button type="submit" :disabled="isBookingSubmitting" class="mt-6 w-full rounded-lg bg-night px-5 py-4 text-base font-black text-white hover:bg-lake disabled:opacity-60">{{ isBookingSubmitting ? "Submitting..." : "Request Reservation" }}</button>
             </form>
           </div>
@@ -4637,7 +4637,7 @@ onUnmounted(() => {
               </label>
             </div>
 
-            <p v-if="bookingInquiryStatus" :class="/thank you|sent/i.test(bookingInquiryStatus) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="mt-5 rounded-lg p-3 text-sm font-semibold">
+            <p v-if="bookingInquiryStatus" role="status" aria-live="polite" :class="/thank you|sent/i.test(bookingInquiryStatus) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="form-message mt-5 rounded-lg p-3 text-sm font-semibold">
               {{ bookingInquiryStatus }}
             </p>
 
@@ -4790,7 +4790,7 @@ onUnmounted(() => {
               <input type="file" accept="image/*" class="hidden" @change="updateReviewPhoto" />
             </label>
             <textarea v-model="reviewForm.text" required placeholder="Short review" class="min-h-28 md:col-span-2"></textarea>
-            <p v-if="reviewFormStatus" class="rounded-lg bg-green-50 p-3 text-sm font-bold text-green-700 md:col-span-2">{{ reviewFormStatus }}</p>
+            <p v-if="reviewFormStatus" role="status" aria-live="polite" :class="/thank you|sharing/i.test(reviewFormStatus) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="form-message rounded-lg p-3 text-sm font-bold md:col-span-2">{{ reviewFormStatus }}</p>
             <button type="submit" class="rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake md:col-span-2">Submit Review</button>
           </form>
         </div>
@@ -5115,7 +5115,7 @@ onUnmounted(() => {
               <input v-model.number="bookingForm.guests" type="number" min="1" placeholder="Number of guests" aria-label="Number of guests" class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
               <textarea v-model="bookingForm.details" placeholder="Tell us your dates, travelers, budget, and preferred destinations" class="min-h-36 rounded-lg border border-night/10 px-4 py-3 text-sm font-bold md:col-span-2 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20"></textarea>
             </div>
-            <p v-if="bookingFormStatus" :class="bookingFormStatus.includes('valid') ? 'text-red-600 bg-red-50' : 'text-green-600 bg-green-50'" class="mt-4 rounded-lg p-3 text-sm font-semibold">{{ bookingFormStatus }}</p>
+            <p v-if="bookingFormStatus" role="status" aria-live="polite" :class="/please|valid|verification|site key/i.test(bookingFormStatus) ? 'text-red-600 bg-red-50' : 'text-green-600 bg-green-50'" class="form-message mt-4 rounded-lg p-3 text-sm font-semibold">{{ bookingFormStatus }}</p>
             <div class="mt-5 grid gap-3 sm:grid-cols-2">
               <button type="submit" class="rounded-lg bg-gold px-5 py-4 text-base font-black uppercase tracking-[0.12em] text-night transition hover:bg-night hover:text-white">Send Enquiry</button>
               <a :href="whatsappLink('I want to book a Kashmir tour')" class="rounded-lg border border-night/[0.12] px-5 py-3 text-center text-sm font-black text-night transition hover:border-lake hover:text-lake hover:bg-frost">WhatsApp Live Chat</a>
@@ -5369,7 +5369,7 @@ onUnmounted(() => {
               <label class="grid gap-2 text-sm font-bold">Contact Method<select v-model="bookingInquiry.contactMethod"><option>WhatsApp</option><option>Call</option><option>Email</option></select></label>
               <label class="grid gap-2 text-sm font-bold sm:col-span-2">Message<textarea v-model="bookingInquiry.notes" placeholder="Destinations, travel type, hotel preference, budget, or special request" class="min-h-28"></textarea></label>
             </div>
-            <p v-if="bookingInquiryStatus" :class="/thank you|sent/i.test(bookingInquiryStatus) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="mt-4 rounded-lg p-3 text-sm font-semibold">{{ bookingInquiryStatus }}</p>
+            <p v-if="bookingInquiryStatus" role="status" aria-live="polite" :class="/thank you|sent/i.test(bookingInquiryStatus) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="form-message mt-4 rounded-lg p-3 text-sm font-semibold">{{ bookingInquiryStatus }}</p>
             <div class="mt-6 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
               <button type="submit" :disabled="isBookingSubmitting" class="luxury-button luxury-button-dark w-full">{{ isBookingSubmitting ? "Sending..." : tripPlannerMode === "reserve" ? "Request reservation" : "Build my journey" }}</button>
               <button type="button" class="rounded-full border border-night/10 bg-white px-5 py-3 text-xs font-black uppercase tracking-[0.12em] text-night hover:border-lake hover:text-lake" @click="isCallbackOpen = true">Quick callback</button>
@@ -5388,7 +5388,7 @@ onUnmounted(() => {
             <h3 class="mt-2 text-2xl font-black text-night">Need help choosing?</h3>
             <p class="mt-2 text-sm font-semibold leading-6 text-night/58">Share your number and preferred time. A Kashmir travel specialist will call back.</p>
           </div>
-          <button type="button" class="grid h-10 w-10 place-items-center rounded-full bg-frost text-xl text-night" aria-label="Close callback popup" @click="isCallbackOpen = false">×</button>
+          <button type="button" class="grid h-10 w-10 place-items-center rounded-full bg-frost text-xl text-night" aria-label="Close callback popup" @click="isCallbackOpen = false">&times;</button>
         </div>
         <div class="mt-5 grid gap-3">
           <input v-model="callbackForm.name" required type="text" placeholder="Full name" />
@@ -5397,7 +5397,7 @@ onUnmounted(() => {
             <option v-for="time in callbackTimes" :key="time">{{ time }}</option>
           </select>
         </div>
-        <p v-if="callbackStatus" class="mt-4 rounded-lg bg-green-50 p-3 text-sm font-bold text-green-700">{{ callbackStatus }}</p>
+        <p v-if="callbackStatus" role="status" aria-live="polite" :class="/please|valid/i.test(callbackStatus) ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'" class="form-message mt-4 rounded-lg p-3 text-sm font-bold">{{ callbackStatus }}</p>
         <button type="submit" class="mt-5 w-full rounded-lg bg-night px-5 py-4 text-sm font-black text-white hover:bg-lake">Request Callback</button>
       </form>
     </div>
@@ -5524,7 +5524,7 @@ onUnmounted(() => {
         <span>WhatsApp</span>
       </a>
     </div>
-    <div class="fixed inset-x-3 bottom-3 z-50 grid grid-cols-3 overflow-hidden rounded-lg border border-white/50 bg-night text-center text-xs font-black text-white shadow-premium md:hidden">
+    <div class="mobile-sticky-cta fixed inset-x-3 bottom-3 z-50 grid grid-cols-3 overflow-hidden rounded-lg border border-white/50 bg-night text-center text-xs font-black text-white shadow-premium md:hidden">
       <button type="button" class="flex items-center justify-center gap-1.5 px-3 py-3" @click="navigateTo('/booking')">
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M5 5.75h14a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-8l-4.5 3v-3H5a2 2 0 0 1-2-2v-8.5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
