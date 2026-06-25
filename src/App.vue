@@ -5487,8 +5487,20 @@ onUnmounted(() => {
         </div>
 
         <div class="flex flex-col gap-6 pt-8 lg:flex-row lg:items-center lg:justify-between">
-          <p class="text-sm font-semibold text-white/62">Payments are accepted only through the methods confirmed directly by our team during booking.</p>
-          <p class="text-sm font-semibold text-white/50">(c) 2026 Snow Feather Adventures. All rights reserved.</p>
+          <div>
+            <p class="text-sm font-semibold text-white/62">Payments are accepted only through the methods confirmed directly by our team during booking.</p>
+            <p class="mt-2 text-sm font-semibold text-white/50">(c) 2026 Snow Feather Adventures. All rights reserved.</p>
+          </div>
+          <div class="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm shadow-lift backdrop-blur sm:flex sm:items-center sm:gap-4">
+            <a href="https://growwithclickmyze.com/" target="_blank" rel="noopener noreferrer" class="font-semibold text-white/62 transition hover:text-gold">
+              Designed &amp; Developed by <span class="font-black text-gold">Clickmyze</span>
+            </a>
+            <span class="my-2 hidden h-5 w-px bg-white/12 sm:block"></span>
+            <a href="https://wa.me/919993013936" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex items-center rounded-full border border-gold/30 px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-gold transition hover:bg-gold hover:text-night sm:mt-0">
+              Want a website like this? Contact Developer
+              <span class="sr-only"> at +91 99930 13936</span>
+            </a>
+          </div>
         </div>
       </div>
     </footer>
