@@ -54,6 +54,26 @@ function loadStoredValue(key, fallback) {
   }
 }
 
+const storageKeys = {
+  enquiries: "snowfeather_enquiries",
+  bookings: "snowfeather_bookings",
+  testimonials: "snowfeather_testimonials",
+  packages: "snowfeather_packages",
+  settings: "snowfeather_settings",
+};
+
+function loadStoredCollection(primaryKey, legacyKeys = [], fallback = []) {
+  const primary = loadStoredValue(primaryKey, null);
+  if (Array.isArray(primary)) return primary;
+
+  for (const key of legacyKeys) {
+    const legacy = loadStoredValue(key, null);
+    if (Array.isArray(legacy)) return legacy;
+  }
+
+  return fallback;
+}
+
 const navItems = [
   ["Home", "/"],
   ["About Us", "/about"],
@@ -386,7 +406,7 @@ const defaultTestimonials = [
     image: image("image15"),
   },
 ];
-const testimonials = ref(loadStoredValue("kashmir-testimonials", defaultTestimonials));
+const testimonials = ref(loadStoredCollection(storageKeys.testimonials, ["kashmir-testimonials"], defaultTestimonials));
 
 const reviewForm = ref({ name: "", location: "", rating: "5.0", trip: "", text: "", image: "" });
 const reviewFormStatus = ref("");
@@ -890,7 +910,7 @@ function clonePackage(item) {
 }
 
 function loadStoredPackages() {
-  const savedPackages = loadStoredValue("kashmir-packages-premium-v3", defaultPackages);
+  const savedPackages = loadStoredCollection(storageKeys.packages, ["kashmir-packages-premium-v3"], defaultPackages);
   return Array.isArray(savedPackages) ? savedPackages.map(clonePackage) : defaultPackages.map(clonePackage);
 }
 
@@ -1087,6 +1107,7 @@ function submitReview() {
     ...testimonials.value,
   ].slice(0, 8);
 
+  localStorage.setItem(storageKeys.testimonials, JSON.stringify(testimonials.value));
   localStorage.setItem("kashmir-testimonials", JSON.stringify(testimonials.value));
   reviewForm.value = { name: "", location: "", rating: "5.0", trip: "", text: "", image: "" };
   resetMathCaptcha("review");
@@ -1681,15 +1702,15 @@ function validateMathCaptcha(key) {
   return captcha && Number(captcha.input) === Number(captcha.answer);
 }
 
-const enquiries = ref(loadStoredValue("snow-feather-enquiries-v1", []));
-const bookingRequests = ref(loadStoredValue("snow-feather-bookings-v1", []));
+const enquiries = ref(loadStoredCollection(storageKeys.enquiries, ["snow-feather-enquiries-v1"], []));
+const bookingRequests = ref(loadStoredCollection(storageKeys.bookings, ["snow-feather-bookings-v1"], []));
 
 function saveEnquiries() {
-  localStorage.setItem("snow-feather-enquiries-v1", JSON.stringify(enquiries.value));
+  localStorage.setItem(storageKeys.enquiries, JSON.stringify(enquiries.value));
 }
 
 function saveBookingRequests() {
-  localStorage.setItem("snow-feather-bookings-v1", JSON.stringify(bookingRequests.value));
+  localStorage.setItem(storageKeys.bookings, JSON.stringify(bookingRequests.value));
 }
 
 function makeRecordId(prefix) {
@@ -1698,23 +1719,30 @@ function makeRecordId(prefix) {
 }
 
 function storeEnquiry(payload) {
+  const createdAt = new Date().toISOString();
+  const type = payload.type || payload.formType || "Website enquiry";
   enquiries.value = [
     {
       id: makeRecordId("ENQ"),
-      formType: payload.formType || "Website enquiry",
+      type,
+      formType: type,
       name: payload.name || "",
       phone: payload.phone || "",
       email: payload.email || "",
       packageName: payload.packageName || "",
-      destination: payload.destination || "",
+      destinationInterest: payload.destinationInterest || payload.destination || "",
+      destination: payload.destinationInterest || payload.destination || "",
       travelMonth: payload.travelMonth || "",
       guests: payload.guests || "",
-      budgetRange: payload.budgetRange || "",
+      budget: payload.budget || payload.budgetRange || "",
+      budgetRange: payload.budget || payload.budgetRange || "",
       message: payload.message || "",
-      contactMethod: payload.contactMethod || "WhatsApp",
+      preferredContact: payload.preferredContact || payload.contactMethod || "WhatsApp",
+      contactMethod: payload.preferredContact || payload.contactMethod || "WhatsApp",
       status: "New",
       adminNote: "",
-      submittedAt: new Date().toISOString(),
+      createdAt,
+      submittedAt: createdAt,
     },
     ...enquiries.value,
   ];
@@ -1722,6 +1750,7 @@ function storeEnquiry(payload) {
 }
 
 function storeBookingRequest(payload) {
+  const createdAt = new Date().toISOString();
   bookingRequests.value = [
     {
       id: makeRecordId("BKG"),
@@ -1729,6 +1758,7 @@ function storeBookingRequest(payload) {
       name: payload.name || "",
       phone: payload.phone || "",
       email: payload.email || "",
+      travelMonth: payload.travelMonth || payload.travelDate || "",
       travelDate: payload.travelDate || "",
       guests: payload.guests || travelers.value,
       hotelPreference: payload.hotelPreference || "",
@@ -1739,7 +1769,8 @@ function storeBookingRequest(payload) {
       message: payload.message || "",
       status: "New",
       adminNote: "",
-      submittedAt: new Date().toISOString(),
+      createdAt,
+      submittedAt: createdAt,
     },
     ...bookingRequests.value,
   ];
@@ -1772,17 +1803,17 @@ const adminMenuIcons = {
   settings: "⚙",
 };
 
-const legacyAdminSections = ["packages", "testimonials", "destinations", "gallery", "homepage", "settings"];
 const adminPageTitle = computed(() => adminTabs.find(([key]) => key === activeAdminTab.value)?.[1] || "Dashboard");
-const enquiryFormTypes = computed(() => ["all", ...new Set(enquiries.value.map((item) => item.formType).filter(Boolean))]);
+const enquiryFormTypes = computed(() => ["all", ...new Set(enquiries.value.map((item) => item.type || item.formType).filter(Boolean))]);
 const enquiryPackages = computed(() => ["all", ...new Set(enquiries.value.map((item) => item.packageName).filter(Boolean))]);
 const filteredEnquiries = computed(() => {
   const query = enquirySearch.value.trim().toLowerCase();
   return enquiries.value.filter((item) => {
-    const haystack = `${item.id} ${item.name} ${item.phone} ${item.email} ${item.packageName} ${item.destination} ${item.message}`.toLowerCase();
+    const recordType = item.type || item.formType;
+    const haystack = `${item.id} ${recordType} ${item.name} ${item.phone} ${item.email} ${item.packageName} ${item.destinationInterest || item.destination} ${item.message}`.toLowerCase();
     return (!query || haystack.includes(query)) &&
       (enquiryStatusFilter.value === "all" || item.status === enquiryStatusFilter.value) &&
-      (enquiryTypeFilter.value === "all" || item.formType === enquiryTypeFilter.value) &&
+      (enquiryTypeFilter.value === "all" || recordType === enquiryTypeFilter.value) &&
       (enquiryPackageFilter.value === "all" || item.packageName === enquiryPackageFilter.value);
   });
 });
@@ -1833,6 +1864,20 @@ function deleteBooking(indexOrItem) {
   const id = typeof indexOrItem === "object" ? indexOrItem.id : filteredBookings.value[indexOrItem]?.id;
   bookingRequests.value = bookingRequests.value.filter((item) => item.id !== id);
   saveBookingRequests();
+}
+
+function clearEnquiries() {
+  if (!window.confirm("Clear all enquiries?")) return;
+  enquiries.value = [];
+  saveEnquiries();
+  adminSaved.value = "All enquiries cleared.";
+}
+
+function clearBookingRequests() {
+  if (!window.confirm("Clear all booking requests?")) return;
+  bookingRequests.value = [];
+  saveBookingRequests();
+  adminSaved.value = "All bookings cleared.";
 }
 
 function navigateTo(path) {
@@ -2265,7 +2310,9 @@ function logoutAdmin() {
 }
 
 function saveAdminChanges() {
+  localStorage.setItem(storageKeys.settings, JSON.stringify(siteContent.value));
   localStorage.setItem("kashmir-site-content-v4", JSON.stringify(siteContent.value));
+  localStorage.setItem(storageKeys.packages, JSON.stringify(packages.value));
   localStorage.setItem("kashmir-packages-premium-v3", JSON.stringify(packages.value));
   localStorage.setItem("kashmir-gallery-images-v2", JSON.stringify(galleryImages.value));
   localStorage.setItem("kashmir-gallery-collections", JSON.stringify(galleryCollections.value));
@@ -2288,6 +2335,7 @@ function saveAdminChanges() {
   localStorage.setItem("kashmir-accommodation-categories", JSON.stringify(accommodationCategories.value));
   localStorage.setItem("kashmir-service-groups", JSON.stringify(serviceGroups.value));
   localStorage.setItem("kashmir-trust-guarantees", JSON.stringify(trustGuarantees.value));
+  localStorage.setItem(storageKeys.testimonials, JSON.stringify(testimonials.value));
   localStorage.setItem("kashmir-testimonials", JSON.stringify(testimonials.value));
   localStorage.setItem("kashmir-mentors", JSON.stringify(mentors.value));
   localStorage.setItem("kashmir-inclusion-showcase", JSON.stringify(inclusionShowcase.value));
@@ -2333,9 +2381,11 @@ function resetAdminChanges() {
   localStorage.removeItem("kashmir-site-content-v2");
   localStorage.removeItem("kashmir-site-content-v3");
   localStorage.removeItem("kashmir-site-content-v4");
+  localStorage.removeItem(storageKeys.settings);
   localStorage.removeItem("kashmir-packages");
   localStorage.removeItem("kashmir-packages-premium-v2");
   localStorage.removeItem("kashmir-packages-premium-v3");
+  localStorage.removeItem(storageKeys.packages);
   localStorage.removeItem("kashmir-gallery-images");
   localStorage.removeItem("kashmir-gallery-images-v2");
   localStorage.removeItem("kashmir-gallery-collections");
@@ -2358,6 +2408,7 @@ function resetAdminChanges() {
   localStorage.removeItem("kashmir-service-groups");
   localStorage.removeItem("kashmir-trust-guarantees");
   localStorage.removeItem("kashmir-testimonials");
+  localStorage.removeItem(storageKeys.testimonials);
   localStorage.removeItem("kashmir-mentors");
   localStorage.removeItem("kashmir-inclusion-showcase");
   adminSaved.value = "Reset to default content.";
@@ -2920,7 +2971,156 @@ onUnmounted(() => {
           </div>
         </section>
 
-        <div v-if="legacyAdminSections.includes(activeAdminTab)">
+        <section v-else-if="activeAdminTab === 'packages'" class="grid gap-4">
+          <div class="flex flex-col justify-between gap-3 rounded-lg border border-white/[0.12] bg-white/[0.08] p-4 sm:flex-row sm:items-center">
+            <div>
+              <h2 class="text-2xl font-black">Packages</h2>
+              <p class="mt-1 text-sm text-white/62">Package list with add, edit, delete, image, price, and status controls.</p>
+            </div>
+            <button type="button" class="rounded-lg bg-gold px-5 py-3 text-sm font-black text-night" @click="addPackage">Add Package</button>
+          </div>
+          <article v-for="(item, index) in packages" :key="`package-tab-${index}`" class="admin-package-card rounded-lg border border-white/[0.12] bg-white/[0.08] p-4">
+            <div class="grid gap-4 lg:grid-cols-[11rem_1fr_auto]">
+              <div>
+                <div class="image-cover h-36 rounded-lg" :style="{ backgroundImage: `url('${packageVisual(item)}')` }"></div>
+                <label class="mt-2 block cursor-pointer rounded-lg border border-white/[0.18] px-3 py-2 text-center text-xs font-black">Change image<input type="file" accept="image/*" class="hidden" @change="updatePackageImage($event, index)" /></label>
+              </div>
+              <div class="grid gap-3 md:grid-cols-3">
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/70 md:col-span-2">Package name<input v-model="item.name" class="bg-white text-night" /></label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/70">Status<select v-model="item.status" class="bg-white text-night"><option value="active">Active</option><option value="inactive">Inactive</option></select></label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/70">Price<input v-model.number="item.price" type="number" class="bg-white text-night" /></label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/70">Duration<input v-model="item.duration" class="bg-white text-night" /></label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/70">Category<input v-model="item.category" class="bg-white text-night" /></label>
+                <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/70 md:col-span-3">Description<textarea v-model="item.description" class="min-h-20 bg-white text-night"></textarea></label>
+              </div>
+              <div class="grid gap-2 self-start sm:grid-cols-2 lg:w-36 lg:grid-cols-1">
+                <button type="button" :disabled="index === 0" class="rounded-lg border border-white/20 px-3 py-2 text-xs font-black disabled:opacity-30" @click="movePackage(index, -1)">Move Up</button>
+                <button type="button" :disabled="index === packages.length - 1" class="rounded-lg border border-white/20 px-3 py-2 text-xs font-black disabled:opacity-30" @click="movePackage(index, 1)">Move Down</button>
+                <button type="button" class="rounded-lg border border-gold/40 px-3 py-2 text-xs font-black text-gold" @click="deletePackage(index)">Delete</button>
+              </div>
+            </div>
+          </article>
+          <p v-if="!packages.length" class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-6 text-sm text-white/62">No packages yet. Add the first package.</p>
+        </section>
+
+        <section v-else-if="activeAdminTab === 'testimonials'" class="grid gap-4">
+          <div class="flex flex-col justify-between gap-3 rounded-lg border border-white/[0.12] bg-white/[0.08] p-4 sm:flex-row sm:items-center">
+            <div>
+              <h2 class="text-2xl font-black">Testimonials</h2>
+              <p class="mt-1 text-sm text-white/62">Review and testimonial management.</p>
+            </div>
+            <button type="button" class="rounded-lg bg-gold px-5 py-3 text-sm font-black text-night" @click="addManagedItem(testimonials, { name: 'New Guest', location: 'Guest traveler', rating: '5.0', trip: 'Kashmir Trip', text: 'Add testimonial text.', image: image('image23') })">Add Testimonial</button>
+          </div>
+          <div class="grid gap-4 lg:grid-cols-3">
+            <article v-for="(review, index) in testimonials" :key="`testimonial-tab-${index}`" class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-4">
+              <div class="image-cover h-28 rounded-lg" :style="imageStyle(review.image)"></div>
+              <label class="mt-2 block cursor-pointer rounded-lg border border-white/20 px-3 py-2 text-center text-xs font-black">Change photo<input type="file" accept="image/*" class="hidden" @change="updateManagedObjectImage($event, testimonials, index)" /></label>
+              <div class="mt-3 grid gap-2">
+                <input v-model="review.name" placeholder="Guest name" class="bg-white text-night" />
+                <input v-model="review.location" placeholder="Location" class="bg-white text-night" />
+                <input v-model="review.trip" placeholder="Trip name" class="bg-white text-night" />
+                <input v-model="review.rating" placeholder="Rating" class="bg-white text-night" />
+                <textarea v-model="review.text" placeholder="Review" class="min-h-24 bg-white text-night"></textarea>
+                <button type="button" class="rounded-lg border border-gold/40 px-3 py-2 text-xs font-black text-gold" @click="deleteManagedItem(testimonials, index)">Delete</button>
+              </div>
+            </article>
+          </div>
+          <p v-if="!testimonials.length" class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-6 text-sm text-white/62">No testimonials yet.</p>
+        </section>
+
+        <section v-else-if="activeAdminTab === 'destinations'" class="grid gap-4">
+          <div class="flex flex-col justify-between gap-3 rounded-lg border border-white/[0.12] bg-white/[0.08] p-4 sm:flex-row sm:items-center">
+            <div>
+              <h2 class="text-2xl font-black">Destinations</h2>
+              <p class="mt-1 text-sm text-white/62">Destination card management.</p>
+            </div>
+            <button type="button" class="rounded-lg bg-gold px-5 py-3 text-sm font-black text-night" @click="addManagedItem(destinations, ['New Destination', image('image18'), 'Add destination details'])">Add Destination</button>
+          </div>
+          <div class="grid gap-4 md:grid-cols-2">
+            <article v-for="(item, index) in destinations" :key="`destination-tab-${index}`" class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-4">
+              <div class="image-cover h-36 rounded-lg" :style="imageStyle(item[1])"></div>
+              <input v-model="item[0]" placeholder="Destination name" class="mt-3 w-full bg-white text-night" />
+              <textarea v-model="item[2]" placeholder="Destination details" class="mt-2 min-h-24 w-full bg-white text-night"></textarea>
+              <div class="mt-2 flex flex-wrap gap-2">
+                <label class="cursor-pointer rounded-lg border border-white/20 px-3 py-2 text-xs font-black">Change image<input type="file" accept="image/*" class="hidden" @change="updateManagedImage($event, destinations, index, 1)" /></label>
+                <button type="button" class="rounded-lg border border-gold/40 px-3 py-2 text-xs font-black text-gold" @click="deleteManagedItem(destinations, index)">Delete</button>
+              </div>
+            </article>
+          </div>
+          <p v-if="!destinations.length" class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-6 text-sm text-white/62">No destinations yet.</p>
+        </section>
+
+        <section v-else-if="activeAdminTab === 'gallery'" class="grid gap-4">
+          <div class="flex flex-col justify-between gap-3 rounded-lg border border-white/[0.12] bg-white/[0.08] p-4 sm:flex-row sm:items-center">
+            <div>
+              <h2 class="text-2xl font-black">Gallery</h2>
+              <p class="mt-1 text-sm text-white/62">Gallery image management only.</p>
+            </div>
+            <label class="cursor-pointer rounded-lg bg-gold px-5 py-3 text-center text-sm font-black text-night">Add Gallery Image<input type="file" accept="image/*" class="hidden" @change="addGalleryImage" /></label>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <article v-for="(galleryImage, index) in galleryImages" :key="`gallery-tab-${index}`" class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-3">
+              <div class="image-cover h-36 rounded-lg" :style="imageStyle(galleryImage)"></div>
+              <input :value="galleryImageTitle(galleryImage, index)" placeholder="Title" class="mt-2 w-full bg-white text-night" @input="updateGalleryImageField(index, 'title', $event.target.value)" />
+              <textarea :value="galleryImageText(galleryImage, index)" placeholder="Caption" class="mt-2 min-h-20 w-full bg-white text-night" @input="updateGalleryImageField(index, 'text', $event.target.value)"></textarea>
+              <div class="mt-2 grid grid-cols-2 gap-2">
+                <label class="cursor-pointer rounded-lg border border-white/20 px-3 py-2 text-center text-xs font-black">Replace<input type="file" accept="image/*" class="hidden" @change="updateGalleryImage($event, index)" /></label>
+                <button type="button" class="rounded-lg border border-gold/40 px-3 py-2 text-xs font-black text-gold" @click="deleteGalleryImage(index)">Delete</button>
+              </div>
+            </article>
+          </div>
+          <p v-if="!galleryImages.length" class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-6 text-sm text-white/62">No gallery images yet.</p>
+        </section>
+
+        <section v-else-if="activeAdminTab === 'homepage'" class="grid gap-4">
+          <div class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-4">
+            <h2 class="text-2xl font-black">Homepage Content</h2>
+            <p class="mt-1 text-sm text-white/62">Hero, stats, and homepage section content.</p>
+            <div class="mt-4 grid gap-4 lg:grid-cols-3">
+              <label class="grid gap-2 text-sm font-bold">Hero badge<input v-model="siteContent.heroBadge" class="bg-white text-night" /></label>
+              <label class="grid gap-2 text-sm font-bold lg:col-span-2">Hero title<input v-model="siteContent.heroTitle" class="bg-white text-night" /></label>
+              <label class="grid gap-2 text-sm font-bold lg:col-span-3">Hero subtitle<textarea v-model="siteContent.heroSubtitle" class="min-h-24 bg-white text-night"></textarea></label>
+              <label class="grid gap-2 text-sm font-bold">Activities label<input v-model="siteContent.homeActivitiesEyebrow" class="bg-white text-night" /></label>
+              <label class="grid gap-2 text-sm font-bold lg:col-span-2">Activities title<input v-model="siteContent.homeActivitiesTitle" class="bg-white text-night" /></label>
+              <label class="grid gap-2 text-sm font-bold">Gallery label<input v-model="siteContent.homeGalleryEyebrow" class="bg-white text-night" /></label>
+              <label class="grid gap-2 text-sm font-bold lg:col-span-2">Gallery title<input v-model="siteContent.homeGalleryTitle" class="bg-white text-night" /></label>
+              <label class="grid gap-2 text-sm font-bold lg:col-span-3">Trust promise<textarea v-model="siteContent.trustPromise" class="min-h-20 bg-white text-night"></textarea></label>
+            </div>
+          </div>
+          <div class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-4">
+            <h3 class="text-xl font-black">Homepage stats</h3>
+            <div class="mt-3 grid gap-3 md:grid-cols-4">
+              <div v-for="(item, index) in experienceStats" :key="`homepage-stat-${index}`" class="grid gap-2 rounded-lg border border-white/12 p-3">
+                <input v-model="item[0]" placeholder="Value" class="bg-white text-night" />
+                <input v-model="item[1]" placeholder="Label" class="bg-white text-night" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section v-else-if="activeAdminTab === 'settings'" class="grid gap-4">
+          <div class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-5">
+            <h2 class="text-2xl font-black">Site Settings</h2>
+            <p class="mt-1 text-sm text-white/62">General settings, admin credentials note, and export/clear data options.</p>
+            <div class="mt-5 grid gap-4 lg:grid-cols-2">
+              <label class="grid gap-2 text-sm font-bold">Google reCAPTCHA site key<input v-model="siteContent.googleRecaptchaSiteKey" placeholder="Optional" class="bg-white text-night" /></label>
+              <label class="grid gap-2 text-sm font-bold">Map search query<input v-model="siteContent.mapQuery" class="bg-white text-night" /></label>
+            </div>
+            <div class="mt-5 rounded-lg border border-white/[0.12] bg-white/[0.06] p-4 text-sm leading-7 text-white/72">
+              <p><strong class="text-white">Admin login:</strong> currently local demo credentials are username admin and password admin123.</p>
+              <p><strong class="text-white">Storage mode:</strong> localStorage in this browser.</p>
+              <p><strong class="text-white">Keys:</strong> {{ storageKeys.enquiries }}, {{ storageKeys.bookings }}, {{ storageKeys.testimonials }}, {{ storageKeys.packages }}, {{ storageKeys.settings }}</p>
+            </div>
+            <div class="mt-5 flex flex-wrap gap-2">
+              <button type="button" class="rounded-lg bg-gold px-5 py-3 text-sm font-black text-night" @click="saveAdminChanges">Save All Data</button>
+              <button type="button" class="rounded-lg border border-white/[0.18] px-5 py-3 text-sm font-black" @click="resetAdminChanges">Reset Website Content</button>
+              <button type="button" class="rounded-lg border border-red-300/40 px-5 py-3 text-sm font-black text-red-100" @click="clearEnquiries">Clear Enquiries</button>
+              <button type="button" class="rounded-lg border border-red-300/40 px-5 py-3 text-sm font-black text-red-100" @click="clearBookingRequests">Clear Bookings</button>
+            </div>
+          </div>
+        </section>
+
+        <div v-if="false">
         <div class="flex flex-col justify-between gap-4 border-b border-white/[0.12] pb-5 md:flex-row md:items-center">
           <div>
             <p class="text-sm font-black uppercase tracking-[0.2em] text-gold">Manager panel</p>
@@ -5957,7 +6157,7 @@ onUnmounted(() => {
               Designed &amp; Developed by <span class="font-black text-gold">Clickmyze</span>
             </a>
             <span class="my-2 hidden h-5 w-px bg-white/12 sm:block"></span>
-            <a :href="whatsappLink()" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex items-center rounded-full border border-gold/30 px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-gold transition hover:bg-gold hover:text-night sm:mt-0">
+            <a href="https://wa.me/919993013936" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex items-center rounded-full border border-gold/30 px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-gold transition hover:bg-gold hover:text-night sm:mt-0">
               Want a website like this? Contact Developer
               <span class="sr-only"> at +91 99930 13936</span>
             </a>
