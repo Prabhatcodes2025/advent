@@ -1,5 +1,6 @@
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import { isSupabaseConfigured, supabaseAuth, supabaseDb, supabaseStorage } from "./lib/supabase.js";
 
 const imageAssets = import.meta.glob("./assets/kashmir/*.jpeg", {
   eager: true,
@@ -915,6 +916,9 @@ function loadStoredPackages() {
 }
 
 const packages = ref(loadStoredPackages());
+const isSupabaseLoading = ref(false);
+const supabaseStatus = ref(isSupabaseConfigured ? "Connecting to Supabase..." : "Supabase env vars missing. Using local fallback.");
+const supabaseError = ref("");
 const filters = ["all", "classic", "skiing", "students", "honeymoon", "offbeat", "camping"];
 const priceRanges = [
   { value: "all", label: "All prices", min: 0, max: Infinity },
@@ -1060,6 +1064,63 @@ function packageWhatsappLink(item) {
   return whatsappLink(message);
 }
 
+function packageFromSupabase(row) {
+  return clonePackage({
+    supabaseId: row.id,
+    name: row.title,
+    slug: row.slug,
+    category: row.category || "Kashmir Package",
+    packageType: row.package_type || "standard",
+    duration: row.duration || "",
+    price: Number(row.price || 0),
+    image: row.image_url || image("image18"),
+    description: row.overview || "",
+    cities: Array.isArray(row.destinations) ? row.destinations : [],
+    highlights: Array.isArray(row.highlights) ? row.highlights : [],
+    itinerary: Array.isArray(row.itinerary) ? row.itinerary : [],
+    inclusions: Array.isArray(row.inclusions) ? row.inclusions : [],
+    exclusions: Array.isArray(row.exclusions) ? row.exclusions : [],
+    accommodation: row.accommodation || "",
+    meals: row.meal_plan || "",
+    transportation: row.transportation || "",
+    activities: row.activities || "",
+    guideServices: row.guide_services || "",
+    reservationNote: row.reservation_note || "",
+    featured: Boolean(row.is_featured),
+    status: row.is_active === false ? "inactive" : "active",
+    priority: row.sort_order || 50,
+  });
+}
+
+function packageToSupabase(item, index = 0) {
+  const title = item.name || "Untitled Package";
+  return {
+    id: item.supabaseId || undefined,
+    title,
+    slug: item.slug || slugifyPackageName(title),
+    category: item.category || "Kashmir Package",
+    package_type: item.packageType || "standard",
+    duration: item.duration || "",
+    price: Number(item.price || 0),
+    image_url: mediaSource(item.image) || "",
+    overview: item.description || "",
+    destinations: Array.isArray(item.cities) ? item.cities : [],
+    highlights: Array.isArray(item.highlights) ? item.highlights : [],
+    itinerary: Array.isArray(item.itinerary) ? item.itinerary : [],
+    inclusions: Array.isArray(item.inclusions) ? item.inclusions : [],
+    exclusions: Array.isArray(item.exclusions) ? item.exclusions : [],
+    accommodation: item.accommodation || "",
+    meal_plan: item.meals || "",
+    transportation: item.transportation || "",
+    activities: item.activities || "",
+    guide_services: item.guideServices || "",
+    reservation_note: item.reservationNote || "",
+    is_featured: Boolean(item.featured),
+    is_active: item.status !== "inactive",
+    sort_order: Number(item.priority || index + 1),
+  };
+}
+
 function displayDuration(duration) {
   return String(duration || "").replace("/", " / ");
 }
@@ -1083,7 +1144,33 @@ function packageIsSummer(item) {
   return /summer|camping|trek|rafting|biking|pahalgam|sonmarg|gurez|yusmarg|doodhpathri|offbeat|leh/.test(text);
 }
 
-function submitReview() {
+function testimonialFromSupabase(row) {
+  return {
+    supabaseId: row.id,
+    name: row.name || "",
+    location: row.location || "Guest traveler",
+    rating: row.rating || "5.0",
+    trip: row.travel_type || "",
+    text: row.review || "",
+    image: row.image_url || image("image23"),
+    status: row.is_active === false ? "inactive" : "active",
+  };
+}
+
+function testimonialToSupabase(review) {
+  return {
+    id: review.supabaseId || undefined,
+    name: review.name || "",
+    location: review.location || "Guest traveler",
+    rating: String(review.rating || "5.0"),
+    travel_type: review.trip || "",
+    review: review.text || "",
+    image_url: mediaSource(review.image) || "",
+    is_active: review.status !== "inactive",
+  };
+}
+
+async function submitReview() {
   if (!reviewForm.value.name.trim() || !reviewForm.value.trip.trim() || !reviewForm.value.text.trim()) {
     reviewFormStatus.value = "Please add your name, travel experience, and review.";
     return;
@@ -1095,17 +1182,26 @@ function submitReview() {
     return;
   }
 
-  testimonials.value = [
-    {
-      name: reviewForm.value.name.trim(),
-      location: reviewForm.value.location.trim() || "Guest traveler",
-      rating: reviewForm.value.rating || "5.0",
-      trip: reviewForm.value.trip.trim(),
-      text: reviewForm.value.text.trim(),
-      image: reviewForm.value.image || image("image23"),
-    },
-    ...testimonials.value,
-  ].slice(0, 8);
+  let record = {
+    name: reviewForm.value.name.trim(),
+    location: reviewForm.value.location.trim() || "Guest traveler",
+    rating: reviewForm.value.rating || "5.0",
+    trip: reviewForm.value.trip.trim(),
+    text: reviewForm.value.text.trim(),
+    image: reviewForm.value.image || image("image23"),
+    status: "inactive",
+  };
+
+  if (isSupabaseConfigured) {
+    try {
+      const [saved] = await supabaseDb.insert("testimonials", testimonialToSupabase(record));
+      if (saved) record = testimonialFromSupabase(saved);
+    } catch (error) {
+      supabaseError.value = error.message;
+    }
+  }
+
+  testimonials.value = [record, ...testimonials.value].slice(0, 8);
 
   localStorage.setItem(storageKeys.testimonials, JSON.stringify(testimonials.value));
   localStorage.setItem("kashmir-testimonials", JSON.stringify(testimonials.value));
@@ -1588,6 +1684,30 @@ function observeRevealElements() {
   });
 }
 
+function galleryFromSupabase(row) {
+  return {
+    supabaseId: row.id,
+    image: row.image_url || "image23",
+    title: row.title || "Kashmir View",
+    text: row.alt_text || "A scenic travel moment from the Snow Feather Adventures gallery.",
+    category: row.category || "Mountains",
+    status: row.is_active === false ? "inactive" : "active",
+    sortOrder: row.sort_order || 50,
+  };
+}
+
+function galleryToSupabase(item, index = 0) {
+  return {
+    id: item.supabaseId || undefined,
+    title: galleryImageTitle(item, index),
+    category: item.category || galleryImageTags(item, index)[0] || "Mountains",
+    image_url: mediaSource(item) || "",
+    alt_text: galleryImageText(item, index),
+    is_active: item.status !== "inactive",
+    sort_order: Number(item.sortOrder || index + 1),
+  };
+}
+
 const travelTypes = ["Honeymoon", "Family", "Group", "Adventure", "Luxury"];
 const trustBadges = ["Local Kashmir experts", "Verified stays", "Custom itineraries", "Transparent pricing", "24/7 trip support"];
 const callbackTimes = ["Today, 6 PM - 9 PM", "Tomorrow morning", "Tomorrow evening"];
@@ -1668,9 +1788,12 @@ const selectedPriceClassName = computed(() => {
 const googleRecaptchaSiteKey = computed(() => (siteContent.value.googleRecaptchaSiteKey || siteContent.value.recaptchaSiteKey || "").trim());
 const isRecaptchaEnabled = computed(() => Boolean(googleRecaptchaSiteKey.value));
 
-const isAdminLoggedIn = ref(localStorage.getItem("kashmir-admin-auth") === "true");
-const adminUsername = ref("");
+const adminSession = ref(supabaseAuth.getStoredSession());
+const isAdminLoggedIn = computed(() => Boolean(isSupabaseConfigured && adminSession.value?.access_token));
+const adminEmail = ref("");
 const adminPassword = ref("");
+const adminNewPassword = ref("");
+const adminConfirmPassword = ref("");
 const adminError = ref("");
 const adminSaved = ref("");
 
@@ -1718,63 +1841,162 @@ function makeRecordId(prefix) {
   return `${prefix}-${stamp}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
 }
 
-function storeEnquiry(payload) {
-  const createdAt = new Date().toISOString();
-  const type = payload.type || payload.formType || "Website enquiry";
-  enquiries.value = [
-    {
-      id: makeRecordId("ENQ"),
-      type,
-      formType: type,
-      name: payload.name || "",
-      phone: payload.phone || "",
-      email: payload.email || "",
-      packageName: payload.packageName || "",
-      destinationInterest: payload.destinationInterest || payload.destination || "",
-      destination: payload.destinationInterest || payload.destination || "",
-      travelMonth: payload.travelMonth || "",
-      guests: payload.guests || "",
-      budget: payload.budget || payload.budgetRange || "",
-      budgetRange: payload.budget || payload.budgetRange || "",
-      message: payload.message || "",
-      preferredContact: payload.preferredContact || payload.contactMethod || "WhatsApp",
-      contactMethod: payload.preferredContact || payload.contactMethod || "WhatsApp",
-      status: "New",
-      adminNote: "",
-      createdAt,
-      submittedAt: createdAt,
-    },
-    ...enquiries.value,
-  ];
-  saveEnquiries();
+function enquiryFromSupabase(row) {
+  return {
+    id: row.id,
+    type: row.form_type || "Website enquiry",
+    formType: row.form_type || "Website enquiry",
+    name: row.name || "",
+    phone: row.phone || "",
+    email: row.email || "",
+    packageName: row.package_name || "",
+    destinationInterest: row.destination_interest || "",
+    destination: row.destination_interest || "",
+    travelMonth: row.travel_month || "",
+    guests: row.guests || "",
+    budget: row.budget || "",
+    budgetRange: row.budget || "",
+    message: row.message || "",
+    preferredContact: row.preferred_contact || "WhatsApp",
+    contactMethod: row.preferred_contact || "WhatsApp",
+    status: row.status || "New",
+    adminNote: row.admin_note || "",
+    createdAt: row.created_at,
+    submittedAt: row.created_at,
+  };
 }
 
-function storeBookingRequest(payload) {
+function enquiryToSupabase(payload) {
+  return {
+    form_type: payload.type || payload.formType || "Website enquiry",
+    name: payload.name || "",
+    phone: payload.phone || "",
+    email: payload.email || "",
+    package_name: payload.packageName || "",
+    destination_interest: payload.destinationInterest || payload.destination || "",
+    travel_month: payload.travelMonth || "",
+    guests: String(payload.guests || ""),
+    budget: payload.budget || payload.budgetRange || "",
+    message: payload.message || "",
+    preferred_contact: payload.preferredContact || payload.contactMethod || "WhatsApp",
+    status: payload.status || "New",
+    admin_note: payload.adminNote || "",
+  };
+}
+
+async function storeEnquiry(payload) {
   const createdAt = new Date().toISOString();
-  bookingRequests.value = [
-    {
-      id: makeRecordId("BKG"),
-      packageName: payload.packageName || selectedPackageName.value,
-      name: payload.name || "",
-      phone: payload.phone || "",
-      email: payload.email || "",
-      travelMonth: payload.travelMonth || payload.travelDate || "",
-      travelDate: payload.travelDate || "",
-      guests: payload.guests || travelers.value,
-      hotelPreference: payload.hotelPreference || "",
-      transportPreference: payload.transportPreference || "",
-      mealPreference: payload.mealPreference || "",
-      activities: payload.activities || "",
-      budget: payload.budget || "",
-      message: payload.message || "",
-      status: "New",
-      adminNote: "",
-      createdAt,
-      submittedAt: createdAt,
-    },
-    ...bookingRequests.value,
-  ];
+  const type = payload.type || payload.formType || "Website enquiry";
+  let record = {
+    id: makeRecordId("ENQ"),
+    type,
+    formType: type,
+    name: payload.name || "",
+    phone: payload.phone || "",
+    email: payload.email || "",
+    packageName: payload.packageName || "",
+    destinationInterest: payload.destinationInterest || payload.destination || "",
+    destination: payload.destinationInterest || payload.destination || "",
+    travelMonth: payload.travelMonth || "",
+    guests: payload.guests || "",
+    budget: payload.budget || payload.budgetRange || "",
+    budgetRange: payload.budget || payload.budgetRange || "",
+    message: payload.message || "",
+    preferredContact: payload.preferredContact || payload.contactMethod || "WhatsApp",
+    contactMethod: payload.preferredContact || payload.contactMethod || "WhatsApp",
+    status: "New",
+    adminNote: "",
+    createdAt,
+    submittedAt: createdAt,
+  };
+  if (isSupabaseConfigured) {
+    try {
+      const [saved] = await supabaseDb.insert("enquiries", enquiryToSupabase(record));
+      if (saved) record = enquiryFromSupabase(saved);
+    } catch (error) {
+      supabaseError.value = error.message;
+    }
+  }
+  enquiries.value = [record, ...enquiries.value];
+  saveEnquiries();
+  return record;
+}
+
+function bookingFromSupabase(row) {
+  return {
+    id: row.id,
+    packageName: row.package_name || "",
+    name: row.name || "",
+    phone: row.phone || "",
+    email: row.email || "",
+    travelMonth: row.travel_month || "",
+    travelDate: row.travel_month || "",
+    guests: row.guests || "",
+    hotelPreference: row.hotel_preference || "",
+    transportPreference: row.transport_preference || "",
+    mealPreference: row.meal_preference || "",
+    activities: row.activities || "",
+    budget: row.budget || "",
+    message: row.message || "",
+    status: row.status || "New",
+    adminNote: row.admin_note || "",
+    createdAt: row.created_at,
+    submittedAt: row.created_at,
+  };
+}
+
+function bookingToSupabase(payload) {
+  return {
+    package_name: payload.packageName || selectedPackageName.value,
+    name: payload.name || "",
+    phone: payload.phone || "",
+    email: payload.email || "",
+    travel_month: payload.travelMonth || payload.travelDate || "",
+    guests: String(payload.guests || travelers.value || ""),
+    hotel_preference: payload.hotelPreference || "",
+    transport_preference: payload.transportPreference || "",
+    meal_preference: payload.mealPreference || "",
+    activities: payload.activities || "",
+    budget: payload.budget || "",
+    message: payload.message || "",
+    status: payload.status || "New",
+    admin_note: payload.adminNote || "",
+  };
+}
+
+async function storeBookingRequest(payload) {
+  const createdAt = new Date().toISOString();
+  let record = {
+    id: makeRecordId("BKG"),
+    packageName: payload.packageName || selectedPackageName.value,
+    name: payload.name || "",
+    phone: payload.phone || "",
+    email: payload.email || "",
+    travelMonth: payload.travelMonth || payload.travelDate || "",
+    travelDate: payload.travelDate || "",
+    guests: payload.guests || travelers.value,
+    hotelPreference: payload.hotelPreference || "",
+    transportPreference: payload.transportPreference || "",
+    mealPreference: payload.mealPreference || "",
+    activities: payload.activities || "",
+    budget: payload.budget || "",
+    message: payload.message || "",
+    status: "New",
+    adminNote: "",
+    createdAt,
+    submittedAt: createdAt,
+  };
+  if (isSupabaseConfigured) {
+    try {
+      const [saved] = await supabaseDb.insert("bookings", bookingToSupabase(record));
+      if (saved) record = bookingFromSupabase(saved);
+    } catch (error) {
+      supabaseError.value = error.message;
+    }
+  }
+  bookingRequests.value = [record, ...bookingRequests.value];
   saveBookingRequests();
+  return record;
 }
 
 const adminTabs = [
@@ -1842,26 +2064,76 @@ function formatAdminDate(value) {
   return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 }
 
-function updateEnquiryStatus(item, status) {
+async function updateEnquiryStatus(item, status) {
   item.status = status;
+  if (isSupabaseConfigured && !String(item.id || "").startsWith("ENQ-")) {
+    try {
+      await supabaseDb.update("enquiries", item.id, { status, admin_note: item.adminNote || "" });
+    } catch (error) {
+      supabaseError.value = error.message;
+    }
+  }
   saveEnquiries();
 }
 
-function deleteEnquiry(indexOrItem) {
+async function saveEnquiryNote(item) {
+  if (isSupabaseConfigured && !String(item.id || "").startsWith("ENQ-")) {
+    try {
+      await supabaseDb.update("enquiries", item.id, { status: item.status || "New", admin_note: item.adminNote || "" });
+    } catch (error) {
+      supabaseError.value = error.message;
+    }
+  }
+  saveEnquiries();
+}
+
+async function deleteEnquiry(indexOrItem) {
   if (!window.confirm("Delete this enquiry?")) return;
   const id = typeof indexOrItem === "object" ? indexOrItem.id : filteredEnquiries.value[indexOrItem]?.id;
+  if (isSupabaseConfigured && id && !String(id).startsWith("ENQ-")) {
+    try {
+      await supabaseDb.remove("enquiries", id);
+    } catch (error) {
+      supabaseError.value = error.message;
+    }
+  }
   enquiries.value = enquiries.value.filter((item) => item.id !== id);
   saveEnquiries();
 }
 
-function updateBookingStatus(item, status) {
+async function updateBookingStatus(item, status) {
   item.status = status;
+  if (isSupabaseConfigured && !String(item.id || "").startsWith("BKG-")) {
+    try {
+      await supabaseDb.update("bookings", item.id, { status, admin_note: item.adminNote || "" });
+    } catch (error) {
+      supabaseError.value = error.message;
+    }
+  }
   saveBookingRequests();
 }
 
-function deleteBooking(indexOrItem) {
+async function saveBookingNote(item) {
+  if (isSupabaseConfigured && !String(item.id || "").startsWith("BKG-")) {
+    try {
+      await supabaseDb.update("bookings", item.id, { status: item.status || "New", admin_note: item.adminNote || "" });
+    } catch (error) {
+      supabaseError.value = error.message;
+    }
+  }
+  saveBookingRequests();
+}
+
+async function deleteBooking(indexOrItem) {
   if (!window.confirm("Delete this booking request?")) return;
   const id = typeof indexOrItem === "object" ? indexOrItem.id : filteredBookings.value[indexOrItem]?.id;
+  if (isSupabaseConfigured && id && !String(id).startsWith("BKG-")) {
+    try {
+      await supabaseDb.remove("bookings", id);
+    } catch (error) {
+      supabaseError.value = error.message;
+    }
+  }
   bookingRequests.value = bookingRequests.value.filter((item) => item.id !== id);
   saveBookingRequests();
 }
@@ -1933,7 +2205,7 @@ function appendPlannerNote(label, value) {
   bookingInquiry.value.notes = `${bookingInquiry.value.notes ? `${bookingInquiry.value.notes} | ` : ""}${label}: ${value}`;
 }
 
-function requestCallback() {
+async function requestCallback() {
   if (!callbackForm.value.name.trim() || !validatePhone(callbackForm.value.phone)) {
     callbackStatus.value = "Please add your name and a valid 10-digit phone number.";
     window.setTimeout(() => { callbackStatus.value = ""; }, 3000);
@@ -1947,7 +2219,7 @@ function requestCallback() {
     return;
   }
 
-  storeEnquiry({
+  await storeEnquiry({
     formType: "Quick callback",
     name: callbackForm.value.name,
     phone: callbackForm.value.phone,
@@ -2150,8 +2422,11 @@ async function submitBookingInquiry() {
     contactMethod: bookingInquiry.value.contactMethod,
   };
 
-  storeEnquiry(sharedPayload);
-  if (isReservation) storeBookingRequest(sharedPayload);
+  if (isReservation) {
+    await storeBookingRequest(sharedPayload);
+  } else {
+    await storeEnquiry(sharedPayload);
+  }
 
   const formData = new FormData();
   formData.append("access_key", web3FormsAccessKey);
@@ -2227,7 +2502,7 @@ async function submitBookingInquiry() {
   }
 }
 
-function submitContactForm() {
+async function submitContactForm() {
   if (!bookingForm.value.name.trim() || !bookingForm.value.email.trim() || !bookingForm.value.phone.trim()) {
     bookingFormStatus.value = "Please fill all required fields.";
     window.setTimeout(() => { bookingFormStatus.value = ""; }, 3000);
@@ -2253,7 +2528,7 @@ function submitContactForm() {
     return;
   }
 
-  storeEnquiry({
+  await storeEnquiry({
     formType: "Contact form",
     name: bookingForm.value.name,
     phone: bookingForm.value.phone,
@@ -2283,33 +2558,140 @@ function submitContactForm() {
   resetMathCaptcha("contact");
 }
 
-function loginAdmin() {
+async function verifyAdminSession() {
+  if (!isSupabaseConfigured || !adminSession.value?.access_token) return;
+  const user = await supabaseAuth.getUser();
+  if (!user) {
+    adminSession.value = null;
+    adminError.value = "Admin session expired. Please sign in again.";
+  }
+}
+
+async function loginAdmin() {
+  adminError.value = "";
+  adminSaved.value = "";
+
+  if (!isSupabaseConfigured) {
+    adminError.value = "Supabase Auth is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.";
+    return;
+  }
+
   if (!validateMathCaptcha("admin")) {
     adminError.value = "Please answer the security question correctly.";
     resetMathCaptcha("admin");
     return;
   }
 
-  if (adminUsername.value.trim().toLowerCase() === "admin" && adminPassword.value === "admin123") {
-    isAdminLoggedIn.value = true;
-    adminUsername.value = "";
-    adminPassword.value = "";
-    adminError.value = "";
-    localStorage.setItem("kashmir-admin-auth", "true");
-    resetMathCaptcha("admin");
+  if (!validateEmail(adminEmail.value) || !adminPassword.value) {
+    adminError.value = "Enter the admin email and password.";
     return;
   }
 
-  adminError.value = "Wrong username or password.";
-  resetMathCaptcha("admin");
+  try {
+    const session = await supabaseAuth.signInWithPassword(adminEmail.value.trim(), adminPassword.value);
+    adminSession.value = session;
+    adminEmail.value = "";
+    adminPassword.value = "";
+    adminSaved.value = "Signed in securely with Supabase Auth.";
+    resetMathCaptcha("admin");
+    await loadSupabaseData();
+  } catch (error) {
+    adminError.value = error.message || "Unable to sign in with Supabase Auth.";
+    resetMathCaptcha("admin");
+  }
 }
 
-function logoutAdmin() {
-  isAdminLoggedIn.value = false;
-  localStorage.removeItem("kashmir-admin-auth");
+async function logoutAdmin() {
+  await supabaseAuth.signOut();
+  adminSession.value = null;
+  adminPassword.value = "";
+  adminNewPassword.value = "";
+  adminConfirmPassword.value = "";
+  adminSaved.value = "";
 }
 
-function saveAdminChanges() {
+async function updateAdminPassword() {
+  adminError.value = "";
+  adminSaved.value = "";
+
+  if (!adminNewPassword.value || adminNewPassword.value.length < 8) {
+    adminError.value = "New password must be at least 8 characters.";
+    return;
+  }
+
+  if (adminNewPassword.value !== adminConfirmPassword.value) {
+    adminError.value = "New password and confirmation do not match.";
+    return;
+  }
+
+  try {
+    await supabaseAuth.updatePassword(adminNewPassword.value);
+    adminNewPassword.value = "";
+    adminConfirmPassword.value = "";
+    adminSaved.value = "Admin password updated in Supabase Authentication.";
+  } catch (error) {
+    adminError.value = error.message || "Unable to update admin password.";
+  }
+}
+
+async function saveSupabaseAdminChanges() {
+  if (!isSupabaseConfigured) return;
+
+  const packageRows = [];
+  for (const [index, item] of packages.value.entries()) {
+    item.image = await uploadImageIfNeeded(item.image, "package-images", "packages");
+    packageRows.push(packageToSupabase(item, index));
+  }
+  const savedPackages = await supabaseDb.upsert("packages", packageRows, "slug");
+  if (savedPackages?.length) packages.value = savedPackages.map(packageFromSupabase);
+
+  const destinationRows = [];
+  for (const [index, item] of destinations.value.entries()) {
+    item[1] = await uploadImageIfNeeded(item[1], "destination-images", "destinations");
+    destinationRows.push(destinationToSupabase(item, index));
+  }
+  const savedDestinations = await supabaseDb.upsert("destinations", destinationRows, "slug");
+  if (savedDestinations?.length) destinations.value = savedDestinations.map(destinationFromSupabase);
+
+  const savedTestimonials = [];
+  for (const review of testimonials.value) {
+    review.image = await uploadImageIfNeeded(review.image, "testimonial-images", "testimonials");
+    const row = testimonialToSupabase(review);
+    const [saved] = review.supabaseId
+      ? await supabaseDb.update("testimonials", review.supabaseId, row)
+      : await supabaseDb.insert("testimonials", row);
+    if (saved) savedTestimonials.push(testimonialFromSupabase(saved));
+  }
+  if (savedTestimonials.length) testimonials.value = savedTestimonials;
+
+  const savedGallery = [];
+  for (const [index, item] of galleryImages.value.entries()) {
+    item.image = await uploadImageIfNeeded(item.image, "gallery-images", "gallery");
+    const row = galleryToSupabase(item, index);
+    const [saved] = item.supabaseId
+      ? await supabaseDb.update("gallery", item.supabaseId, row)
+      : await supabaseDb.insert("gallery", row);
+    if (saved) savedGallery.push(galleryFromSupabase(saved));
+  }
+  if (savedGallery.length) galleryImages.value = savedGallery;
+
+  await supabaseDb.upsert("site_settings", [
+    { setting_key: "site_content", setting_value: siteContent.value },
+  ], "setting_key");
+}
+
+async function saveAdminChanges() {
+  isSupabaseLoading.value = true;
+  supabaseError.value = "";
+  try {
+    await saveSupabaseAdminChanges();
+    supabaseStatus.value = isSupabaseConfigured ? "Supabase saved successfully." : supabaseStatus.value;
+  } catch (error) {
+    supabaseError.value = error.message;
+  } finally {
+    isSupabaseLoading.value = false;
+  }
+
   localStorage.setItem(storageKeys.settings, JSON.stringify(siteContent.value));
   localStorage.setItem("kashmir-site-content-v4", JSON.stringify(siteContent.value));
   localStorage.setItem(storageKeys.packages, JSON.stringify(packages.value));
@@ -2495,6 +2877,34 @@ function deleteManagedItem(collection, index) {
   collection.splice(index, 1);
 }
 
+async function deleteTestimonial(index) {
+  if (!window.confirm("Delete this testimonial?")) return;
+  const item = testimonials.value[index];
+  if (isSupabaseConfigured && item?.supabaseId) {
+    try {
+      await supabaseDb.remove("testimonials", item.supabaseId);
+    } catch (error) {
+      supabaseError.value = error.message;
+    }
+  }
+  testimonials.value.splice(index, 1);
+  saveAdminChanges();
+}
+
+async function deleteDestination(index) {
+  if (!window.confirm("Delete this destination?")) return;
+  const item = destinations.value[index];
+  if (isSupabaseConfigured && item?.supabaseId) {
+    try {
+      await supabaseDb.remove("destinations", item.supabaseId);
+    } catch (error) {
+      supabaseError.value = error.message;
+    }
+  }
+  destinations.value.splice(index, 1);
+  saveAdminChanges();
+}
+
 function updateManagedImage(event, collection, index, imageIndex) {
   readImageFile(event, (result) => {
     collection[index][imageIndex] = result;
@@ -2520,6 +2930,91 @@ function commaList(value) {
 
 function updateCommaList(target, field, value) {
   target[field] = textListToArray(value);
+}
+
+function destinationFromSupabase(row) {
+  const destination = [
+    row.title || "Destination",
+    row.image_url || image("image18"),
+    row.description || "",
+  ];
+  destination.supabaseId = row.id;
+  destination.slug = row.slug;
+  destination.bestSeason = row.best_season || "";
+  destination.activities = Array.isArray(row.activities) ? row.activities : [];
+  destination.status = row.is_active === false ? "inactive" : "active";
+  destination.sortOrder = row.sort_order || 50;
+  return destination;
+}
+
+function destinationToSupabase(item, index = 0) {
+  return {
+    id: item.supabaseId || undefined,
+    title: item[0] || "Destination",
+    slug: item.slug || slugifyPackageName(item[0] || "destination"),
+    image_url: mediaSource(item[1]) || "",
+    description: item[2] || "",
+    best_season: item.bestSeason || "",
+    activities: Array.isArray(item.activities) ? item.activities : [],
+    is_active: item.status !== "inactive",
+    sort_order: Number(item.sortOrder || index + 1),
+  };
+}
+
+function settingsFromSupabase(rows) {
+  const settings = {};
+  rows.forEach((row) => {
+    settings[row.setting_key] = row.setting_value;
+  });
+  return settings;
+}
+
+async function loadSupabaseData() {
+  if (!isSupabaseConfigured) return;
+  isSupabaseLoading.value = true;
+  supabaseError.value = "";
+  try {
+    const [packageRows, enquiryRows, bookingRows, testimonialRows, destinationRows, galleryRows, settingRows] = await Promise.all([
+      supabaseDb.select("packages", { order: "sort_order.asc,created_at.desc" }),
+      supabaseDb.select("enquiries", { order: "created_at.desc" }),
+      supabaseDb.select("bookings", { order: "created_at.desc" }),
+      supabaseDb.select("testimonials", { order: "created_at.desc" }),
+      supabaseDb.select("destinations", { order: "sort_order.asc,created_at.desc" }),
+      supabaseDb.select("gallery", { order: "sort_order.asc,created_at.desc" }),
+      supabaseDb.select("site_settings"),
+    ]);
+
+    if (packageRows?.length) packages.value = packageRows.map(packageFromSupabase);
+    if (enquiryRows?.length) enquiries.value = enquiryRows.map(enquiryFromSupabase);
+    if (bookingRows?.length) bookingRequests.value = bookingRows.map(bookingFromSupabase);
+    if (testimonialRows?.length) testimonials.value = testimonialRows.map(testimonialFromSupabase);
+    if (destinationRows?.length) destinations.value = destinationRows.map(destinationFromSupabase);
+    if (galleryRows?.length) galleryImages.value = galleryRows.map(galleryFromSupabase);
+
+    const settings = settingsFromSupabase(settingRows || []);
+    if (settings.site_content && typeof settings.site_content === "object") {
+      siteContent.value = { ...siteContent.value, ...settings.site_content };
+    }
+
+    saveEnquiries();
+    saveBookingRequests();
+    localStorage.setItem(storageKeys.packages, JSON.stringify(packages.value));
+    localStorage.setItem(storageKeys.testimonials, JSON.stringify(testimonials.value));
+    supabaseStatus.value = "Supabase connected. Live data loaded.";
+  } catch (error) {
+    supabaseError.value = error.message;
+    supabaseStatus.value = "Supabase load failed. Local fallback is active.";
+  } finally {
+    isSupabaseLoading.value = false;
+  }
+}
+
+async function uploadImageIfNeeded(value, bucket, prefix) {
+  const source = mediaSource(value);
+  if (!isSupabaseConfigured || !source || !String(source).startsWith("data:")) return source || "";
+  const extension = source.match(/^data:image\/(\w+)/)?.[1] || "png";
+  const path = `${prefix}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
+  return supabaseStorage.upload(bucket, path, source);
 }
 
 function addPackage() {
@@ -2564,7 +3059,16 @@ function addPackage() {
   saveAdminChanges();
 }
 
-function deletePackage(index) {
+async function deletePackage(index) {
+  if (!window.confirm("Delete this package?")) return;
+  const item = packages.value[index];
+  if (isSupabaseConfigured && item?.supabaseId) {
+    try {
+      await supabaseDb.remove("packages", item.supabaseId);
+    } catch (error) {
+      supabaseError.value = error.message;
+    }
+  }
   packages.value.splice(index, 1);
   selectedPackage.value = packages.value[0]?.price || 0;
   saveAdminChanges();
@@ -2600,7 +3104,16 @@ function updateSiteImage(event, key) {
   });
 }
 
-function deleteGalleryImage(index) {
+async function deleteGalleryImage(index) {
+  if (!window.confirm("Delete this gallery image?")) return;
+  const item = galleryImages.value[index];
+  if (isSupabaseConfigured && item?.supabaseId) {
+    try {
+      await supabaseDb.remove("gallery", item.supabaseId);
+    } catch (error) {
+      supabaseError.value = error.message;
+    }
+  }
   galleryImages.value.splice(index, 1);
   saveAdminChanges();
 }
@@ -2688,7 +3201,7 @@ function deleteBlogChecklistItem(index) {
   saveAdminChanges();
 }
 
-onMounted(() => {
+onMounted(async () => {
   if (window.location.pathname === "/home" || window.location.pathname === "/home/") {
     window.history.replaceState({}, "", "/");
   }
@@ -2697,6 +3210,7 @@ onMounted(() => {
   }
   window.addEventListener("popstate", handlePopState);
   window.addEventListener("storage", handleContentStorageUpdate);
+  await verifyAdminSession();
   if ("BroadcastChannel" in window) {
     blogSyncChannel = new BroadcastChannel("snow-feather-live-content");
     blogSyncChannel.addEventListener("message", (event) => {
@@ -2704,6 +3218,7 @@ onMounted(() => {
     });
   }
   updateSeoMeta();
+  loadSupabaseData();
   if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) {
     revealObserver = new IntersectionObserver(
       (entries) => {
@@ -2774,11 +3289,11 @@ onUnmounted(() => {
         </a>
         <p class="text-sm font-black uppercase tracking-[0.2em] text-gold">{{ brandName }} login</p>
         <h1 class="mt-2 font-display text-4xl font-extrabold">Admin Login</h1>
-        <p class="mt-3 text-sm leading-6 text-white/[0.68]">Sign in to manage website packages, content, and gallery images.</p>
+        <p class="mt-3 text-sm leading-6 text-white/[0.68]">Sign in with a Supabase Auth admin email to manage packages, content, enquiries, bookings, and gallery images.</p>
 
         <form class="mt-7 grid gap-4" @submit.prevent="loginAdmin">
-          <label class="grid gap-2 text-sm font-bold">Username
-            <input v-model="adminUsername" type="text" autocomplete="username" placeholder="Enter username" class="h-12 rounded-lg border border-white/[0.18] bg-white px-4 text-sm font-bold text-night" />
+          <label class="grid gap-2 text-sm font-bold">Admin email
+            <input v-model="adminEmail" type="email" autocomplete="username" placeholder="admin@example.com" class="h-12 rounded-lg border border-white/[0.18] bg-white px-4 text-sm font-bold text-night" />
           </label>
           <label class="grid gap-2 text-sm font-bold">Password
             <input v-model="adminPassword" type="password" autocomplete="current-password" placeholder="Enter password" class="h-12 rounded-lg border border-white/[0.18] bg-white px-4 text-sm font-bold text-night" />
@@ -2786,9 +3301,9 @@ onUnmounted(() => {
           <label class="grid gap-2 text-sm font-bold">{{ mathCaptchaLabel("admin") }}
             <input v-model="mathCaptchas.admin.input" type="number" inputmode="numeric" autocomplete="off" placeholder="Answer" class="h-12 rounded-lg border border-white/[0.18] bg-white px-4 text-sm font-bold text-night" />
           </label>
-          <button type="submit" class="mt-2 h-12 rounded-lg bg-gold px-6 text-sm font-black text-night hover:bg-white">Login</button>
+          <button type="submit" class="mt-2 h-12 rounded-lg bg-gold px-6 text-sm font-black text-night hover:bg-white">Login with Supabase</button>
           <p v-if="adminError" role="alert" class="form-message rounded-lg border border-red-300/30 bg-red-500/[0.14] p-3 text-sm font-bold text-red-100">{{ adminError }}</p>
-          <p class="text-xs font-semibold leading-5 text-white/[0.52]">Demo credentials: username admin, password admin123.</p>
+          <p class="text-xs font-semibold leading-5 text-white/[0.52]">Admin users are managed in Supabase Authentication. No password is stored in the source code.</p>
         </form>
       </div>
     </div>
@@ -2840,9 +3355,13 @@ onUnmounted(() => {
           </div>
         </div>
         <div class="flex flex-wrap gap-2">
-          <button type="button" class="rounded-lg bg-gold px-5 py-3 text-sm font-black text-night hover:bg-white" @click="saveAdminChanges">Save Changes</button>
+          <button type="button" :disabled="isSupabaseLoading" class="rounded-lg bg-gold px-5 py-3 text-sm font-black text-night hover:bg-white disabled:opacity-60" @click="saveAdminChanges">{{ isSupabaseLoading ? "Saving..." : "Save Changes" }}</button>
           <a href="/" class="rounded-lg border border-white/[0.18] px-5 py-3 text-sm font-black text-white hover:bg-white/[0.12]">View Website</a>
         </div>
+      </div>
+      <div class="mb-5 grid gap-2">
+        <p class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-3 text-sm font-bold text-white/72">{{ supabaseStatus }}</p>
+        <p v-if="supabaseError" class="rounded-lg border border-red-300/30 bg-red-500/[0.14] p-3 text-sm font-bold text-red-100">{{ supabaseError }}</p>
       </div>
 
       <div class="min-w-0">
@@ -2917,7 +3436,7 @@ onUnmounted(() => {
               </div>
               <div class="grid gap-2 sm:grid-cols-2 lg:w-56 lg:grid-cols-1">
                 <select v-model="item.status" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold text-night" @change="updateEnquiryStatus(item, item.status)"><option>New</option><option>Contacted</option><option>Converted</option><option>Closed</option></select>
-                <textarea v-model="item.adminNote" placeholder="Admin note" class="min-h-24 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold text-night" @blur="saveEnquiries"></textarea>
+                <textarea v-model="item.adminNote" placeholder="Admin note" class="min-h-24 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold text-night" @blur="saveEnquiryNote(item)"></textarea>
                 <button type="button" class="rounded-lg border border-gold/40 px-3 py-2 text-xs font-black text-gold" @click="deleteEnquiry(item)">Delete</button>
               </div>
             </div>
@@ -2945,7 +3464,7 @@ onUnmounted(() => {
               </div>
               <div class="grid gap-2 sm:grid-cols-2 lg:w-56 lg:grid-cols-1">
                 <select v-model="item.status" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold text-night" @change="updateBookingStatus(item, item.status)"><option>New</option><option>Pending</option><option>Confirmed</option><option>Cancelled</option></select>
-                <textarea v-model="item.adminNote" placeholder="Admin note" class="min-h-24 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold text-night" @blur="saveBookingRequests"></textarea>
+                <textarea v-model="item.adminNote" placeholder="Admin note" class="min-h-24 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold text-night" @blur="saveBookingNote(item)"></textarea>
                 <button type="button" class="rounded-lg border border-gold/40 px-3 py-2 text-xs font-black text-gold" @click="deleteBooking(item)">Delete</button>
               </div>
             </div>
@@ -3021,7 +3540,7 @@ onUnmounted(() => {
                 <input v-model="review.trip" placeholder="Trip name" class="bg-white text-night" />
                 <input v-model="review.rating" placeholder="Rating" class="bg-white text-night" />
                 <textarea v-model="review.text" placeholder="Review" class="min-h-24 bg-white text-night"></textarea>
-                <button type="button" class="rounded-lg border border-gold/40 px-3 py-2 text-xs font-black text-gold" @click="deleteManagedItem(testimonials, index)">Delete</button>
+                <button type="button" class="rounded-lg border border-gold/40 px-3 py-2 text-xs font-black text-gold" @click="deleteTestimonial(index)">Delete</button>
               </div>
             </article>
           </div>
@@ -3043,7 +3562,7 @@ onUnmounted(() => {
               <textarea v-model="item[2]" placeholder="Destination details" class="mt-2 min-h-24 w-full bg-white text-night"></textarea>
               <div class="mt-2 flex flex-wrap gap-2">
                 <label class="cursor-pointer rounded-lg border border-white/20 px-3 py-2 text-xs font-black">Change image<input type="file" accept="image/*" class="hidden" @change="updateManagedImage($event, destinations, index, 1)" /></label>
-                <button type="button" class="rounded-lg border border-gold/40 px-3 py-2 text-xs font-black text-gold" @click="deleteManagedItem(destinations, index)">Delete</button>
+                <button type="button" class="rounded-lg border border-gold/40 px-3 py-2 text-xs font-black text-gold" @click="deleteDestination(index)">Delete</button>
               </div>
             </article>
           </div>
@@ -3101,16 +3620,29 @@ onUnmounted(() => {
         <section v-else-if="activeAdminTab === 'settings'" class="grid gap-4">
           <div class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-5">
             <h2 class="text-2xl font-black">Site Settings</h2>
-            <p class="mt-1 text-sm text-white/62">General settings, admin credentials note, and export/clear data options.</p>
+            <p class="mt-1 text-sm text-white/62">General settings, Supabase Auth password management, and export/clear data options.</p>
             <div class="mt-5 grid gap-4 lg:grid-cols-2">
               <label class="grid gap-2 text-sm font-bold">Google reCAPTCHA site key<input v-model="siteContent.googleRecaptchaSiteKey" placeholder="Optional" class="bg-white text-night" /></label>
               <label class="grid gap-2 text-sm font-bold">Map search query<input v-model="siteContent.mapQuery" class="bg-white text-night" /></label>
             </div>
             <div class="mt-5 rounded-lg border border-white/[0.12] bg-white/[0.06] p-4 text-sm leading-7 text-white/72">
-              <p><strong class="text-white">Admin login:</strong> currently local demo credentials are username admin and password admin123.</p>
-              <p><strong class="text-white">Storage mode:</strong> localStorage in this browser.</p>
+              <p><strong class="text-white">Admin login:</strong> Supabase Authentication email/password. No admin password is stored in this source code.</p>
+              <p><strong class="text-white">Storage mode:</strong> {{ isSupabaseConfigured ? "Supabase with local fallback" : "localStorage fallback until Supabase env vars are added" }}.</p>
               <p><strong class="text-white">Keys:</strong> {{ storageKeys.enquiries }}, {{ storageKeys.bookings }}, {{ storageKeys.testimonials }}, {{ storageKeys.packages }}, {{ storageKeys.settings }}</p>
             </div>
+            <form class="mt-5 rounded-lg border border-white/[0.12] bg-white/[0.06] p-4" @submit.prevent="updateAdminPassword">
+              <h3 class="text-xl font-black">Update Admin Password</h3>
+              <p class="mt-1 text-sm text-white/62">This updates the signed-in admin user in Supabase Authentication.</p>
+              <div class="mt-4 grid gap-4 lg:grid-cols-2">
+                <label class="grid gap-2 text-sm font-bold">New password
+                  <input v-model="adminNewPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters" class="bg-white text-night" />
+                </label>
+                <label class="grid gap-2 text-sm font-bold">Confirm new password
+                  <input v-model="adminConfirmPassword" type="password" autocomplete="new-password" placeholder="Repeat password" class="bg-white text-night" />
+                </label>
+              </div>
+              <button type="submit" class="mt-4 rounded-lg bg-white px-5 py-3 text-sm font-black text-night hover:bg-gold">Update Password</button>
+            </form>
             <div class="mt-5 flex flex-wrap gap-2">
               <button type="button" class="rounded-lg bg-gold px-5 py-3 text-sm font-black text-night" @click="saveAdminChanges">Save All Data</button>
               <button type="button" class="rounded-lg border border-white/[0.18] px-5 py-3 text-sm font-black" @click="resetAdminChanges">Reset Website Content</button>
