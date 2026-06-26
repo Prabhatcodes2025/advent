@@ -92,6 +92,7 @@ const moreMenuItems = [
 const publicRoutes = {
   "/": "home",
   "/about": "about",
+  "/testimonials": "about",
   "/packages": "packages",
   "/honeymoon-packages": "packages",
   "/destinations": "destinations",
