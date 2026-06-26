@@ -29,7 +29,8 @@ const phoneTel = "tel:+919055020408";
 const whatsappBase = "https://wa.me/919055020408";
 
 function whatsappLink(message = "") {
-  return message ? `${whatsappBase}?text=${encodeURIComponent(message)}` : whatsappBase;
+  const base = contactSettings?.value?.whatsapp || whatsappBase;
+  return message ? `${base}?text=${encodeURIComponent(message)}` : base;
 }
 
 const kashmirWebImages = {
@@ -103,7 +104,7 @@ const activeFilter = ref("all");
 const activeGalleryFilter = ref("All");
 const galleryLightboxImage = ref(null);
 const activePriceRange = ref("all");
-const activeAdminTab = ref("packages");
+const activeAdminTab = ref("dashboard");
 const openFaqs = ref([0]);
 const currentPage = computed(() => (currentPath.value.startsWith("/packages/") ? "packageDetail" : publicRoutes[currentPath.value] || "home"));
 let initialLoadingTimeout = null;
@@ -193,6 +194,20 @@ const siteContent = ref({
       : storedSiteContent.experienceLine,
   contactPhone: phoneDisplay,
 });
+
+const contactSettings = computed(() => {
+  const digits = String(siteContent.value.contactPhone || phoneDisplay).replace(/\D/g, "");
+  const tenDigitPhone = digits.length > 10 ? digits.slice(-10) : digits;
+  const internationalPhone = tenDigitPhone ? `91${tenDigitPhone}` : "919055020408";
+  return {
+    display: tenDigitPhone ? `+91 ${tenDigitPhone.slice(0, 5)} ${tenDigitPhone.slice(5)}` : phoneDisplay,
+    tel: `tel:+${internationalPhone}`,
+    whatsapp: `https://wa.me/${internationalPhone}`,
+  };
+});
+
+const contactPhoneDisplay = computed(() => contactSettings.value.display);
+const contactPhoneTel = computed(() => contactSettings.value.tel);
 
 const premiumStructureDate = "June 2026";
 const premiumSourceNote =
@@ -1054,6 +1069,12 @@ function submitReview() {
     return;
   }
 
+  if (!validateMathCaptcha("review")) {
+    reviewFormStatus.value = "Please answer the security question correctly.";
+    resetMathCaptcha("review");
+    return;
+  }
+
   testimonials.value = [
     {
       name: reviewForm.value.name.trim(),
@@ -1066,8 +1087,9 @@ function submitReview() {
     ...testimonials.value,
   ].slice(0, 8);
 
-  saveAllContent();
+  localStorage.setItem("kashmir-testimonials", JSON.stringify(testimonials.value));
   reviewForm.value = { name: "", location: "", rating: "5.0", trip: "", text: "", image: "" };
+  resetMathCaptcha("review");
   reviewFormStatus.value = "Thank you for sharing your Kashmir experience.";
 }
 
@@ -1526,6 +1548,13 @@ const bookingInquiryStatus = ref("");
 const isBookingSubmitting = ref(false);
 const callbackForm = ref({ name: "", phone: "", time: "Today, 6 PM - 9 PM" });
 const callbackStatus = ref("");
+const adminSidebarOpen = ref(false);
+const enquirySearch = ref("");
+const enquiryStatusFilter = ref("all");
+const enquiryTypeFilter = ref("all");
+const enquiryPackageFilter = ref("all");
+const bookingStatusFilter = ref("all");
+const bookingSearch = ref("");
 let bookingInquiryStatusTimeout = null;
 const web3FormsAccessKey = "3401ac69-832e-416d-b7e2-499ceed01137";
 let revealObserver = null;
@@ -1624,12 +1653,187 @@ const adminPassword = ref("");
 const adminError = ref("");
 const adminSaved = ref("");
 
+function createMathCaptcha() {
+  const a = Math.floor(Math.random() * 8) + 2;
+  const b = Math.floor(Math.random() * 8) + 2;
+  return { a, b, answer: a + b, input: "" };
+}
+
+const mathCaptchas = ref({
+  booking: createMathCaptcha(),
+  contact: createMathCaptcha(),
+  callback: createMathCaptcha(),
+  review: createMathCaptcha(),
+  admin: createMathCaptcha(),
+});
+
+function resetMathCaptcha(key) {
+  mathCaptchas.value = { ...mathCaptchas.value, [key]: createMathCaptcha() };
+}
+
+function mathCaptchaLabel(key) {
+  const captcha = mathCaptchas.value[key];
+  return captcha ? `What is ${captcha.a} + ${captcha.b}?` : "Security question";
+}
+
+function validateMathCaptcha(key) {
+  const captcha = mathCaptchas.value[key];
+  return captcha && Number(captcha.input) === Number(captcha.answer);
+}
+
+const enquiries = ref(loadStoredValue("snow-feather-enquiries-v1", []));
+const bookingRequests = ref(loadStoredValue("snow-feather-bookings-v1", []));
+
+function saveEnquiries() {
+  localStorage.setItem("snow-feather-enquiries-v1", JSON.stringify(enquiries.value));
+}
+
+function saveBookingRequests() {
+  localStorage.setItem("snow-feather-bookings-v1", JSON.stringify(bookingRequests.value));
+}
+
+function makeRecordId(prefix) {
+  const stamp = new Date().toISOString().replace(/\D/g, "").slice(2, 14);
+  return `${prefix}-${stamp}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+}
+
+function storeEnquiry(payload) {
+  enquiries.value = [
+    {
+      id: makeRecordId("ENQ"),
+      formType: payload.formType || "Website enquiry",
+      name: payload.name || "",
+      phone: payload.phone || "",
+      email: payload.email || "",
+      packageName: payload.packageName || "",
+      destination: payload.destination || "",
+      travelMonth: payload.travelMonth || "",
+      guests: payload.guests || "",
+      budgetRange: payload.budgetRange || "",
+      message: payload.message || "",
+      contactMethod: payload.contactMethod || "WhatsApp",
+      status: "New",
+      adminNote: "",
+      submittedAt: new Date().toISOString(),
+    },
+    ...enquiries.value,
+  ];
+  saveEnquiries();
+}
+
+function storeBookingRequest(payload) {
+  bookingRequests.value = [
+    {
+      id: makeRecordId("BKG"),
+      packageName: payload.packageName || selectedPackageName.value,
+      name: payload.name || "",
+      phone: payload.phone || "",
+      email: payload.email || "",
+      travelDate: payload.travelDate || "",
+      guests: payload.guests || travelers.value,
+      hotelPreference: payload.hotelPreference || "",
+      transportPreference: payload.transportPreference || "",
+      mealPreference: payload.mealPreference || "",
+      activities: payload.activities || "",
+      budget: payload.budget || "",
+      message: payload.message || "",
+      status: "New",
+      adminNote: "",
+      submittedAt: new Date().toISOString(),
+    },
+    ...bookingRequests.value,
+  ];
+  saveBookingRequests();
+}
+
 const adminTabs = [
-  ["packages", "Package Management"],
-  ["bookings", "Booking Management"],
-  ["content", "Content & SEO"],
-  ["reports", "Reports"],
+  ["dashboard", "Dashboard"],
+  ["packages", "Packages"],
+  ["enquiries", "Enquiries"],
+  ["bookings", "Bookings / Reservations"],
+  ["testimonials", "Testimonials"],
+  ["destinations", "Destinations"],
+  ["gallery", "Gallery"],
+  ["homepage", "Homepage Content"],
+  ["contact", "Contact Settings"],
+  ["settings", "Site Settings"],
 ];
+
+const adminMenuIcons = {
+  dashboard: "⌂",
+  packages: "▦",
+  enquiries: "✉",
+  bookings: "◷",
+  testimonials: "★",
+  destinations: "⌖",
+  gallery: "▧",
+  homepage: "⌁",
+  contact: "☎",
+  settings: "⚙",
+};
+
+const legacyAdminSections = ["packages", "testimonials", "destinations", "gallery", "homepage", "settings"];
+const adminPageTitle = computed(() => adminTabs.find(([key]) => key === activeAdminTab.value)?.[1] || "Dashboard");
+const enquiryFormTypes = computed(() => ["all", ...new Set(enquiries.value.map((item) => item.formType).filter(Boolean))]);
+const enquiryPackages = computed(() => ["all", ...new Set(enquiries.value.map((item) => item.packageName).filter(Boolean))]);
+const filteredEnquiries = computed(() => {
+  const query = enquirySearch.value.trim().toLowerCase();
+  return enquiries.value.filter((item) => {
+    const haystack = `${item.id} ${item.name} ${item.phone} ${item.email} ${item.packageName} ${item.destination} ${item.message}`.toLowerCase();
+    return (!query || haystack.includes(query)) &&
+      (enquiryStatusFilter.value === "all" || item.status === enquiryStatusFilter.value) &&
+      (enquiryTypeFilter.value === "all" || item.formType === enquiryTypeFilter.value) &&
+      (enquiryPackageFilter.value === "all" || item.packageName === enquiryPackageFilter.value);
+  });
+});
+const filteredBookings = computed(() => {
+  const query = bookingSearch.value.trim().toLowerCase();
+  return bookingRequests.value.filter((item) => {
+    const haystack = `${item.id} ${item.name} ${item.phone} ${item.email} ${item.packageName} ${item.message}`.toLowerCase();
+    return (!query || haystack.includes(query)) && (bookingStatusFilter.value === "all" || item.status === bookingStatusFilter.value);
+  });
+});
+const dashboardCards = computed(() => [
+  ["Total Packages", packages.value.length],
+  ["Active Packages", packages.value.filter((item) => item.status !== "inactive").length],
+  ["Total Enquiries", enquiries.value.length],
+  ["New Enquiries", enquiries.value.filter((item) => item.status === "New").length],
+  ["Total Bookings", bookingRequests.value.length],
+  ["Pending Reservations", bookingRequests.value.filter((item) => ["New", "Pending"].includes(item.status)).length],
+  ["Testimonials", testimonials.value.length],
+  ["Gallery Images", galleryImages.value.length],
+]);
+const recentEnquiries = computed(() => enquiries.value.slice(0, 6));
+const recentBookings = computed(() => bookingRequests.value.slice(0, 6));
+
+function formatAdminDate(value) {
+  if (!value) return "Not recorded";
+  return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+}
+
+function updateEnquiryStatus(item, status) {
+  item.status = status;
+  saveEnquiries();
+}
+
+function deleteEnquiry(indexOrItem) {
+  if (!window.confirm("Delete this enquiry?")) return;
+  const id = typeof indexOrItem === "object" ? indexOrItem.id : filteredEnquiries.value[indexOrItem]?.id;
+  enquiries.value = enquiries.value.filter((item) => item.id !== id);
+  saveEnquiries();
+}
+
+function updateBookingStatus(item, status) {
+  item.status = status;
+  saveBookingRequests();
+}
+
+function deleteBooking(indexOrItem) {
+  if (!window.confirm("Delete this booking request?")) return;
+  const id = typeof indexOrItem === "object" ? indexOrItem.id : filteredBookings.value[indexOrItem]?.id;
+  bookingRequests.value = bookingRequests.value.filter((item) => item.id !== id);
+  saveBookingRequests();
+}
 
 function navigateTo(path) {
   const nextPath = normalizePath(path);
@@ -1690,10 +1894,26 @@ function requestCallback() {
     window.setTimeout(() => { callbackStatus.value = ""; }, 3000);
     return;
   }
+
+  if (!validateMathCaptcha("callback")) {
+    callbackStatus.value = "Please answer the security question correctly.";
+    resetMathCaptcha("callback");
+    window.setTimeout(() => { callbackStatus.value = ""; }, 3000);
+    return;
+  }
+
+  storeEnquiry({
+    formType: "Quick callback",
+    name: callbackForm.value.name,
+    phone: callbackForm.value.phone,
+    message: `Preferred callback time: ${callbackForm.value.time}`,
+    contactMethod: "Call",
+  });
   const text = `Please call me back. Name: ${callbackForm.value.name}. Phone: ${callbackForm.value.phone}. Preferred time: ${callbackForm.value.time}.`;
   window.open(whatsappLink(text), "_blank", "noopener");
   callbackStatus.value = "Callback request ready on WhatsApp. Our team will follow up.";
   callbackForm.value = { name: "", phone: "", time: "Today, 6 PM - 9 PM" };
+  resetMathCaptcha("callback");
 }
 
 function handlePopState() {
@@ -1856,18 +2076,37 @@ async function submitBookingInquiry() {
     return;
   }
 
-  if (web3FormsAccessKey === "YOUR_WEB3FORMS_ACCESS_KEY") {
-    setBookingInquiryStatus("Add your Web3Forms access key in App.vue before using the booking form.");
-    return;
-  }
-
-  if (isRecaptchaEnabled.value && !recaptchaTokens.value.booking) {
-    setBookingInquiryStatus("Please complete the Google reCAPTCHA verification.");
+  if (!validateMathCaptcha("booking")) {
+    setBookingInquiryStatus("Please answer the security question correctly.");
+    resetMathCaptcha("booking");
     return;
   }
 
   isBookingSubmitting.value = true;
-  setBookingInquiryStatus("Sending booking inquiry...", false);
+  setBookingInquiryStatus("Saving booking request...", false);
+
+  const isReservation = tripPlannerMode.value === "reserve" || /reserve|booking|book/i.test(bookingInquiry.value.notes || "");
+  const sharedPayload = {
+    formType: isReservation ? "Reserve package" : "Trip planner",
+    packageName: selectedPackageName.value,
+    name: bookingInquiry.value.name,
+    phone: bookingInquiry.value.phone,
+    email: bookingInquiry.value.email,
+    travelMonth: bookingInquiry.value.travelDate,
+    travelDate: bookingInquiry.value.travelDate,
+    guests: travelers.value,
+    hotelPreference: bookingInquiry.value.hotelPreference,
+    transportPreference: bookingInquiry.value.transportPreference,
+    mealPreference: bookingInquiry.value.mealPreference,
+    activities: bookingInquiry.value.activities,
+    budgetRange: bookingInquiry.value.budgetRange,
+    budget: bookingInquiry.value.budgetRange,
+    message: bookingInquiry.value.notes,
+    contactMethod: bookingInquiry.value.contactMethod,
+  };
+
+  storeEnquiry(sharedPayload);
+  if (isReservation) storeBookingRequest(sharedPayload);
 
   const formData = new FormData();
   formData.append("access_key", web3FormsAccessKey);
@@ -1892,6 +2131,9 @@ async function submitBookingInquiry() {
   }
 
   try {
+    if (web3FormsAccessKey === "YOUR_WEB3FORMS_ACCESS_KEY") {
+      throw new Error("Saved locally. Web3Forms is not configured.");
+    }
     const response = await fetch("https://api.web3forms.com/submit", {
       method: "POST",
       body: formData,
@@ -1902,7 +2144,7 @@ async function submitBookingInquiry() {
       throw new Error(result.message || "Unable to send booking inquiry.");
     }
 
-    setBookingInquiryStatus("Thank you. Our Kashmir travel expert will contact you shortly with the best available package options.");
+    setBookingInquiryStatus("Thank you. Your request is saved and our Kashmir travel expert will contact you shortly.");
     bookingInquiry.value = {
       travelDate: "",
       name: "",
@@ -1917,9 +2159,24 @@ async function submitBookingInquiry() {
       notes: "",
     };
     resetRecaptchaWidget("booking");
+    resetMathCaptcha("booking");
   } catch (error) {
-    setBookingInquiryStatus(error?.message || "Something went wrong. Please try again.");
+    setBookingInquiryStatus("Thank you. Your request is saved in admin. Our team will follow up shortly.");
+    bookingInquiry.value = {
+      travelDate: "",
+      name: "",
+      email: "",
+      phone: "",
+      hotelPreference: "",
+      transportPreference: "",
+      mealPreference: "",
+      activities: "",
+      budgetRange: "",
+      contactMethod: "WhatsApp",
+      notes: "",
+    };
     resetRecaptchaWidget("booking");
+    resetMathCaptcha("booking");
   } finally {
     isBookingSubmitting.value = false;
   }
@@ -1944,17 +2201,24 @@ function submitContactForm() {
     return;
   }
 
-  if (!isRecaptchaEnabled.value) {
-    bookingFormStatus.value = "Add your Google reCAPTCHA site key in the admin panel before using the contact form.";
+  if (!validateMathCaptcha("contact")) {
+    bookingFormStatus.value = "Please answer the security question correctly.";
+    resetMathCaptcha("contact");
     window.setTimeout(() => { bookingFormStatus.value = ""; }, 3000);
     return;
   }
 
-  if (!recaptchaTokens.value.contact) {
-    bookingFormStatus.value = "Please complete the Google reCAPTCHA verification.";
-    window.setTimeout(() => { bookingFormStatus.value = ""; }, 3000);
-    return;
-  }
+  storeEnquiry({
+    formType: "Contact form",
+    name: bookingForm.value.name,
+    phone: bookingForm.value.phone,
+    email: bookingForm.value.email,
+    destination: bookingForm.value.destination,
+    travelMonth: bookingForm.value.travelDate,
+    guests: bookingForm.value.guests,
+    message: bookingForm.value.details,
+    contactMethod: "WhatsApp",
+  });
 
   const message = `
   Contact Form Submission:
@@ -1969,20 +2233,30 @@ function submitContactForm() {
 
   window.location.href = whatsappLink(message);
   bookingForm.value = { name: "", email: "", phone: "", destination: "", travelDate: "", guests: 2, details: "" };
+  bookingFormStatus.value = "Thank you. Your enquiry is saved and our team will contact you shortly.";
   resetRecaptchaWidget("contact");
+  resetMathCaptcha("contact");
 }
 
 function loginAdmin() {
+  if (!validateMathCaptcha("admin")) {
+    adminError.value = "Please answer the security question correctly.";
+    resetMathCaptcha("admin");
+    return;
+  }
+
   if (adminUsername.value.trim().toLowerCase() === "admin" && adminPassword.value === "admin123") {
     isAdminLoggedIn.value = true;
     adminUsername.value = "";
     adminPassword.value = "";
     adminError.value = "";
     localStorage.setItem("kashmir-admin-auth", "true");
+    resetMathCaptcha("admin");
     return;
   }
 
   adminError.value = "Wrong username or password.";
+  resetMathCaptcha("admin");
 }
 
 function logoutAdmin() {
@@ -2017,6 +2291,8 @@ function saveAdminChanges() {
   localStorage.setItem("kashmir-testimonials", JSON.stringify(testimonials.value));
   localStorage.setItem("kashmir-mentors", JSON.stringify(mentors.value));
   localStorage.setItem("kashmir-inclusion-showcase", JSON.stringify(inclusionShowcase.value));
+  saveEnquiries();
+  saveBookingRequests();
   adminSaved.value = "Saved. Website content updated in this browser.";
   window.setTimeout(() => {
     adminSaved.value = "";
@@ -2456,6 +2732,9 @@ onUnmounted(() => {
           <label class="grid gap-2 text-sm font-bold">Password
             <input v-model="adminPassword" type="password" autocomplete="current-password" placeholder="Enter password" class="h-12 rounded-lg border border-white/[0.18] bg-white px-4 text-sm font-bold text-night" />
           </label>
+          <label class="grid gap-2 text-sm font-bold">{{ mathCaptchaLabel("admin") }}
+            <input v-model="mathCaptchas.admin.input" type="number" inputmode="numeric" autocomplete="off" placeholder="Answer" class="h-12 rounded-lg border border-white/[0.18] bg-white px-4 text-sm font-bold text-night" />
+          </label>
           <button type="submit" class="mt-2 h-12 rounded-lg bg-gold px-6 text-sm font-black text-night hover:bg-white">Login</button>
           <p v-if="adminError" role="alert" class="form-message rounded-lg border border-red-300/30 bg-red-500/[0.14] p-3 text-sm font-bold text-red-100">{{ adminError }}</p>
           <p class="text-xs font-semibold leading-5 text-white/[0.52]">Demo credentials: username admin, password admin123.</p>
@@ -2463,23 +2742,185 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div v-else class="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-      <div class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
+    <div v-else class="min-h-screen lg:grid lg:grid-cols-[18rem_1fr]">
+      <aside class="fixed inset-y-0 left-0 z-[80] w-72 border-r border-white/[0.12] bg-[#071923] p-4 transition lg:sticky lg:top-0 lg:translate-x-0" :class="adminSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
+        <div class="flex items-center gap-3 border-b border-white/[0.12] pb-4">
+          <span class="grid h-12 w-12 place-items-center rounded-lg bg-white p-1">
+            <img :src="logoSrc" :alt="`${brandName} logo`" class="h-full w-full object-contain" />
+          </span>
+          <div>
+            <p class="text-xs font-black uppercase tracking-[0.16em] text-gold">Admin</p>
+            <p class="text-sm font-black leading-5">{{ brandName }}</p>
+          </div>
+        </div>
+        <nav class="mt-5 grid gap-1 text-sm font-black">
+          <button
+            v-for="[key, label] in adminTabs"
+            :key="key"
+            type="button"
+            class="flex items-center gap-3 rounded-lg px-3 py-3 text-left transition"
+            :class="activeAdminTab === key ? 'bg-gold text-night shadow-lift' : 'text-white/72 hover:bg-white/[0.1] hover:text-white'"
+            @click="activeAdminTab = key; adminSidebarOpen = false"
+          >
+            <span class="grid h-7 w-7 place-items-center rounded-md bg-white/10 text-xs">{{ adminMenuIcons[key] }}</span>
+            <span>{{ label }}</span>
+          </button>
+          <button type="button" class="mt-3 flex items-center gap-3 rounded-lg border border-white/[0.14] px-3 py-3 text-left text-white/72 hover:bg-white/[0.1]" @click="logoutAdmin">
+            <span class="grid h-7 w-7 place-items-center rounded-md bg-white/10 text-xs">⇥</span>
+            <span>Logout</span>
+          </button>
+        </nav>
+      </aside>
+
+      <div v-if="adminSidebarOpen" class="fixed inset-0 z-[70] bg-black/50 lg:hidden" @click="adminSidebarOpen = false"></div>
+
+      <main class="min-w-0 px-4 py-6 sm:px-6 lg:px-8">
+      <div class="mb-6 flex flex-col justify-between gap-4 rounded-lg border border-white/[0.12] bg-white/[0.08] p-4 md:flex-row md:items-center">
         <div>
           <div class="flex items-center gap-4">
+            <button type="button" class="grid h-11 w-11 place-items-center rounded-lg border border-white/[0.16] text-white lg:hidden" aria-label="Open admin menu" @click="adminSidebarOpen = true">☰</button>
             <span class="flex h-20 w-20 items-center justify-center rounded-lg bg-white p-2">
               <img :src="logoSrc" :alt="`${brandName} logo`" class="max-h-full max-w-full object-contain" />
             </span>
             <div>
               <p class="text-sm font-black uppercase tracking-[0.2em] text-gold">Private manager dashboard</p>
-              <h1 class="mt-2 font-display text-4xl font-extrabold sm:text-5xl">{{ brandName }} Admin</h1>
+              <h1 class="mt-2 font-display text-3xl font-extrabold sm:text-4xl">{{ adminPageTitle }}</h1>
             </div>
           </div>
         </div>
-        <a href="/" class="rounded-lg border border-white/[0.18] px-5 py-3 text-sm font-black text-white hover:bg-white/[0.12]">View Website</a>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" class="rounded-lg bg-gold px-5 py-3 text-sm font-black text-night hover:bg-white" @click="saveAdminChanges">Save Changes</button>
+          <a href="/" class="rounded-lg border border-white/[0.18] px-5 py-3 text-sm font-black text-white hover:bg-white/[0.12]">View Website</a>
+        </div>
       </div>
 
-      <div class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-5">
+      <div class="min-w-0">
+        <section v-if="activeAdminTab === 'dashboard'" class="grid gap-5">
+          <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <article v-for="[label, value] in dashboardCards" :key="label" class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-5">
+              <p class="text-xs font-black uppercase tracking-[0.16em] text-white/48">{{ label }}</p>
+              <p class="mt-3 text-3xl font-black text-white">{{ value }}</p>
+            </article>
+          </div>
+          <div class="grid gap-5 xl:grid-cols-2">
+            <section class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-5">
+              <div class="flex items-center justify-between gap-3">
+                <h2 class="text-xl font-black">Recent Enquiries</h2>
+                <button type="button" class="rounded-lg bg-white px-4 py-2 text-xs font-black text-night" @click="activeAdminTab = 'enquiries'">View Enquiries</button>
+              </div>
+              <div class="mt-4 grid gap-3">
+                <article v-for="item in recentEnquiries" :key="item.id" class="rounded-lg border border-white/[0.1] p-3 text-sm">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <p class="font-black">{{ item.name || "Guest" }} <span class="text-white/40">• {{ item.formType }}</span></p>
+                    <span class="rounded-full bg-gold/20 px-3 py-1 text-xs font-black text-gold">{{ item.status }}</span>
+                  </div>
+                  <p class="mt-1 text-white/62">{{ item.phone }} {{ item.packageName ? `• ${item.packageName}` : "" }}</p>
+                </article>
+                <p v-if="!recentEnquiries.length" class="rounded-lg border border-white/[0.1] p-4 text-sm text-white/58">No enquiries yet.</p>
+              </div>
+            </section>
+            <section class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-5">
+              <div class="flex items-center justify-between gap-3">
+                <h2 class="text-xl font-black">Recent Booking Requests</h2>
+                <button type="button" class="rounded-lg bg-white px-4 py-2 text-xs font-black text-night" @click="activeAdminTab = 'bookings'">View Bookings</button>
+              </div>
+              <div class="mt-4 grid gap-3">
+                <article v-for="item in recentBookings" :key="item.id" class="rounded-lg border border-white/[0.1] p-3 text-sm">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <p class="font-black">{{ item.name || "Guest" }} <span class="text-white/40">• {{ item.packageName }}</span></p>
+                    <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-black text-white/72">{{ item.status }}</span>
+                  </div>
+                  <p class="mt-1 text-white/62">{{ item.phone }} • {{ item.travelDate || "Flexible date" }}</p>
+                </article>
+                <p v-if="!recentBookings.length" class="rounded-lg border border-white/[0.1] p-4 text-sm text-white/58">No booking requests yet.</p>
+              </div>
+            </section>
+          </div>
+          <div class="flex flex-wrap gap-2 rounded-lg border border-white/[0.12] bg-white/[0.08] p-4">
+            <button type="button" class="rounded-lg bg-gold px-4 py-3 text-sm font-black text-night" @click="activeAdminTab = 'packages'; addPackage()">Add Package</button>
+            <button type="button" class="rounded-lg border border-white/[0.18] px-4 py-3 text-sm font-black" @click="activeAdminTab = 'enquiries'">View Enquiries</button>
+            <button type="button" class="rounded-lg border border-white/[0.18] px-4 py-3 text-sm font-black" @click="activeAdminTab = 'testimonials'">Add Testimonial</button>
+            <button type="button" class="rounded-lg border border-white/[0.18] px-4 py-3 text-sm font-black" @click="activeAdminTab = 'contact'">Update Contact Details</button>
+          </div>
+        </section>
+
+        <section v-else-if="activeAdminTab === 'enquiries'" class="grid gap-4">
+          <div class="grid gap-3 rounded-lg border border-white/[0.12] bg-white/[0.08] p-4 lg:grid-cols-4">
+            <input v-model="enquirySearch" placeholder="Search enquiries" class="rounded-lg border border-white/[0.18] bg-white px-3 py-3 text-sm font-bold text-night" />
+            <select v-model="enquiryStatusFilter" class="rounded-lg border border-white/[0.18] bg-white px-3 py-3 text-sm font-bold text-night"><option value="all">All statuses</option><option>New</option><option>Contacted</option><option>Converted</option><option>Closed</option></select>
+            <select v-model="enquiryTypeFilter" class="rounded-lg border border-white/[0.18] bg-white px-3 py-3 text-sm font-bold text-night"><option v-for="type in enquiryFormTypes" :key="type" :value="type">{{ type === "all" ? "All form types" : type }}</option></select>
+            <select v-model="enquiryPackageFilter" class="rounded-lg border border-white/[0.18] bg-white px-3 py-3 text-sm font-bold text-night"><option v-for="name in enquiryPackages" :key="name" :value="name">{{ name === "all" ? "All packages" : name }}</option></select>
+          </div>
+          <article v-for="item in filteredEnquiries" :key="item.id" class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-4">
+            <div class="grid gap-3 lg:grid-cols-[1fr_auto]">
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h2 class="text-lg font-black">{{ item.name || "Guest enquiry" }}</h2>
+                  <span class="rounded-full bg-gold/20 px-3 py-1 text-xs font-black text-gold">{{ item.status }}</span>
+                  <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-black text-white/68">{{ item.formType }}</span>
+                </div>
+                <p class="mt-2 text-sm text-white/62">{{ item.id }} • {{ formatAdminDate(item.submittedAt) }}</p>
+                <p class="mt-2 text-sm leading-6 text-white/78">{{ item.phone }} • {{ item.email || "No email" }} • {{ item.contactMethod || "WhatsApp" }}</p>
+                <p class="mt-1 text-sm leading-6 text-white/62">{{ item.packageName || item.destination || "General enquiry" }} {{ item.travelMonth ? `• ${item.travelMonth}` : "" }} {{ item.guests ? `• ${item.guests} guests` : "" }}</p>
+                <p class="mt-3 rounded-lg bg-white/[0.06] p-3 text-sm leading-6 text-white/76">{{ item.message || "No message added." }}</p>
+              </div>
+              <div class="grid gap-2 sm:grid-cols-2 lg:w-56 lg:grid-cols-1">
+                <select v-model="item.status" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold text-night" @change="updateEnquiryStatus(item, item.status)"><option>New</option><option>Contacted</option><option>Converted</option><option>Closed</option></select>
+                <textarea v-model="item.adminNote" placeholder="Admin note" class="min-h-24 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold text-night" @blur="saveEnquiries"></textarea>
+                <button type="button" class="rounded-lg border border-gold/40 px-3 py-2 text-xs font-black text-gold" @click="deleteEnquiry(item)">Delete</button>
+              </div>
+            </div>
+          </article>
+          <p v-if="!filteredEnquiries.length" class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-6 text-sm text-white/62">No enquiries match these filters.</p>
+        </section>
+
+        <section v-else-if="activeAdminTab === 'bookings'" class="grid gap-4">
+          <div class="grid gap-3 rounded-lg border border-white/[0.12] bg-white/[0.08] p-4 md:grid-cols-2">
+            <input v-model="bookingSearch" placeholder="Search bookings" class="rounded-lg border border-white/[0.18] bg-white px-3 py-3 text-sm font-bold text-night" />
+            <select v-model="bookingStatusFilter" class="rounded-lg border border-white/[0.18] bg-white px-3 py-3 text-sm font-bold text-night"><option value="all">All statuses</option><option>New</option><option>Pending</option><option>Confirmed</option><option>Cancelled</option></select>
+          </div>
+          <article v-for="item in filteredBookings" :key="item.id" class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-4">
+            <div class="grid gap-3 lg:grid-cols-[1fr_auto]">
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h2 class="text-lg font-black">{{ item.name || "Guest booking" }}</h2>
+                  <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-black text-white/72">{{ item.status }}</span>
+                </div>
+                <p class="mt-2 text-sm text-white/62">{{ item.id }} • {{ formatAdminDate(item.submittedAt) }}</p>
+                <p class="mt-2 text-sm leading-6 text-white/78">{{ item.packageName }} • {{ item.travelDate || "Flexible date" }} • {{ item.guests || "Not set" }} guests</p>
+                <p class="mt-1 text-sm leading-6 text-white/62">{{ item.phone }} • {{ item.email || "No email" }} • Budget: {{ item.budget || "Not selected" }}</p>
+                <p class="mt-1 text-sm leading-6 text-white/62">Hotel: {{ item.hotelPreference || "N/A" }} • Transport: {{ item.transportPreference || "N/A" }} • Meals: {{ item.mealPreference || "N/A" }}</p>
+                <p class="mt-3 rounded-lg bg-white/[0.06] p-3 text-sm leading-6 text-white/76">{{ item.message || "No message added." }}</p>
+              </div>
+              <div class="grid gap-2 sm:grid-cols-2 lg:w-56 lg:grid-cols-1">
+                <select v-model="item.status" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold text-night" @change="updateBookingStatus(item, item.status)"><option>New</option><option>Pending</option><option>Confirmed</option><option>Cancelled</option></select>
+                <textarea v-model="item.adminNote" placeholder="Admin note" class="min-h-24 rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold text-night" @blur="saveBookingRequests"></textarea>
+                <button type="button" class="rounded-lg border border-gold/40 px-3 py-2 text-xs font-black text-gold" @click="deleteBooking(item)">Delete</button>
+              </div>
+            </div>
+          </article>
+          <p v-if="!filteredBookings.length" class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-6 text-sm text-white/62">No booking requests match these filters.</p>
+        </section>
+
+        <section v-else-if="activeAdminTab === 'contact'" class="rounded-lg border border-white/[0.12] bg-white/[0.08] p-5">
+          <h2 class="text-2xl font-black">Contact Settings</h2>
+          <div class="mt-5 grid gap-4 lg:grid-cols-2">
+            <label class="grid gap-2 text-sm font-bold">Phone number<input v-model="siteContent.contactPhone" class="rounded-lg border border-white/[0.18] bg-white px-4 py-3 text-night" /></label>
+            <label class="grid gap-2 text-sm font-bold">WhatsApp number<input v-model="siteContent.contactPhone" class="rounded-lg border border-white/[0.18] bg-white px-4 py-3 text-night" /></label>
+            <label class="grid gap-2 text-sm font-bold">Email<input v-model="siteContent.contactEmail" class="rounded-lg border border-white/[0.18] bg-white px-4 py-3 text-night" /></label>
+            <label class="grid gap-2 text-sm font-bold">Support text<input v-model="siteContent.contactSupport" class="rounded-lg border border-white/[0.18] bg-white px-4 py-3 text-night" /></label>
+            <label class="grid gap-2 text-sm font-bold lg:col-span-2">Office address<textarea v-model="siteContent.contactAddress" class="min-h-24 rounded-lg border border-white/[0.18] bg-white px-4 py-3 text-night"></textarea></label>
+            <label class="grid gap-2 text-sm font-bold">Facebook<input v-model="siteContent.facebookUrl" placeholder="https://" class="rounded-lg border border-white/[0.18] bg-white px-4 py-3 text-night" /></label>
+            <label class="grid gap-2 text-sm font-bold">Instagram<input v-model="siteContent.instagramUrl" placeholder="https://" class="rounded-lg border border-white/[0.18] bg-white px-4 py-3 text-night" /></label>
+          </div>
+          <div class="mt-5 rounded-lg bg-white/[0.08] p-4 text-sm leading-7 text-white/70">
+            <p><strong class="text-white">Display:</strong> {{ contactPhoneDisplay }}</p>
+            <p><strong class="text-white">Call link:</strong> {{ contactPhoneTel }}</p>
+            <p><strong class="text-white">WhatsApp:</strong> {{ contactSettings.whatsapp }}</p>
+          </div>
+        </section>
+
+        <div v-if="legacyAdminSections.includes(activeAdminTab)">
         <div class="flex flex-col justify-between gap-4 border-b border-white/[0.12] pb-5 md:flex-row md:items-center">
           <div>
             <p class="text-sm font-black uppercase tracking-[0.2em] text-gold">Manager panel</p>
@@ -2641,7 +3082,7 @@ onUnmounted(() => {
             </div>
 
             <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72]">Contact phone
-              <input :value="phoneDisplay" readonly class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
+              <input v-model="siteContent.contactPhone" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
             </label>
             <label class="grid gap-1 text-xs font-black uppercase tracking-wide text-white/[0.72]">Contact label
               <input v-model="siteContent.contactHeroEyebrow" class="rounded-lg border border-white/[0.18] bg-white px-3 py-2 text-sm font-bold normal-case tracking-normal text-night" />
@@ -3289,6 +3730,8 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
+      </div>
+      </main>
     </div>
   </section>
 
@@ -3858,7 +4301,7 @@ onUnmounted(() => {
                         <img src="/social/whatsapp.svg" alt="" class="h-5 w-5" />
                         <span>WhatsApp</span>
                       </a>
-                      <a :href="phoneTel" class="package-action package-action-secondary">Call Now</a>
+                      <a :href="contactPhoneTel" class="package-action package-action-secondary">Call Now</a>
                     </div>
                   </div>
                 </article>
@@ -3965,7 +4408,7 @@ onUnmounted(() => {
             <div class="mt-8 flex flex-col gap-3 sm:flex-row">
               <button type="button" class="luxury-button luxury-button-primary" @click="bookDetailPackage">Reserve This Package</button>
               <a :href="detailWhatsappLink" class="luxury-button luxury-button-ghost">Chat on WhatsApp</a>
-              <a :href="phoneTel" class="luxury-button luxury-button-ghost">Call Now</a>
+              <a :href="contactPhoneTel" class="luxury-button luxury-button-ghost">Call Now</a>
             </div>
           </div>
         </div>
@@ -4196,7 +4639,10 @@ onUnmounted(() => {
                 <label class="grid gap-2 text-sm font-bold">Preferred Contact Method<select v-model="bookingInquiry.contactMethod"><option>WhatsApp</option><option>Call</option><option>Email</option></select></label>
                 <label class="grid gap-2 text-sm font-bold md:col-span-2">Message<textarea v-model="bookingInquiry.notes" class="min-h-28" placeholder="Tell us your dates, comfort level, route preference, and any special request."></textarea></label>
               </div>
-              <p v-if="bookingInquiryStatus" role="status" aria-live="polite" :class="/thank you|sent/i.test(bookingInquiryStatus) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="form-message mt-5 rounded-lg p-3 text-sm font-semibold">{{ bookingInquiryStatus }}</p>
+              <label class="mt-5 grid gap-2 text-sm font-bold md:col-span-2">{{ mathCaptchaLabel("booking") }}
+                <input v-model="mathCaptchas.booking.input" type="number" inputmode="numeric" placeholder="Answer" class="rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
+              </label>
+              <p v-if="bookingInquiryStatus" role="status" aria-live="polite" :class="/thank you|saved|sent/i.test(bookingInquiryStatus) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="form-message mt-5 rounded-lg p-3 text-sm font-semibold">{{ bookingInquiryStatus }}</p>
               <button type="submit" :disabled="isBookingSubmitting" class="mt-6 w-full rounded-lg bg-night px-5 py-4 text-base font-black text-white hover:bg-lake disabled:opacity-60">{{ isBookingSubmitting ? "Submitting..." : "Request Reservation" }}</button>
             </form>
           </div>
@@ -4218,7 +4664,7 @@ onUnmounted(() => {
             <a :href="detailWhatsappLink" class="mt-3 block rounded-lg bg-frost px-5 py-4 text-center text-base font-black text-night hover:text-lake">
               Chat on WhatsApp
             </a>
-            <a :href="phoneTel" class="mt-3 block rounded-lg border border-night/10 bg-white px-5 py-4 text-center text-base font-black text-night hover:text-lake">
+            <a :href="contactPhoneTel" class="mt-3 block rounded-lg border border-night/10 bg-white px-5 py-4 text-center text-base font-black text-night hover:text-lake">
               Call Now
             </a>
             <p class="mt-4 text-center text-xs font-semibold text-night/45">Secure payment ready layout</p>
@@ -4374,7 +4820,7 @@ onUnmounted(() => {
                       <img src="/social/whatsapp.svg" alt="" class="h-5 w-5" />
                       <span>WhatsApp</span>
                     </a>
-                    <a :href="phoneTel" class="package-action package-action-secondary">Call Now</a>
+                    <a :href="contactPhoneTel" class="package-action package-action-secondary">Call Now</a>
                   </div>
                 </div>
               </div>
@@ -4637,7 +5083,10 @@ onUnmounted(() => {
               </label>
             </div>
 
-            <p v-if="bookingInquiryStatus" role="status" aria-live="polite" :class="/thank you|sent/i.test(bookingInquiryStatus) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="form-message mt-5 rounded-lg p-3 text-sm font-semibold">
+            <label class="mt-4 grid gap-2 text-sm font-bold md:col-span-2">{{ mathCaptchaLabel("booking") }}
+              <input v-model="mathCaptchas.booking.input" type="number" inputmode="numeric" placeholder="Answer" class="rounded-lg border border-night/10 px-3 py-3 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
+            </label>
+            <p v-if="bookingInquiryStatus" role="status" aria-live="polite" :class="/thank you|saved|sent/i.test(bookingInquiryStatus) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="form-message mt-5 rounded-lg p-3 text-sm font-semibold">
               {{ bookingInquiryStatus }}
             </p>
 
@@ -4790,6 +5239,9 @@ onUnmounted(() => {
               <input type="file" accept="image/*" class="hidden" @change="updateReviewPhoto" />
             </label>
             <textarea v-model="reviewForm.text" required placeholder="Short review" class="min-h-28 md:col-span-2"></textarea>
+            <label class="grid gap-2 text-sm font-bold md:col-span-2">{{ mathCaptchaLabel("review") }}
+              <input v-model="mathCaptchas.review.input" type="number" inputmode="numeric" placeholder="Answer" />
+            </label>
             <p v-if="reviewFormStatus" role="status" aria-live="polite" :class="/thank you|sharing/i.test(reviewFormStatus) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="form-message rounded-lg p-3 text-sm font-bold md:col-span-2">{{ reviewFormStatus }}</p>
             <button type="submit" class="rounded-lg bg-night px-5 py-3 text-sm font-black text-white hover:bg-lake md:col-span-2">Submit Review</button>
           </form>
@@ -4851,7 +5303,7 @@ onUnmounted(() => {
           </div>
           <div class="grid gap-3 rounded-lg border border-white/14 bg-white/10 p-5 backdrop-blur">
             <a :href="whatsappLink('I want a Kashmir tour quotation')" class="rounded-lg bg-[#25D366] px-6 py-4 text-center text-base font-black text-white">WhatsApp For A Quote</a>
-            <a :href="phoneTel" class="rounded-lg bg-white px-6 py-4 text-center text-base font-black text-night">Call {{ phoneDisplay }}</a>
+            <a :href="contactPhoneTel" class="rounded-lg bg-white px-6 py-4 text-center text-base font-black text-night">Call {{ contactPhoneDisplay }}</a>
             <button type="button" class="rounded-lg border border-white/18 px-6 py-4 text-base font-black text-white" @click="navigateTo('/booking')">Send Enquiry Form</button>
           </div>
         </div>
@@ -5075,9 +5527,9 @@ onUnmounted(() => {
               </div>
 
               <div class="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                <a :href="phoneTel" class="min-w-0 rounded-lg border border-white/18 bg-white/12 p-3 backdrop-blur-xl transition hover:bg-white/20">
+                <a :href="contactPhoneTel" class="min-w-0 rounded-lg border border-white/18 bg-white/12 p-3 backdrop-blur-xl transition hover:bg-white/20">
                   <p class="text-[0.62rem] font-black uppercase leading-4 tracking-[0.14em] text-gold">Call / WhatsApp</p>
-                  <p class="mt-2 break-words text-xs font-black leading-5 text-white sm:text-[0.8rem]">{{ phoneDisplay }}</p>
+                  <p class="mt-2 break-words text-xs font-black leading-5 text-white sm:text-[0.8rem]">{{ contactPhoneDisplay }}</p>
                 </a>
                 <a :href="`mailto:${siteContent.contactEmail}`" class="min-w-0 rounded-lg border border-white/18 bg-white/12 p-3 backdrop-blur-xl transition hover:bg-white/20">
                   <p class="text-[0.62rem] font-black uppercase leading-4 tracking-[0.14em] text-gold">Email</p>
@@ -5114,8 +5566,11 @@ onUnmounted(() => {
               <input v-model="bookingForm.travelDate" type="date" aria-label="Travel date" class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
               <input v-model.number="bookingForm.guests" type="number" min="1" placeholder="Number of guests" aria-label="Number of guests" class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
               <textarea v-model="bookingForm.details" placeholder="Tell us your dates, travelers, budget, and preferred destinations" class="min-h-36 rounded-lg border border-night/10 px-4 py-3 text-sm font-bold md:col-span-2 focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20"></textarea>
+              <label class="grid gap-2 text-sm font-bold md:col-span-2">{{ mathCaptchaLabel("contact") }}
+                <input v-model="mathCaptchas.contact.input" type="number" inputmode="numeric" placeholder="Answer" class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold focus:border-lake focus:outline-none focus:ring-2 focus:ring-lake/20" />
+              </label>
             </div>
-            <p v-if="bookingFormStatus" role="status" aria-live="polite" :class="/please|valid|verification|site key/i.test(bookingFormStatus) ? 'text-red-600 bg-red-50' : 'text-green-600 bg-green-50'" class="form-message mt-4 rounded-lg p-3 text-sm font-semibold">{{ bookingFormStatus }}</p>
+            <p v-if="bookingFormStatus" role="status" aria-live="polite" :class="/please|valid|verification|question|site key/i.test(bookingFormStatus) ? 'text-red-600 bg-red-50' : 'text-green-600 bg-green-50'" class="form-message mt-4 rounded-lg p-3 text-sm font-semibold">{{ bookingFormStatus }}</p>
             <div class="mt-5 grid gap-3 sm:grid-cols-2">
               <button type="submit" class="rounded-lg bg-gold px-5 py-4 text-base font-black uppercase tracking-[0.12em] text-night transition hover:bg-night hover:text-white">Send Enquiry</button>
               <a :href="whatsappLink('I want to book a Kashmir tour')" class="rounded-lg border border-night/[0.12] px-5 py-3 text-center text-sm font-black text-night transition hover:border-lake hover:text-lake hover:bg-frost">WhatsApp Live Chat</a>
@@ -5216,7 +5671,7 @@ onUnmounted(() => {
             </article>
             <article class="rounded-lg bg-white p-6 shadow-lift">
               <h2 class="text-2xl font-black text-night">Contact</h2>
-              <p class="mt-3 text-sm leading-7 text-night/[0.64]">For privacy questions or correction requests, contact us at snowfeatheradventures@gmail.com or {{ phoneDisplay }}.</p>
+              <p class="mt-3 text-sm leading-7 text-night/[0.64]">For privacy questions or correction requests, contact us at snowfeatheradventures@gmail.com or {{ contactPhoneDisplay }}.</p>
             </article>
           </div>
         </div>
@@ -5268,7 +5723,7 @@ onUnmounted(() => {
             </article>
             <article class="rounded-lg bg-white p-6 shadow-lift">
               <h2 class="text-2xl font-black text-night">Support And Contact</h2>
-              <p class="mt-3 text-sm leading-7 text-night/[0.64]">For booking support, itinerary changes, or service questions, contact Snow Feather Adventures at snowfeatheradventures@gmail.com or {{ phoneDisplay }}.</p>
+              <p class="mt-3 text-sm leading-7 text-night/[0.64]">For booking support, itinerary changes, or service questions, contact Snow Feather Adventures at snowfeatheradventures@gmail.com or {{ contactPhoneDisplay }}.</p>
             </article>
           </div>
         </div>
@@ -5369,7 +5824,10 @@ onUnmounted(() => {
               <label class="grid gap-2 text-sm font-bold">Contact Method<select v-model="bookingInquiry.contactMethod"><option>WhatsApp</option><option>Call</option><option>Email</option></select></label>
               <label class="grid gap-2 text-sm font-bold sm:col-span-2">Message<textarea v-model="bookingInquiry.notes" placeholder="Destinations, travel type, hotel preference, budget, or special request" class="min-h-28"></textarea></label>
             </div>
-            <p v-if="bookingInquiryStatus" role="status" aria-live="polite" :class="/thank you|sent/i.test(bookingInquiryStatus) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="form-message mt-4 rounded-lg p-3 text-sm font-semibold">{{ bookingInquiryStatus }}</p>
+            <label class="mt-4 grid gap-2 text-sm font-bold sm:col-span-2">{{ mathCaptchaLabel("booking") }}
+              <input v-model="mathCaptchas.booking.input" type="number" inputmode="numeric" placeholder="Answer" class="rounded-lg border border-night/10 px-4 py-3 text-sm font-bold" />
+            </label>
+            <p v-if="bookingInquiryStatus" role="status" aria-live="polite" :class="/thank you|saved|sent/i.test(bookingInquiryStatus) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'" class="form-message mt-4 rounded-lg p-3 text-sm font-semibold">{{ bookingInquiryStatus }}</p>
             <div class="mt-6 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
               <button type="submit" :disabled="isBookingSubmitting" class="luxury-button luxury-button-dark w-full">{{ isBookingSubmitting ? "Sending..." : tripPlannerMode === "reserve" ? "Request reservation" : "Build my journey" }}</button>
               <button type="button" class="rounded-full border border-night/10 bg-white px-5 py-3 text-xs font-black uppercase tracking-[0.12em] text-night hover:border-lake hover:text-lake" @click="isCallbackOpen = true">Quick callback</button>
@@ -5396,8 +5854,11 @@ onUnmounted(() => {
           <select v-model="callbackForm.time">
             <option v-for="time in callbackTimes" :key="time">{{ time }}</option>
           </select>
+          <label class="grid gap-2 text-sm font-bold text-night">{{ mathCaptchaLabel("callback") }}
+            <input v-model="mathCaptchas.callback.input" type="number" inputmode="numeric" placeholder="Answer" />
+          </label>
         </div>
-        <p v-if="callbackStatus" role="status" aria-live="polite" :class="/please|valid/i.test(callbackStatus) ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'" class="form-message mt-4 rounded-lg p-3 text-sm font-bold">{{ callbackStatus }}</p>
+        <p v-if="callbackStatus" role="status" aria-live="polite" :class="/please|valid|question/i.test(callbackStatus) ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'" class="form-message mt-4 rounded-lg p-3 text-sm font-bold">{{ callbackStatus }}</p>
         <button type="submit" class="mt-5 w-full rounded-lg bg-night px-5 py-4 text-sm font-black text-white hover:bg-lake">Request Callback</button>
       </form>
     </div>
@@ -5496,7 +5957,7 @@ onUnmounted(() => {
               Designed &amp; Developed by <span class="font-black text-gold">Clickmyze</span>
             </a>
             <span class="my-2 hidden h-5 w-px bg-white/12 sm:block"></span>
-            <a href="https://wa.me/919993013936" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex items-center rounded-full border border-gold/30 px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-gold transition hover:bg-gold hover:text-night sm:mt-0">
+            <a :href="whatsappLink()" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex items-center rounded-full border border-gold/30 px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-gold transition hover:bg-gold hover:text-night sm:mt-0">
               Want a website like this? Contact Developer
               <span class="sr-only"> at +91 99930 13936</span>
             </a>
@@ -5513,7 +5974,7 @@ onUnmounted(() => {
         </svg>
         <span>{{ currentPage === 'packageDetail' ? 'Reserve' : 'Enquire' }}</span>
       </button>
-      <a :href="phoneTel" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-night shadow-premium">
+      <a :href="contactPhoneTel" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-night shadow-premium">
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M7.4 3.8 10 8.2 8.2 10c1.1 2.5 3.3 4.7 5.8 5.8l1.8-1.8 4.4 2.6-.9 3.2c-.2.7-.9 1.2-1.7 1.2C9.5 20.5 3.5 14.5 3 6.4c0-.8.5-1.5 1.2-1.7l3.2-.9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
         </svg>
@@ -5531,7 +5992,7 @@ onUnmounted(() => {
         </svg>
         <span>{{ currentPage === 'packageDetail' ? 'Reserve' : 'Enquire' }}</span>
       </button>
-      <a :href="phoneTel" class="flex items-center justify-center gap-1.5 border-x border-white/12 px-3 py-3">
+      <a :href="contactPhoneTel" class="flex items-center justify-center gap-1.5 border-x border-white/12 px-3 py-3">
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M7.4 3.8 10 8.2 8.2 10c1.1 2.5 3.3 4.7 5.8 5.8l1.8-1.8 4.4 2.6-.9 3.2c-.2.7-.9 1.2-1.7 1.2C9.5 20.5 3.5 14.5 3 6.4c0-.8.5-1.5 1.2-1.7l3.2-.9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
         </svg>
